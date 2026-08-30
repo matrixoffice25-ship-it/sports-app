@@ -11,6 +11,9 @@
   <!-- Tone.js for sound effects -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
 
+  <!-- Supabase client library (Epic 0.2: real auth) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <!-- Icon library removed: text-only clean UI, one less external dependency -->
 
   <!-- Google Font: Inter -->
@@ -1707,6 +1710,59 @@
 
 
   <script>
+    // ============================================================
+    // EPIC 0.2 / 0.5: REAL SUPABASE AUTH + SPORT SWITCHER
+    // Fill in these two values from Supabase Dashboard > Settings > API
+    // ============================================================
+    const SUPABASE_URL = "https://ommgauajjxsswemokuhc.supabase.co/rest/v1/";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tbWdhdWFqanhzc3dlbW9rdWhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwNDYzMzQsImV4cCI6MjEwMzYyMjMzNH0.mPTkAHUpPh9sZQEk9YRomiPGkZj15vLD0SDKaO5VD6Y";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function signUpUser(email, password, displayName) {
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: { data: { display_name: displayName } },
+      });
+      if (error) {
+        triggerToast(`Signup failed: ${error.message}`);
+        return null;
+      }
+      const { error: profileErr } = await supabaseClient.from("users").insert({
+        user_id: data.user.id,
+        display_name: displayName,
+      });
+      if (profileErr) {
+        triggerToast(`Profile creation failed: ${profileErr.message}`);
+        return null;
+      }
+      return data.user;
+    }
+
+    async function signInUser(email, password) {
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) {
+        triggerToast(`Login failed: ${error.message}`);
+        return null;
+      }
+      return data.user;
+    }
+
+    async function restoreSession() {
+      const { data } = await supabaseClient.auth.getSession();
+      return data.session?.user ?? null;
+    }
+
+    async function checkEntitlement(sportId, segment) {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) return { entitled: false, status: "unauthenticated" };
+      const res = await fetch(
+        `${SUPABASE_URL}/functions/v1/check-entitlement?sport_id=${sportId}&segment=${segment}`,
+        { headers: { Authorization: `Bearer ${session.access_token}` } },
+      );
+      return res.json();
+    }
+
     let currentTab = 'tab-home';
     let currentAudience = 'Public';
     let currentMediaFormat = 'Text';
@@ -2164,7 +2220,7 @@
       reader.readAsDataURL(input.files[0]);
     }
 
-    function handleProfileSubmit(event) {
+    async function handleProfileSubmit(event) {
       event.preventDefault();
 
       const nameVal = document.getElementById('input-name').value.trim() || 'Verified Athlete';
@@ -2179,6 +2235,13 @@
       if (!emailVal) {
         triggerToast('Email and password are required.');
         return;
+      }
+
+      const pwdVal = document.getElementById('input-password').value;
+      const existingSession = await restoreSession();
+      if (!existingSession) {
+        const authedUser = await signUpUser(emailVal, pwdVal, nameVal);
+        if (!authedUser) return; // signUpUser already showed the error toast
       }
 
       currentUser.name = nameVal;
@@ -2520,7 +2583,7 @@
       });
     }, 1000);
 
-    window.onload = function() {
+    window.onload = async function() {
       setThemeMode('dark', false);
       setAccentPalette('emerald', false);
       setFontScale(1, false);
@@ -2529,6 +2592,11 @@
       initQuizCanvas();
       validatePasswordRules();
       renderMyTickets();
+
+      const existingUser = await restoreSession();
+      if (existingUser) {
+        triggerToast(`Welcome back!`);
+      }
     };
   </script>
 </body>
