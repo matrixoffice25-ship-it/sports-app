@@ -194,12 +194,6 @@
             🌙
           </button>
 
-          <!-- Active SwingType Badge Pill -->
-          <div onclick="switchTab('tab-home')" class="cursor-pointer bg-amber-500/10 border border-amber-500/30 text-gold-badge px-2.5 py-1 rounded-full text-sm font-bold flex items-center gap-1 gold-glow transition-all hover:scale-105 touch-target">
-            
-            <span>ST-04</span>
-          </div>
-
           <!-- User Profile Avatar -->
           <button onclick="openProfileModal()" class="w-8 h-8 rounded-full bg-[var(--bg-surface)] border-2 border-[var(--accent-main)] flex items-center justify-center relative hover:scale-105 transition-all overflow-hidden touch-target" title="View Profile">
             <img id="top-avatar-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Athlete Profile" class="w-full h-full object-cover">
@@ -1436,8 +1430,15 @@
           </button>
         </div>
 
+        <div id="auth-mode-toggle" class="text-center">
+          <button type="button" id="auth-mode-link" onclick="setAuthMode(isLoginMode ? 'signup' : 'login')" class="text-xs font-bold theme-accent-text underline min-h-touch">
+            Already have an account? Log In
+          </button>
+        </div>
+
         <form id="profile-form" onsubmit="handleProfileSubmit(event)" class="space-y-3.5">
 
+          <div id="signup-only-fields">
           <div>
             <label class="block text-sm font-bold text-[var(--text-main)] mb-1">Profile Photo <span class="text-xs text-[var(--text-muted)] font-medium">(optional)</span></label>
             <div class="flex items-center gap-3">
@@ -1463,6 +1464,7 @@
               </span>
               <input type="text" id="input-name" placeholder="e.g. Jordan Blake" value="Jordan Blake" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 pl-9 pr-3 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-main)] transition-all">
             </div>
+          </div>
           </div>
 
           <div>
@@ -1520,7 +1522,7 @@
 
           <button type="submit" id="profile-submit-btn" class="w-full min-h-touch theme-accent-bg font-extrabold text-xs py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all mt-2 hover:opacity-90">
             
-            <span id="profile-submit-text">Save Profile</span>
+            <span id="profile-submit-text">Create Account</span>
           </button>
         </form>
 
@@ -1557,6 +1559,10 @@
           <button onclick="setProfileMode('signup')" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] font-bold text-xs py-2.5 rounded-xl border border-[var(--border-subtle)] flex items-center justify-center gap-2 transition-all">
             
             <span>Edit Credentials / Title</span>
+          </button>
+
+          <button onclick="handleLogOut()" class="w-full min-h-touch bg-red-950/40 hover:bg-red-950/60 text-red-300 font-bold text-xs py-2.5 rounded-xl border border-red-500/30 flex items-center justify-center gap-2 transition-all">
+            <span>Log Out</span>
           </button>
         </div>
 
@@ -1748,6 +1754,11 @@
       return data.user;
     }
 
+    async function signOutUser() {
+      await supabaseClient.auth.signOut();
+      location.reload(); // simplest way to fully reset the in-memory mock state
+    }
+
     async function restoreSession() {
       const { data } = await supabaseClient.auth.getSession();
       return data.session?.user ?? null;
@@ -1763,7 +1774,7 @@
       return res.json();
     }
 
-      // ============================================================
+    // ============================================================
     // EPIC 0.5: SPORT SWITCHER
     // ============================================================
     let currentSportId = null;
@@ -1784,6 +1795,9 @@
         checkEntitlement(sportId, "fitness"),
       ]);
       window.activeSportEntitlements = { lessons, fitness };
+      // Segments 1 & 2 screens don't exist yet, so there's no paywall UI to
+      // show/hide here yet. Once built, read window.activeSportEntitlements
+      // before rendering those screens to gate access.
     }
 
     async function enterSport(slug) {
@@ -1800,7 +1814,9 @@
 
       await setActiveSport(sport.sport_id);
       switchTab('tab-home');
-    }  let currentTab = 'tab-home';
+    }
+
+    let currentTab = 'tab-home';
     let currentAudience = 'Public';
     let currentMediaFormat = 'Text';
     let xpPoints = 1450;
@@ -2182,6 +2198,30 @@
       document.getElementById('profile-modal').classList.add('hidden');
     }
 
+    let isLoginMode = false;
+    let isLoggedIn = false;
+
+    function setAuthMode(mode) {
+      isLoginMode = (mode === 'login');
+      const fieldsBlock = document.getElementById('signup-only-fields');
+      const submitText = document.getElementById('profile-submit-text');
+      const linkBtn = document.getElementById('auth-mode-link');
+
+      if (isLoginMode) {
+        fieldsBlock.classList.add('hidden');
+        submitText.innerText = 'Log In';
+        linkBtn.innerText = "New here? Create an Account instead";
+      } else {
+        fieldsBlock.classList.remove('hidden');
+        submitText.innerText = isLoggedIn ? 'Save Changes' : 'Create Account';
+        linkBtn.innerText = "Already have an account? Log In";
+      }
+    }
+
+    async function handleLogOut() {
+      await signOutUser();
+    }
+
     function setProfileMode(mode) {
       const signupTab = document.getElementById('profile-tab-signup');
       const viewTab = document.getElementById('profile-tab-view');
@@ -2260,23 +2300,44 @@
     async function handleProfileSubmit(event) {
       event.preventDefault();
 
-      const nameVal = document.getElementById('input-name').value.trim() || 'Verified Athlete';
       const emailVal = document.getElementById('input-email').value.trim();
-      const isPwdOk = validatePasswordRules();
+      const pwdVal = document.getElementById('input-password').value;
 
-      if (!isPwdOk) {
-        triggerToast('⚠️ Password must meet all uppercase, lowercase & special char rules!');
-        playSfx("D3", "8n");
-        return;
-      }
       if (!emailVal) {
         triggerToast('Email and password are required.');
         return;
       }
 
-      const pwdVal = document.getElementById('input-password').value;
-      const authedUser = await signUpUser(emailVal, pwdVal, nameVal);
-      if (!authedUser) return; // signUpUser already showed the error toast
+      // ---- LOG IN ----
+      if (isLoginMode) {
+        const user = await signInUser(emailVal, pwdVal);
+        if (!user) return; // signInUser already showed the error toast
+        await applyLoggedInState(user.id);
+        closeProfileModal();
+        triggerToast('Welcome back! 👋');
+        return;
+      }
+
+      const nameVal = document.getElementById('input-name').value.trim() || 'Verified Athlete';
+      const isPwdOk = validatePasswordRules();
+      if (!isPwdOk) {
+        triggerToast('⚠️ Password must meet all uppercase, lowercase & special char rules!');
+        playSfx("D3", "8n");
+        return;
+      }
+
+      // ---- UPDATE NAME WHILE ALREADY LOGGED IN ----
+      if (isLoggedIn) {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session) {
+          await supabaseClient.from('users').update({ display_name: nameVal }).eq('user_id', session.user.id);
+        }
+      } else {
+        // ---- CREATE ACCOUNT ----
+        const authedUser = await signUpUser(emailVal, pwdVal, nameVal);
+        if (!authedUser) return; // signUpUser already showed the error toast
+        isLoggedIn = true;
+      }
 
       currentUser.name = nameVal;
       currentUser.email = emailVal;
@@ -2295,6 +2356,23 @@
       addXP(100);
       playSfx("G5", "8n");
       triggerToast(`Profile saved: ${nameVal}! 🏆 (+100 XP)`);
+    }
+
+    // Pulls the real display_name from the database and reflects the
+    // logged-in state across the UI, instead of leaving the stale mock
+    // "Jordan Blake" placeholder showing after a session restores.
+    async function applyLoggedInState(userId) {
+      isLoggedIn = true;
+      const { data: profile } = await supabaseClient.from('users').select('display_name').eq('user_id', userId).single();
+      const displayName = profile?.display_name || 'Verified Athlete';
+
+      currentUser.name = displayName;
+      document.getElementById('welcome-username').innerText = displayName;
+      document.getElementById('overview-user-name').innerText = displayName;
+      document.getElementById('input-name').value = displayName;
+
+      setAuthMode('signup');       // reset the toggle link back to default wording
+      setProfileMode('view');      // show their real "Current Profile" tab by default
     }
 
     function updateCharCount(el) {
@@ -2629,6 +2707,7 @@
 
       const existingUser = await restoreSession();
       if (existingUser) {
+        await applyLoggedInState(existingUser.id);
         triggerToast(`Welcome back!`);
       }
     };
