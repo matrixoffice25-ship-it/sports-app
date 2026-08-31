@@ -318,7 +318,7 @@
               </div>
             </div>
 
-            <button onclick="switchTab('tab-home')" class="w-full min-h-touch theme-accent-bg font-extrabold text-xs py-3 px-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 hover:opacity-90">
+            <button onclick="enterSport('golf')" class="w-full min-h-touch theme-accent-bg font-extrabold text-xs py-3 px-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 hover:opacity-90">
               <span>ENTER GOLF</span>
               
             </button>
@@ -1763,7 +1763,44 @@
       return res.json();
     }
 
-    let currentTab = 'tab-home';
+      // ============================================================
+    // EPIC 0.5: SPORT SWITCHER
+    // ============================================================
+    let currentSportId = null;
+    window.activeSportEntitlements = { lessons: null, fitness: null };
+
+    async function setActiveSport(sportId) {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) {
+        triggerToast('Please sign up or log in first.');
+        return;
+      }
+
+      await supabaseClient.from("users").update({ active_sport_id: sportId }).eq("user_id", session.user.id);
+      currentSportId = sportId;
+
+      const [lessons, fitness] = await Promise.all([
+        checkEntitlement(sportId, "lessons"),
+        checkEntitlement(sportId, "fitness"),
+      ]);
+      window.activeSportEntitlements = { lessons, fitness };
+    }
+
+    async function enterSport(slug) {
+      const { data: sport, error } = await supabaseClient
+        .from('sport_verticals')
+        .select('sport_id')
+        .eq('slug', slug)
+        .single();
+
+      if (error || !sport) {
+        triggerToast('Could not load that sport right now.');
+        return;
+      }
+
+      await setActiveSport(sport.sport_id);
+      switchTab('tab-home');
+    }  let currentTab = 'tab-home';
     let currentAudience = 'Public';
     let currentMediaFormat = 'Text';
     let xpPoints = 1450;
