@@ -2238,11 +2238,8 @@
       }
 
       const pwdVal = document.getElementById('input-password').value;
-      const existingSession = await restoreSession();
-      if (!existingSession) {
-        const authedUser = await signUpUser(emailVal, pwdVal, nameVal);
-        if (!authedUser) return; // signUpUser already showed the error toast
-      }
+      const authedUser = await signUpUser(emailVal, pwdVal, nameVal);
+      if (!authedUser) return; // signUpUser already showed the error toast
 
       currentUser.name = nameVal;
       currentUser.email = emailVal;
