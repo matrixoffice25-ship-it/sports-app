@@ -196,7 +196,7 @@
 
           <!-- User Profile Avatar -->
           <button onclick="openProfileModal()" class="w-8 h-8 rounded-full bg-[var(--bg-surface)] border-2 border-[var(--accent-main)] flex items-center justify-center relative hover:scale-105 transition-all overflow-hidden touch-target" title="View Profile">
-            <img id="top-avatar-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Athlete Profile" class="w-full h-full object-cover">
+            <img id="top-avatar-img" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iIzMzNDE1NSIvPjx0ZXh0IHg9IjYwIiB5PSI3OCIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNTIiIGZvbnQtd2VpZ2h0PSI4MDAiIGZpbGw9IiM5NEEzQjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPj88L3RleHQ+PC9zdmc+" alt="Athlete Profile" class="w-full h-full object-cover">
             <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[var(--accent-main)] rounded-full ring-2 ring-[var(--bg-app)]"></span>
           </button>
         </div>
@@ -402,7 +402,7 @@
         <div class="bg-gradient-to-r from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-subtle)] flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <div class="w-12 h-12 rounded-2xl overflow-hidden border-2 border-[var(--accent-main)] shadow-md cursor-pointer relative" onclick="openProfileModal()">
-              <img id="welcome-avatar-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80" alt="Profile" class="w-full h-full object-cover">
+              <img id="welcome-avatar-img" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iIzMzNDE1NSIvPjx0ZXh0IHg9IjYwIiB5PSI3OCIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNTIiIGZvbnQtd2VpZ2h0PSI4MDAiIGZpbGw9IiM5NEEzQjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPj88L3RleHQ+PC9zdmc+" alt="Profile" class="w-full h-full object-cover">
             </div>
             <div>
               <div class="flex items-center gap-2">
@@ -415,54 +415,16 @@
               <div id="welcome-user-title" class="text-sm text-amber-400/90 font-medium">Verified Athlete</div>
             </div>
           </div>
-          <button onclick="switchTab('tab-selector')" class="min-h-touch px-3 py-1.5 bg-[var(--bg-app)] hover:bg-[var(--bg-card)] text-[var(--text-main)] text-xs font-semibold rounded-xl border border-[var(--border-subtle)] flex items-center gap-1.5 transition-all">
-            
-            <span>Switch</span>
-          </button>
         </div>
 
-        <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-2.5">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <span class="text-lg">🔥</span>
-              <div>
-                <h4 class="text-xs font-bold text-[var(--text-main)]">5-Day Practice Streak!</h4>
-                <p class="text-sm text-[var(--text-muted)]">Complete today's routine to lock day 6</p>
-              </div>
-            </div>
-            <div class="bg-violet-accent/20 border border-violet-accent/40 text-violet-light px-2.5 py-1 rounded-full text-xs font-extrabold flex items-center gap-1">
-              
-              <span id="xp-counter">1,450 XP</span>
-            </div>
+        <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3" id="poll-card">
+          <div class="flex items-center space-x-2">
+            <span class="text-lg">🗳️</span>
+            <h4 class="text-xs font-bold text-[var(--text-main)]">Community Poll</h4>
           </div>
-
-          <div class="grid grid-cols-7 gap-1.5 pt-1">
-            <div class="theme-accent-bg rounded-lg py-1 text-center font-bold text-sm">M ✓</div>
-            <div class="theme-accent-bg rounded-lg py-1 text-center font-bold text-sm">T ✓</div>
-            <div class="theme-accent-bg rounded-lg py-1 text-center font-bold text-sm">W ✓</div>
-            <div class="theme-accent-bg rounded-lg py-1 text-center font-bold text-sm">T ✓</div>
-            <div class="theme-accent-bg rounded-lg py-1 text-center font-bold text-sm">F ✓</div>
-            <div id="streak-today" onclick="toggleTodayStreak()" class="cursor-pointer bg-[var(--bg-app)] border border-dashed theme-accent-subtle-border theme-accent-text hover:opacity-80 rounded-lg py-1 text-center font-bold text-sm transition-all">
-              SAT
-            </div>
-            <div class="bg-[var(--bg-card)] text-[var(--text-faint)] rounded-lg py-1 text-center font-bold text-sm">SUN</div>
+          <div id="poll-content" class="space-y-2">
+            <p class="text-sm text-[var(--text-muted)]">Log in and select a sport to vote in polls.</p>
           </div>
-        </div>
-
-        <div class="bg-gradient-to-r from-red-950/30 via-[var(--bg-surface)] to-[var(--bg-card)] p-3.5 rounded-2xl border border-red-500/30 flex items-center justify-between shadow-lg coke-glow">
-          <div class="flex items-center space-x-3">
-            <svg class="h-5 w-auto" viewBox="0 0 100 24" fill="none">
-              <rect width="100" height="24" rx="12" fill="#F40009"/>
-              <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
-            </svg>
-            <div>
-              <div class="text-xs font-extrabold text-red-400 uppercase">Streak Reward</div>
-              <div class="text-xs font-bold text-white">Athlete Hydration Pack</div>
-            </div>
-          </div>
-          <button onclick="claimCokePerk(this)" class="min-h-touch px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm rounded-xl transition-all shadow-md">
-            Claim
-          </button>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -821,72 +783,58 @@
           </div>
 
           <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
-            <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
+            <div class="flex items-center justify-between">
               <div>
-                <span class="text-xs font-bold text-violet-light uppercase tracking-wider bg-violet-accent/10 px-2 py-0.5 rounded border border-violet-accent/20">Golf Fitness Joint Screening</span>
-                <h3 class="text-sm font-bold text-[var(--text-main)] mt-1">6-Point Physical Joint Screen</h3>
+                <span class="text-xs font-bold text-violet-light uppercase tracking-wider bg-violet-accent/10 px-2 py-0.5 rounded border border-violet-accent/20">Diagnostic Assessment</span>
+                <h3 class="text-sm font-bold text-[var(--text-main)] mt-1">15-Min Physical Fitness Screen</h3>
+              </div>
+              <span class="text-xs text-amber-400 font-bold bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">Step 2 of 4</span>
+            </div>
+
+            <div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-[var(--border-subtle)] flex flex-col items-center justify-center group">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10"></div>
+              <canvas id="fitness-quiz-canvas-video" class="w-full h-full object-cover opacity-80"></canvas>
+
+              <div class="absolute z-20 flex flex-col items-center text-center p-3">
+                <button id="fitness-quiz-play-btn" onclick="toggleFitnessVideoPlayback()" class="w-12 h-12 rounded-full bg-violet-accent flex items-center justify-center text-xs font-black shadow-lg hover:scale-110 transition-transform mb-2">PLAY</button>
+                <div class="text-xs font-bold text-white">Trail Shoulder Mobility Screen</div>
+                <div class="text-sm text-slate-300">Tap to play the movement demonstration</div>
               </div>
             </div>
 
-            <p class="text-sm text-[var(--text-muted)]">Tap any joint to view targeted stretches prescribed by your coaching team.</p>
-
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              <button onclick="screenJoint('Neck Mobility', 'Good range of motion. No restriction.')" class="joint-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex flex-col justify-between">
-                <div class="flex items-center justify-between">
-                  
-                  <span class="w-2 h-2 rounded-full bg-[var(--accent-main)]"></span>
-                </div>
-                <div class="mt-2 text-xs font-bold text-[var(--text-main)]">1. Neck Rotation</div>
-              </button>
-
-              <button onclick="screenJoint('Shoulder Mobility', 'Mild tightness in right internal rotator.')" class="joint-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex flex-col justify-between">
-                <div class="flex items-center justify-between">
-                  
-                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                </div>
-                <div class="mt-2 text-xs font-bold text-[var(--text-main)]">2. Shoulder Capsule</div>
-              </button>
-
-              <button onclick="screenJoint('Thoracic Spine', 'Optimal rotational capacity.')" class="joint-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex flex-col justify-between">
-                <div class="flex items-center justify-between">
-                  
-                  <span class="w-2 h-2 rounded-full bg-[var(--accent-main)]"></span>
-                </div>
-                <div class="mt-2 text-xs font-bold text-[var(--text-main)]">3. Thoracic Spine</div>
-              </button>
-
-              <button onclick="screenJoint('Lumbar Axis', 'Stable core retention. Zero flags.')" class="joint-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex flex-col justify-between">
-                <div class="flex items-center justify-between">
-                  
-                  <span class="w-2 h-2 rounded-full bg-[var(--accent-main)]"></span>
-                </div>
-                <div class="mt-2 text-xs font-bold text-[var(--text-main)]">4. Lumbar Stability</div>
-              </button>
-
-              <button onclick="screenJoint('Hip Hinge & Rotation', 'Lead hip internal rotation is 38°.')" class="joint-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex flex-col justify-between">
-                <div class="flex items-center justify-between">
-                  
-                  <span class="w-2 h-2 rounded-full bg-[var(--accent-main)]"></span>
-                </div>
-                <div class="mt-2 text-xs font-bold text-[var(--text-main)]">5. Hip Mobility</div>
-              </button>
-
-              <button onclick="screenJoint('Ankle Dorsiflexion', 'Slight ankle tightness. Recommend calf activation.')" class="joint-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex flex-col justify-between">
-                <div class="flex items-center justify-between">
-                  
-                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                </div>
-                <div class="mt-2 text-xs font-bold text-[var(--text-main)]">6. Ankle Flexion</div>
-              </button>
+            <div class="pt-2">
+              <h4 class="text-xs font-bold text-[var(--text-main)] mb-1">Q: How far can you rotate your trail shoulder without discomfort?</h4>
+              <p class="text-sm text-[var(--text-muted)]">Select the option that matches your current range of motion.</p>
             </div>
 
-            <div class="bg-[var(--bg-app)] p-3 rounded-xl border border-[var(--border-subtle)] flex items-center justify-between">
-              <div>
-                <div class="text-xs font-bold text-[var(--text-main)]">Today's Routine: ST-04 Hinge Prep</div>
-                <div class="text-sm text-[var(--text-muted)]">6 Movements • 12 Min</div>
-              </div>
-              <button onclick="triggerToast('Starting Home Mobility Routine Timer ⏱️')" class="min-h-touch px-3 py-2 theme-accent-bg text-xs font-bold rounded-lg hover:opacity-90 transition-all">
-                Start Routine
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button onclick="selectFitnessQuizOption(this)" class="fitness-quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
+                <div>
+                  <div class="text-xs font-bold text-[var(--text-main)] group-hover:text-violet-light">A. Full, Comfortable Range</div>
+                  <div class="text-sm text-[var(--text-muted)]">No restriction or discomfort</div>
+                </div>
+                <div class="fitness-quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
+              </button>
+              <button onclick="selectFitnessQuizOption(this)" class="fitness-quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
+                <div>
+                  <div class="text-xs font-bold text-[var(--text-main)] group-hover:text-violet-light">B. Mild Tightness</div>
+                  <div class="text-sm text-[var(--text-muted)]">Slight pull, no pain</div>
+                </div>
+                <div class="fitness-quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
+              </button>
+              <button onclick="selectFitnessQuizOption(this)" class="fitness-quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
+                <div>
+                  <div class="text-xs font-bold text-[var(--text-main)] group-hover:text-violet-light">C. Noticeably Limited</div>
+                  <div class="text-sm text-[var(--text-muted)]">Clear restriction, no pain</div>
+                </div>
+                <div class="fitness-quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
+              </button>
+              <button onclick="selectFitnessQuizOption(this)" class="fitness-quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
+                <div>
+                  <div class="text-xs font-bold text-[var(--text-main)] group-hover:text-violet-light">D. Pain or Sharp Discomfort</div>
+                  <div class="text-sm text-[var(--text-muted)]">Stop and consult a professional</div>
+                </div>
+                <div class="fitness-quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
               </button>
             </div>
           </div>
@@ -1337,11 +1285,8 @@
         
         <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
           <div class="flex items-center space-x-2.5">
-            <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-[var(--accent-main)] shadow relative group cursor-pointer" onclick="changeProfilePhoto()" title="Change Profile Photo">
-              <img id="profile-modal-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80" class="w-full h-full object-cover">
-              <div class="absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center transition-all">
-                
-              </div>
+            <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-[var(--accent-main)] shadow relative">
+              <img id="profile-modal-avatar" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iIzMzNDE1NSIvPjx0ZXh0IHg9IjYwIiB5PSI3OCIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNTIiIGZvbnQtd2VpZ2h0PSI4MDAiIGZpbGw9IiM5NEEzQjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPj88L3RleHQ+PC9zdmc+" class="w-full h-full object-cover">
             </div>
             <div>
               <h3 id="profile-modal-title" class="text-sm font-extrabold text-[var(--text-main)]">Verified Pro Profile</h3>
@@ -1443,26 +1388,46 @@
             <label class="block text-sm font-bold text-[var(--text-main)] mb-1">Profile Photo <span class="text-xs text-[var(--text-muted)] font-medium">(optional)</span></label>
             <div class="flex items-center gap-3">
               <div class="w-14 h-14 rounded-full bg-[var(--bg-app)] border border-[var(--border-subtle)] overflow-hidden flex items-center justify-center flex-shrink-0">
-                <img id="form-photo-preview" src="" class="w-full h-full object-cover hidden">
-                <span id="form-photo-placeholder" class="text-xs font-bold text-[var(--text-muted)]">JB</span>
+                <img id="form-photo-preview" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iIzMzNDE1NSIvPjx0ZXh0IHg9IjYwIiB5PSI3OCIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNTIiIGZvbnQtd2VpZ2h0PSI4MDAiIGZpbGw9IiM5NEEzQjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPj88L3RleHQ+PC9zdmc+" class="w-full h-full object-cover">
               </div>
               <label class="min-h-touch px-3 flex items-center bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-xs font-bold rounded-xl border border-[var(--border-subtle)] cursor-pointer">
                 Upload photo
                 <input type="file" accept="image/*" class="hidden" onchange="handleProfilePhotoUpload(this)">
               </label>
+              <button type="button" onclick="removeProfilePhoto()" class="min-h-touch px-3 flex items-center text-xs font-bold text-red-300 hover:text-red-200">
+                Remove
+              </button>
             </div>
           </div>
 
           <div>
             <label class="block text-sm font-bold text-[var(--text-main)] mb-1 flex items-center justify-between">
               <span>Full Name</span>
-              <span class="text-xs text-[var(--text-muted)] font-bold">Optional</span>
+              <span id="name-required-label" class="text-xs theme-accent-text font-bold">Required</span>
             </label>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-[var(--text-muted)] text-xs">
                 
               </span>
-              <input type="text" id="input-name" placeholder="e.g. Jordan Blake" value="Jordan Blake" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 pl-9 pr-3 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-main)] transition-all">
+              <input type="text" id="input-name" placeholder="e.g. Jordan Blake" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 pl-9 pr-3 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-main)] transition-all">
+            </div>
+          </div>
+
+          <div>
+            <button type="button" id="verification-toggle-btn" onclick="toggleVerificationRequest()" class="text-xs font-bold theme-accent-text underline min-h-touch">
+              Coach, professional athlete, or industry expert? Request verification
+            </button>
+
+            <div id="verification-fields" class="hidden mt-2 space-y-1">
+              <label class="block text-sm font-bold text-[var(--text-main)] mb-1">Which best describes you?</label>
+              <select id="input-title" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 px-3 text-xs text-[var(--text-main)] focus:outline-none focus:border-[var(--accent-main)] transition-all">
+                <option value="">Select one</option>
+                <option value="Professional Athlete">Professional Athlete</option>
+                <option value="Coach">Coach</option>
+                <option value="Industry Expert">Industry Expert</option>
+                <option value="Athlete">Athlete</option>
+              </select>
+              <p class="text-xs text-[var(--text-muted)] mt-1">This submits a request for our team to review. It does not grant a verified badge — approval, the checkmark, and your sport tag are added by an admin after review.</p>
             </div>
           </div>
           </div>
@@ -1476,7 +1441,7 @@
               <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-[var(--text-muted)] text-xs">
                 
               </span>
-              <input type="email" id="input-email" required placeholder="name@domain.com" value="jordan.blake@allsportnetwork.com" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 pl-9 pr-3 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-main)] transition-all">
+              <input type="email" id="input-email" required placeholder="name@domain.com" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 pl-9 pr-3 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-main)] transition-all">
             </div>
           </div>
 
@@ -1493,13 +1458,13 @@
               <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-[var(--text-muted)] text-xs">
                 
               </span>
-              <input type="password" id="input-password" oninput="validatePasswordRules()" placeholder="Create secure password" value="ProTour2026!#" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 pl-9 pr-10 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-main)] transition-all font-mono">
+              <input type="password" id="input-password" oninput="validatePasswordRules()" placeholder="Create secure password" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 pl-9 pr-10 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-main)] transition-all font-mono">
               <span id="pwd-overall-icon" class="absolute inset-y-0 right-0 pr-3 flex items-center theme-accent-text text-xs">
                 
               </span>
             </div>
 
-            <div class="mt-2.5 p-3 bg-[var(--bg-app)] rounded-xl border border-[var(--border-subtle)] space-y-1.5">
+            <div id="password-requirements-box" class="mt-2.5 p-3 bg-[var(--bg-app)] rounded-xl border border-[var(--border-subtle)] space-y-1.5">
               <div class="text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Password Requirements:</div>
               <div id="rule-upper" class="flex items-center space-x-2 text-sm theme-accent-text font-medium transition-colors">
                 
@@ -1541,10 +1506,6 @@
               <span class="text-xs font-black text-amber-400">⭐ ST-04 (Lead-Arm Post)</span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-sm text-[var(--text-muted)]">Practice Streak</span>
-              <span class="text-xs font-black theme-accent-text">🔥 5-Day Active Streak</span>
-            </div>
-            <div class="flex items-center justify-between">
               <span class="text-sm text-[var(--text-muted)]">Partner Wallet</span>
               <span id="wallet-credits" class="text-xs font-black text-red-400 flex items-center gap-1">
                 <svg class="h-2.5 w-auto" viewBox="0 0 100 24" fill="none">
@@ -1564,6 +1525,20 @@
           <button onclick="handleLogOut()" class="w-full min-h-touch bg-red-950/40 hover:bg-red-950/60 text-red-300 font-bold text-xs py-2.5 rounded-xl border border-red-500/30 flex items-center justify-center gap-2 transition-all">
             <span>Log Out</span>
           </button>
+
+          <div class="pt-2 border-t border-[var(--border-subtle)]">
+            <button type="button" id="delete-account-toggle" onclick="toggleDeleteAccountPanel()" class="text-xs text-red-400/70 hover:text-red-400 underline min-h-touch">
+              Delete my account
+            </button>
+
+            <div id="delete-account-panel" class="hidden mt-2 space-y-2 p-3 bg-red-950/20 border border-red-500/30 rounded-xl">
+              <p class="text-xs text-red-300">This permanently deletes your account and all of your data. This cannot be undone.</p>
+              <input type="text" id="delete-confirm-input" oninput="checkDeleteConfirmText()" placeholder="Type DELETE to confirm" class="w-full bg-[var(--bg-app)] border border-red-500/30 rounded-xl py-2 px-3 text-xs text-[var(--text-main)] focus:outline-none">
+              <button type="button" id="delete-confirm-btn" onclick="handleDeleteAccount()" disabled class="w-full min-h-touch bg-red-600 disabled:bg-red-950 disabled:text-red-400/50 text-white font-bold text-xs py-2.5 rounded-xl transition-all">
+                Permanently Delete My Account
+              </button>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -1724,7 +1699,7 @@
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tbWdhdWFqanhzc3dlbW9rdWhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwNDYzMzQsImV4cCI6MjEwMzYyMjMzNH0.mPTkAHUpPh9sZQEk9YRomiPGkZj15vLD0SDKaO5VD6Y";
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    async function signUpUser(email, password, displayName) {
+    async function signUpUser(email, password, displayName, title) {
       const { data, error } = await supabaseClient.auth.signUp({
         email,
         password,
@@ -1737,6 +1712,7 @@
       const { error: profileErr } = await supabaseClient.from("users").insert({
         user_id: data.user.id,
         display_name: displayName,
+        title: title || null,
       });
       if (profileErr) {
         triggerToast(`Profile creation failed: ${profileErr.message}`);
@@ -1798,6 +1774,7 @@
       // Segments 1 & 2 screens don't exist yet, so there's no paywall UI to
       // show/hide here yet. Once built, read window.activeSportEntitlements
       // before rendering those screens to gate access.
+      loadActivePoll();
     }
 
     async function enterSport(slug) {
@@ -1814,6 +1791,96 @@
 
       await setActiveSport(sport.sport_id);
       switchTab('tab-home');
+    }
+
+    // ============================================================
+    // COMMUNITY POLLS: admin creates the question, users vote once.
+    // ============================================================
+    async function loadActivePoll() {
+      const pollContent = document.getElementById('poll-content');
+      if (!pollContent) return;
+
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session || !currentSportId) {
+        pollContent.innerHTML = '<p class="text-sm text-[var(--text-muted)]">Log in and select a sport to vote in polls.</p>';
+        return;
+      }
+
+      const { data: poll, error } = await supabaseClient
+        .from('polls')
+        .select('poll_id, question, poll_options(option_id, label, sort_order)')
+        .eq('sport_id', currentSportId)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error || !poll) {
+        pollContent.innerHTML = '<p class="text-sm text-[var(--text-muted)]">No active poll right now — check back soon.</p>';
+        return;
+      }
+
+      const { data: myVote } = await supabaseClient
+        .from('poll_votes')
+        .select('option_id')
+        .eq('poll_id', poll.poll_id)
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+
+      const sortedOptions = (poll.poll_options || []).slice().sort((a, b) => a.sort_order - b.sort_order);
+
+      if (myVote) {
+        const { data: results } = await supabaseClient.rpc('get_poll_results', { p_poll_id: poll.poll_id });
+        const countMap = {};
+        (results || []).forEach(r => countMap[r.option_id] = r.vote_count);
+        const total = Object.values(countMap).reduce((a, b) => a + Number(b), 0) || 1;
+
+        pollContent.innerHTML = `
+          <p class="text-sm font-bold text-[var(--text-main)]">${poll.question}</p>
+          ${sortedOptions.map(o => {
+            const count = Number(countMap[o.option_id] || 0);
+            const pct = Math.round((count / total) * 100);
+            const isMine = o.option_id === myVote.option_id;
+            return `<div class="space-y-1">
+              <div class="flex items-center justify-between text-xs">
+                <span class="${isMine ? 'font-bold theme-accent-text' : 'text-[var(--text-muted)]'}">${o.label}${isMine ? ' ✓' : ''}</span>
+                <span class="text-[var(--text-muted)]">${pct}%</span>
+              </div>
+              <div class="w-full h-2 bg-[var(--bg-app)] rounded-full overflow-hidden">
+                <div class="h-full ${isMine ? 'theme-accent-bg' : 'bg-[var(--border-subtle)]'}" style="width:${pct}%"></div>
+              </div>
+            </div>`;
+          }).join('')}
+          <p class="text-xs text-[var(--text-muted)] mt-1">${total} vote${total === 1 ? '' : 's'} total</p>
+        `;
+      } else {
+        pollContent.innerHTML = `
+          <p class="text-sm font-bold text-[var(--text-main)]">${poll.question}</p>
+          ${sortedOptions.map(o => `
+            <button onclick="voteInPoll('${poll.poll_id}', '${o.option_id}')" class="w-full min-h-touch text-left p-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-xs font-bold text-[var(--text-main)] transition-all">
+              ${o.label}
+            </button>
+          `).join('')}
+        `;
+      }
+    }
+
+    async function voteInPoll(pollId, optionId) {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) return;
+
+      const { error } = await supabaseClient.from('poll_votes').insert({
+        poll_id: pollId, option_id: optionId, user_id: session.user.id,
+      });
+
+      if (error) {
+        triggerToast(`Vote failed: ${error.message}`);
+        return;
+      }
+
+      playSfx("G5", "8n");
+      triggerToast('Vote submitted! 🗳️');
+      loadActivePoll();
     }
 
     let currentTab = 'tab-home';
@@ -1833,25 +1900,23 @@
       passwordValid: true
     };
 
-    // Array of mock photos for cycling the profile avatar
-    const mockPhotos = [
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=120&auto=format&fit=crop&q=80"
-    ];
-    let photoIndex = 0;
+    // Generates a neutral initials-based avatar (no stock/fake photos) for
+    // whenever a user has no uploaded photo_url set.
+    function initialsAvatarDataUri(name) {
+      const initials = (name || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase() || '?';
+      let hash = 0;
+      for (let i = 0; i < initials.length; i++) hash = (Math.imul(31, hash) + initials.charCodeAt(i)) | 0;
+      const colors = ['#10B981', '#6366F1', '#F59E0B', '#EC4899', '#06B6D4'];
+      const color = colors[Math.abs(hash) % colors.length];
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" fill="${color}"/><text x="60" y="76" font-family="Arial,sans-serif" font-size="48" font-weight="800" fill="white" text-anchor="middle">${initials}</text></svg>`;
+      return 'data:image/svg+xml;base64,' + btoa(svg);
+    }
 
-    function changeProfilePhoto() {
-      photoIndex = (photoIndex + 1) % mockPhotos.length;
-      document.getElementById('profile-modal-avatar').src = mockPhotos[photoIndex];
-      document.getElementById('top-avatar-img').src = mockPhotos[photoIndex];
-      
-      const welcomeAvatar = document.getElementById('welcome-avatar-img');
-      if (welcomeAvatar) welcomeAvatar.src = mockPhotos[photoIndex];
-
-      playSfx("A5", "16n");
-      triggerToast('Profile photo updated! 📸');
+    function setAllAvatars(url) {
+      ['top-avatar-img', 'welcome-avatar-img', 'profile-modal-avatar', 'form-photo-preview'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.src = url;
+      });
     }
 
     let dynamicNewsBriefs = [
@@ -2067,30 +2132,11 @@
       playSfx("C5", "32n");
     }
 
-    function toggleTodayStreak() {
-      const el = document.getElementById('streak-today');
-      if (el.classList.contains('theme-accent-bg')) {
-        el.className = 'cursor-pointer bg-[var(--bg-app)] border border-dashed theme-accent-subtle-border theme-accent-text hover:opacity-80 rounded-lg py-1 text-center font-bold text-sm transition-all';
-        el.innerText = 'SAT';
-        triggerToast('Streak unchecked');
-      } else {
-        el.className = 'cursor-pointer theme-accent-bg rounded-lg py-1 text-center font-bold text-sm transition-all shadow';
-        el.innerText = 'SAT ✓';
-        addXP(50);
-        triggerToast('🔥 Day 6 Streak Locked! (+50 XP)');
-      }
-    }
-
-    function claimCokePerk(btn) {
-      btn.innerHTML = ' <span>PULSE Pack Claimed ✓</span>';
-      btn.className = 'w-full min-h-touch bg-emerald-600 text-white font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md';
-      playSfx("G5", "8n");
-      triggerToast('🥤 Free PULSE Athlete Pack credited to Profile Wallet!');
-    }
 
     function addXP(amount) {
       xpPoints += amount;
-      document.getElementById('xp-counter').innerText = xpPoints.toLocaleString() + ' XP';
+      const xpEl = document.getElementById('xp-counter');
+      if (xpEl) xpEl.innerText = xpPoints.toLocaleString() + ' XP';
       playSfx("C5", "8n");
     }
 
@@ -2162,6 +2208,22 @@
       triggerToast('Diagnosis saved! Prescribed ST-04 drills updated.');
     }
 
+    function selectFitnessQuizOption(card) {
+      document.querySelectorAll('.fitness-quiz-option-card').forEach(el => {
+        el.classList.remove('border-violet-accent', 'bg-violet-accent/10');
+        el.querySelector('.fitness-quiz-check').classList.remove('bg-violet-accent');
+        el.querySelector('.fitness-quiz-check').classList.add('text-transparent');
+      });
+
+      card.classList.add('border-violet-accent', 'bg-violet-accent/10');
+      const check = card.querySelector('.fitness-quiz-check');
+      check.classList.remove('text-transparent');
+      check.classList.add('bg-violet-accent');
+
+      playSfx("A4", "16n");
+      triggerToast('Response saved! Fitness screen updated.');
+    }
+
     function screenJoint(name, status) {
       playSfx("A4", "16n");
       triggerToast(name + ': ' + status);
@@ -2201,18 +2263,31 @@
     let isLoginMode = false;
     let isLoggedIn = false;
 
+    function toggleVerificationRequest() {
+      const fields = document.getElementById('verification-fields');
+      const btn = document.getElementById('verification-toggle-btn');
+      const isHidden = fields.classList.contains('hidden');
+      fields.classList.toggle('hidden');
+      btn.innerText = isHidden
+        ? 'Hide verification request'
+        : 'Coach, professional athlete, or industry expert? Request verification';
+    }
+
     function setAuthMode(mode) {
       isLoginMode = (mode === 'login');
       const fieldsBlock = document.getElementById('signup-only-fields');
       const submitText = document.getElementById('profile-submit-text');
       const linkBtn = document.getElementById('auth-mode-link');
+      const pwdReqBox = document.getElementById('password-requirements-box');
 
       if (isLoginMode) {
         fieldsBlock.classList.add('hidden');
+        pwdReqBox.classList.add('hidden');
         submitText.innerText = 'Log In';
         linkBtn.innerText = "New here? Create an Account instead";
       } else {
         fieldsBlock.classList.remove('hidden');
+        pwdReqBox.classList.remove('hidden');
         submitText.innerText = isLoggedIn ? 'Save Changes' : 'Create Account';
         linkBtn.innerText = "Already have an account? Log In";
       }
@@ -2220,6 +2295,43 @@
 
     async function handleLogOut() {
       await signOutUser();
+    }
+
+    function toggleDeleteAccountPanel() {
+      document.getElementById('delete-account-panel').classList.toggle('hidden');
+    }
+
+    function checkDeleteConfirmText() {
+      const match = document.getElementById('delete-confirm-input').value.trim() === 'DELETE';
+      document.getElementById('delete-confirm-btn').disabled = !match;
+    }
+
+    async function handleDeleteAccount() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) {
+        triggerToast('You must be logged in to delete your account.');
+        return;
+      }
+
+      const btn = document.getElementById('delete-confirm-btn');
+      btn.disabled = true;
+      btn.innerText = 'Deleting...';
+
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/delete-account`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      const result = await res.json();
+
+      if (!res.ok || !result.deleted) {
+        triggerToast(`Account deletion failed: ${result.error || 'unknown error'}`);
+        btn.disabled = false;
+        btn.innerText = 'Permanently Delete My Account';
+        return;
+      }
+
+      await supabaseClient.auth.signOut();
+      location.reload();
     }
 
     function setProfileMode(mode) {
@@ -2285,16 +2397,45 @@
       }
     }
 
-    function handleProfilePhotoUpload(input) {
+    async function handleProfilePhotoUpload(input) {
       if (!input.files || !input.files[0]) return;
-      const reader = new FileReader();
-      reader.onload = e => {
-        currentUser.photo = e.target.result;
-        document.getElementById('form-photo-preview').src = e.target.result;
-        document.getElementById('form-photo-preview').classList.remove('hidden');
-        document.getElementById('form-photo-placeholder').classList.add('hidden');
-      };
-      reader.readAsDataURL(input.files[0]);
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) {
+        triggerToast('Please create an account or log in before adding a photo.');
+        return;
+      }
+
+      const file = input.files[0];
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${session.user.id}/avatar.${fileExt}`;
+
+      const { error: uploadError } = await supabaseClient.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) {
+        triggerToast(`Photo upload failed: ${uploadError.message}`);
+        return;
+      }
+
+      const { data: urlData } = supabaseClient.storage.from('avatars').getPublicUrl(filePath);
+      const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`; // cache-bust so the new photo shows immediately
+
+      await supabaseClient.from('users').update({ photo_url: publicUrl }).eq('user_id', session.user.id);
+
+      currentUser.photo = publicUrl;
+      setAllAvatars(publicUrl);
+      triggerToast('Profile photo updated! 📸');
+    }
+
+    async function removeProfilePhoto() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) return;
+
+      await supabaseClient.from('users').update({ photo_url: null }).eq('user_id', session.user.id);
+      currentUser.photo = null;
+      setAllAvatars(initialsAvatarDataUri(currentUser.name));
+      triggerToast('Profile photo removed.');
     }
 
     async function handleProfileSubmit(event) {
@@ -2318,23 +2459,30 @@
         return;
       }
 
-      const nameVal = document.getElementById('input-name').value.trim() || 'Verified Athlete';
+      const nameVal = document.getElementById('input-name').value.trim();
+      const titleVal = document.getElementById('input-title').value;
+
+      if (!nameVal) {
+        triggerToast('Full name is required.');
+        return;
+      }
+
       const isPwdOk = validatePasswordRules();
-      if (!isPwdOk) {
+      if (!isLoggedIn && !isPwdOk) {
         triggerToast('⚠️ Password must meet all uppercase, lowercase & special char rules!');
         playSfx("D3", "8n");
         return;
       }
 
-      // ---- UPDATE NAME WHILE ALREADY LOGGED IN ----
+      // ---- UPDATE NAME/TITLE WHILE ALREADY LOGGED IN ----
       if (isLoggedIn) {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (session) {
-          await supabaseClient.from('users').update({ display_name: nameVal }).eq('user_id', session.user.id);
+          await supabaseClient.from('users').update({ display_name: nameVal, title: titleVal || null }).eq('user_id', session.user.id);
         }
       } else {
         // ---- CREATE ACCOUNT ----
-        const authedUser = await signUpUser(emailVal, pwdVal, nameVal);
+        const authedUser = await signUpUser(emailVal, pwdVal, nameVal, titleVal);
         if (!authedUser) return; // signUpUser already showed the error toast
         isLoggedIn = true;
       }
@@ -2345,11 +2493,8 @@
       document.getElementById('welcome-username').innerText = nameVal;
       document.getElementById('overview-user-name').innerText = nameVal;
       document.getElementById('storekit-user-email').innerText = `All-Sport Account: ${emailVal}`;
-      if (currentUser.photo) {
-        ['top-avatar-img', 'welcome-avatar-img', 'profile-modal-avatar'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.src = currentUser.photo;
-        });
+      if (!currentUser.photo) {
+        setAllAvatars(initialsAvatarDataUri(nameVal));
       }
 
       closeProfileModal();
@@ -2358,18 +2503,50 @@
       triggerToast(`Profile saved: ${nameVal}! 🏆 (+100 XP)`);
     }
 
-    // Pulls the real display_name from the database and reflects the
+    // Pulls the real profile data from the database and reflects the
     // logged-in state across the UI, instead of leaving the stale mock
-    // "Jordan Blake" placeholder showing after a session restores.
+    // placeholder showing after a session restores.
     async function applyLoggedInState(userId) {
       isLoggedIn = true;
-      const { data: profile } = await supabaseClient.from('users').select('display_name').eq('user_id', userId).single();
-      const displayName = profile?.display_name || 'Verified Athlete';
+      const { data: profile } = await supabaseClient
+        .from('users')
+        .select('display_name, title, role, photo_url, active_sport_id, sport_verticals(display_name)')
+        .eq('user_id', userId)
+        .single();
 
+      const displayName = profile?.display_name || 'Verified Athlete';
       currentUser.name = displayName;
+      currentUser.photo = profile?.photo_url || null;
+
+      if (profile?.active_sport_id) {
+        currentSportId = profile.active_sport_id;
+        loadActivePoll();
+      }
+
       document.getElementById('welcome-username').innerText = displayName;
       document.getElementById('overview-user-name').innerText = displayName;
       document.getElementById('input-name').value = displayName;
+      document.getElementById('input-title').value = profile?.title || '';
+      if (profile?.title) {
+        document.getElementById('verification-fields').classList.remove('hidden');
+        document.getElementById('verification-toggle-btn').innerText = 'Hide verification request';
+      }
+
+      const avatarUrl = currentUser.photo || initialsAvatarDataUri(displayName);
+      setAllAvatars(avatarUrl);
+
+      // Verified badge: only shown when an admin has granted role='verified_pro',
+      // never something the user can set themselves.
+      const isVerified = profile?.role === 'verified_pro';
+      const sportName = profile?.sport_verticals?.display_name;
+      const badgeText = isVerified
+        ? `✓ ${profile?.title || 'Verified'}${sportName ? ' · ' + sportName : ''}`
+        : (profile?.title || 'Athlete');
+
+      const titleEl = document.getElementById('welcome-user-title');
+      if (titleEl) titleEl.innerText = badgeText;
+      const overviewTitleEl = document.getElementById('overview-user-title');
+      if (overviewTitleEl) overviewTitleEl.innerText = badgeText;
 
       setAuthMode('signup');       // reset the toggle link back to default wording
       setProfileMode('view');      // show their real "Current Profile" tab by default
@@ -2527,7 +2704,7 @@
         <div class="flex items-start justify-between">
           <div class="flex items-center space-x-3">
             <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-amber-400 shadow">
-              <img src="${currentUser.photo || mockPhotos[photoIndex]}" class="w-full h-full object-cover">
+              <img src="${currentUser.photo || initialsAvatarDataUri(currentUser.name)}" class="w-full h-full object-cover">
             </div>
             <div>
               <h4 class="text-xs font-bold text-[var(--text-main)] flex items-center gap-1.5">
@@ -2668,6 +2845,61 @@
       }
     }
 
+    function initFitnessQuizCanvas() {
+      const canvas = document.getElementById('fitness-quiz-canvas-video');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let angle = 0;
+
+      function draw() {
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+
+        ctx.strokeStyle = '#7C3AED';
+        ctx.lineWidth = 3;
+
+        ctx.beginPath();
+        ctx.arc(cx, cy - 30, 12, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - 18);
+        ctx.lineTo(cx, cy + 30);
+        ctx.stroke();
+
+        const armLength = 35;
+        const rad = (angle * Math.PI) / 180;
+        const x1 = cx + Math.cos(rad) * armLength;
+        const y1 = cy - 5 + Math.sin(rad) * armLength;
+
+        ctx.strokeStyle = '#10B981';
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - 5);
+        ctx.lineTo(x1, y1);
+        ctx.stroke();
+
+        angle = (angle + 1) % 360;
+        requestAnimationFrame(draw);
+      }
+      draw();
+    }
+
+    let isFitnessVideoPlaying = false;
+    function toggleFitnessVideoPlayback() {
+      isFitnessVideoPlaying = !isFitnessVideoPlaying;
+      const btn = document.getElementById('fitness-quiz-play-btn');
+      if (isFitnessVideoPlaying) {
+        btn.innerText = 'PAUSE';
+        triggerToast("Playing Movement Demonstration 🎥");
+      } else {
+        btn.innerText = 'PLAY';
+      }
+    }
+
     function triggerToast(message) {
       const container = document.getElementById('toast-container');
       const msgEl = document.getElementById('toast-message');
@@ -2702,6 +2934,7 @@
       switchTab('tab-home');
       renderDynamicBriefs();
       initQuizCanvas();
+      initFitnessQuizCanvas();
       validatePasswordRules();
       renderMyTickets();
 
