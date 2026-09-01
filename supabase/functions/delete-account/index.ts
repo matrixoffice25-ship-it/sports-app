@@ -1,3 +1,4 @@
+
 // Supabase Edge Function: delete-account
 // Deploy: supabase functions deploy delete-account
 //
@@ -8,6 +9,14 @@
 // anything else with a matching on-delete-cascade foreign key), because the
 // schema defines users.user_id references auth.users(id) on delete cascade.
 //
+// CORS: browsers block reading a cross-origin fetch response unless the
+// server sends the right Access-Control-* headers, AND they always send a
+// preflight OPTIONS request first for calls carrying an Authorization header.
+// Without handling both, the browser's fetch() call silently fails/hangs
+// with no usable error — this was the actual cause of "Deleting..." never
+// finishing. Every response below, including the OPTIONS preflight, must
+// include these headers.
+//
 // Request:  POST /delete-account   (no body needed)
 // Auth:     Authorization: Bearer <user JWT>
 //
@@ -17,15 +26,23 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
 Deno.serve(async (req: Request) => {
+  // The browser sends this automatically before the real POST — it must
+  // get a 200 with CORS headers or the real request never goes out.
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
   const authHeader = req.headers.get("Authorization") ?? "";
   const jwt = authHeader.replace("Bearer ", "");
   if (!jwt) return json({ error: "unauthenticated" }, 401);
 
-  // Verify the caller's own identity from their JWT — this is what makes it
-  // safe: a user can only ever trigger deletion of their OWN account, never
-  // anyone else's, because userData.user.id comes from their verified token,
-  // not from anything the client could pass in a request body.
   const supabaseAsUser = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_ANON_KEY")!,
@@ -49,7 +66,7 @@ Deno.serve(async (req: Request) => {
 function json(body: unknown, status: number) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...corsHeaders },
   });
 }
 
@@ -61,3 +78,6 @@ function json(body: unknown, status: number) {
 //    in Supabase Auth > Users that user A is gone, AND in Table Editor >
 //    users that user A's row is gone too (proves the cascade worked).
 // 3. Confirm user B's account is completely untouched after user A's deletion.
+// 4. From the actual deployed browser app (not curl/Postman), confirm the
+//    button resolves within a couple seconds instead of hanging — this is
+//    the real proof the CORS fix worked, since curl never hits CORS at all.

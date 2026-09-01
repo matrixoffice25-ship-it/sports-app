@@ -410,9 +410,9 @@
               </div>
               <p class="text-sm text-[var(--text-muted)] flex items-center gap-1">
                 <span>Good morning,</span>
-                <span id="welcome-username" class="theme-accent-text font-bold">Jordan Blake</span>
+                <span id="welcome-username" class="theme-accent-text font-bold">Guest</span>
               </p>
-              <div id="welcome-user-title" class="text-sm text-amber-400/90 font-medium">Verified Athlete</div>
+              <div id="welcome-user-title" class="text-sm text-amber-400/90 font-medium"></div>
             </div>
           </div>
         </div>
@@ -445,7 +445,7 @@
             </div>
             <button onclick="incrementDrillProgress()" class="w-full min-h-touch bg-[var(--bg-app)] hover:bg-[var(--bg-card)] theme-accent-text font-bold text-xs py-2.5 px-3 rounded-xl border theme-accent-subtle-border flex items-center justify-center gap-2 transition-all">
               
-              <span>Log Completed Drill (+50 XP)</span>
+              <span>Log Completed Drill</span>
             </button>
           </div>
 
@@ -536,12 +536,8 @@
 
           <div id="dynamic-briefs-list" class="space-y-2"></div>
 
-          <div class="pt-1 flex items-center justify-between text-sm">
+          <div class="pt-1 text-sm">
             <span id="briefs-count-label" class="text-[var(--text-muted)] font-mono"></span>
-            <button onclick="addNewApprovedBrief()" class="min-h-touch px-3 py-1.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] font-bold rounded-lg border border-[var(--border-subtle)] flex items-center gap-1 transition-all">
-              
-              <span>Simulate New Post</span>
-            </button>
           </div>
         </div>
 
@@ -749,13 +745,13 @@
             </div>
           </div>
           
-          <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all mt-4" onclick="triggerToast('Loading Recovery Guide! 💧')">
+          <div class="bg-[var(--bg-surface)] border border-[var(--accent-border)] rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-[var(--accent-main)] transition-all mt-4" onclick="triggerToast('Loading Recovery Guide! 💓')">
             <div class="flex items-center space-x-3">
-              <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white">
-                
+              <div class="w-8 h-8 rounded-full bg-[var(--accent-main)] flex items-center justify-center text-white flex-shrink-0">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,12 7,12 9,6 13,18 16,12 22,12"/></svg>
               </div>
               <div>
-                <div class="text-xs font-bold text-red-400 uppercase">PULSE Recovery Protocol</div>
+                <div class="text-xs font-bold theme-accent-text uppercase">PULSE</div>
                 <div class="text-xs font-bold text-[var(--text-main)]">Post-Drill Recovery Guide</div>
               </div>
             </div>
@@ -839,18 +835,17 @@
             </div>
           </div>
 
-          <!-- POST-MOBILITY RECOVERY AD -->
-          <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all mt-4" onclick="triggerToast('Loading Mobility Recovery Guide! 💧')">
+          <!-- PULSE RECOVERY -->
+          <div class="bg-[var(--bg-surface)] border border-[var(--accent-border)] rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-[var(--accent-main)] transition-all mt-4" onclick="triggerToast('Loading Mobility Recovery Guide! 💓')">
             <div class="flex items-center space-x-3">
-              <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white">
-                
+              <div class="w-8 h-8 rounded-full bg-[var(--accent-main)] flex items-center justify-center text-white flex-shrink-0">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,12 7,12 9,6 13,18 16,12 22,12"/></svg>
               </div>
               <div>
-                <div class="text-xs font-bold text-red-400 uppercase">PULSE Recovery Protocol</div>
+                <div class="text-xs font-bold theme-accent-text uppercase">PULSE</div>
                 <div class="text-xs font-bold text-[var(--text-main)]">Post-Mobility Recovery Guide</div>
               </div>
             </div>
-            
           </div>
 
         </div>
@@ -1409,7 +1404,7 @@
               <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-[var(--text-muted)] text-xs">
                 
               </span>
-              <input type="text" id="input-name" placeholder="e.g. Jordan Blake" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 pl-9 pr-3 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-main)] transition-all">
+              <input type="text" id="input-name" placeholder="Your full name" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 pl-9 pr-3 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-main)] transition-all">
             </div>
           </div>
 
@@ -1432,7 +1427,7 @@
           </div>
           </div>
 
-          <div>
+          <div id="email-field-wrapper">
             <label class="block text-sm font-bold text-[var(--text-main)] mb-1 flex items-center justify-between">
               <span>Email Address</span>
               <span class="text-xs theme-accent-text font-bold">Required</span>
@@ -1447,13 +1442,13 @@
 
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label class="text-sm font-bold text-[var(--text-main)]">Preferred Password</label>
+              <label id="password-field-label" class="text-sm font-bold text-[var(--text-main)]">Preferred Password</label>
               <button type="button" onclick="togglePasswordVisibility()" class="text-sm text-[var(--text-muted)] hover:theme-accent-text flex items-center gap-1">
                 
                 <span id="pwd-eye-text">Show</span>
               </button>
             </div>
-            
+            <p id="password-field-hint" class="hidden text-xs text-[var(--text-muted)] mb-1">Enter your current password to confirm this change.</p>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-[var(--text-muted)] text-xs">
                 
@@ -1495,24 +1490,21 @@
           <div class="bg-[var(--bg-app)] p-3.5 rounded-xl border border-[var(--border-subtle)] space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-sm text-[var(--text-muted)]">Full Name</span>
-              <span id="overview-user-name" class="text-xs font-bold text-white">Jordan Blake</span>
+              <span id="overview-user-name" class="text-xs font-bold text-white">Guest</span>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-sm text-[var(--text-muted)]">Verified Title</span>
-              <span id="overview-user-title" class="text-xs font-black text-amber-400">Verified Athlete</span>
+              <span id="overview-user-title" class="text-xs font-black text-amber-400"></span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-sm text-[var(--text-muted)]">Assigned SwingType</span>
-              <span class="text-xs font-black text-amber-400">⭐ ST-04 (Lead-Arm Post)</span>
+              <span id="overview-assessment-label" class="text-sm text-[var(--text-muted)]">SwingType</span>
+              <span id="overview-assessment-value" class="text-xs font-black text-[var(--text-muted)]">Not yet assessed</span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-sm text-[var(--text-muted)]">Partner Wallet</span>
-              <span id="wallet-credits" class="text-xs font-black text-red-400 flex items-center gap-1">
-                <svg class="h-2.5 w-auto" viewBox="0 0 100 24" fill="none">
-                  <rect width="100" height="24" rx="12" fill="#F40009"/>
-                  <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
-                </svg>
-                <span>VIP Athlete Pack Active</span>
+              <span class="text-sm text-[var(--text-muted)]">Wallet</span>
+              <span id="wallet-credits" class="text-xs font-black theme-accent-text flex items-center gap-1.5">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,12 7,12 9,6 13,18 16,12 22,12"/></svg>
+                <span id="wallet-points-display">0 points</span>
               </span>
             </div>
           </div>
@@ -1766,6 +1758,18 @@
       await supabaseClient.from("users").update({ active_sport_id: sportId }).eq("user_id", session.user.id);
       currentSportId = sportId;
 
+      // Durable record that this user has ever entered this sport — separate
+      // from active_sport_id (which only tracks what they're CURRENTLY
+      // viewing and gets overwritten every time they switch). This is what
+      // future features (sport-specific badges, "which sports have I played",
+      // per-sport history) should query against, since active_sport_id alone
+      // can't answer "has this user ever played Tennis" once they switch
+      // back to Golf. on conflict do nothing keeps re-entering harmless.
+      await supabaseClient.from('user_sport_profiles').upsert(
+        { user_id: session.user.id, sport_id: sportId },
+        { onConflict: 'user_id,sport_id', ignoreDuplicates: true }
+      );
+
       const [lessons, fitness] = await Promise.all([
         checkEntitlement(sportId, "lessons"),
         checkEntitlement(sportId, "fitness"),
@@ -1878,8 +1882,17 @@
         return;
       }
 
+      // 1 point per poll vote — naturally capped at once per poll, since a
+      // second vote insert on the same poll is already rejected above by
+      // the database's own primary key (poll_id, user_id).
+      const { data: newTotal } = await supabaseClient.rpc('increment_wallet_points', { p_amount: 1 });
+      const walletEl = document.getElementById('wallet-points-display');
+      if (walletEl && typeof newTotal === 'number') {
+        walletEl.innerText = `${newTotal} point${newTotal === 1 ? '' : 's'}`;
+      }
+
       playSfx("G5", "8n");
-      triggerToast('Vote submitted! 🗳️');
+      triggerToast('Vote submitted! +1 point 🗳️');
       loadActivePoll();
     }
 
@@ -1894,9 +1907,10 @@
     let currentPalette = 'emerald';
 
     let currentUser = {
-      name: "Jordan Blake",
-      title: "Co-Founder & Biomechanics Director",
-      email: "jordan.blake@allsportnetwork.com",
+      name: "Guest",
+      title: null,
+      email: null,
+      photo: null,
       passwordValid: true
     };
 
@@ -1974,24 +1988,6 @@
       if (countLabel) {
         countLabel.innerText = `${dynamicNewsBriefs.length} Approved Posts Today`;
       }
-    }
-
-    function addNewApprovedBrief() {
-      const mockTitles = [
-        { title: "Coach Lena Ford's Range Tip for Wet Morning Turf", detail: "How to adjust ball position slightly forward when the fairway is soft.", color: "bg-blue-400" },
-        { title: "Fujikura Tour Spec Ventus TR Gold Tested", detail: "Smooth feel with an ultra-stable tip section for high-swing speed golfers.", color: "bg-amber-500" },
-        { title: "Hydration Advice from Tour Trainers", detail: "Sip cold water & electrolytes every 3 holes to preserve hand-eye coordination.", color: "bg-red-500" }
-      ];
-      const randomBrief = mockTitles[Math.floor(Math.random() * mockTitles.length)];
-      dynamicNewsBriefs.unshift({
-        id: Date.now(),
-        title: randomBrief.title,
-        detail: randomBrief.detail,
-        color: randomBrief.color
-      });
-      renderDynamicBriefs();
-      playSfx("G5", "16n");
-      triggerToast(`Published new update! (${dynamicNewsBriefs.length} total)`);
     }
 
     function filterNewsCategory(cat, btn) {
@@ -2133,13 +2129,6 @@
     }
 
 
-    function addXP(amount) {
-      xpPoints += amount;
-      const xpEl = document.getElementById('xp-counter');
-      if (xpEl) xpEl.innerText = xpPoints.toLocaleString() + ' XP';
-      playSfx("C5", "8n");
-    }
-
     function incrementDrillProgress() {
       if (drillProgress < 100) {
         drillProgress += 15;
@@ -2151,7 +2140,6 @@
         circle.style.strokeDashoffset = offset;
 
         document.getElementById('drill-percent-text').innerText = drillProgress + '%';
-        addXP(50);
         triggerToast('Logged Swing Drill! Progress ' + drillProgress + '%');
       } else {
         triggerToast('Daily Swing Drills 100% Completed! ⛳');
@@ -2279,16 +2267,40 @@
       const submitText = document.getElementById('profile-submit-text');
       const linkBtn = document.getElementById('auth-mode-link');
       const pwdReqBox = document.getElementById('password-requirements-box');
+      const emailWrapper = document.getElementById('email-field-wrapper');
+      const pwdLabel = document.getElementById('password-field-label');
+      const pwdHint = document.getElementById('password-field-hint');
+      const pwdInput = document.getElementById('input-password');
 
       if (isLoginMode) {
+        // Logging in: only email + password, nothing else.
         fieldsBlock.classList.add('hidden');
         pwdReqBox.classList.add('hidden');
+        emailWrapper.classList.remove('hidden');
+        pwdLabel.innerText = 'Password';
+        pwdHint.classList.add('hidden');
+        pwdInput.value = '';
         submitText.innerText = 'Log In';
         linkBtn.innerText = "New here? Create an Account instead";
+      } else if (isLoggedIn) {
+        // Editing an existing profile: name/photo/title yes, email no,
+        // password required as re-confirmation (not a new password).
+        fieldsBlock.classList.remove('hidden');
+        pwdReqBox.classList.add('hidden');
+        emailWrapper.classList.add('hidden');
+        pwdLabel.innerText = 'Confirm Your Password';
+        pwdHint.classList.remove('hidden');
+        pwdInput.value = '';
+        submitText.innerText = 'Save Changes';
+        linkBtn.innerText = "Already have an account? Log In"; // stays hidden via auth-mode-toggle anyway
       } else {
+        // Creating a brand new account: everything required.
         fieldsBlock.classList.remove('hidden');
         pwdReqBox.classList.remove('hidden');
-        submitText.innerText = isLoggedIn ? 'Save Changes' : 'Create Account';
+        emailWrapper.classList.remove('hidden');
+        pwdLabel.innerText = 'Preferred Password';
+        pwdHint.classList.add('hidden');
+        submitText.innerText = 'Create Account';
         linkBtn.innerText = "Already have an account? Log In";
       }
     }
@@ -2317,21 +2329,37 @@
       btn.disabled = true;
       btn.innerText = 'Deleting...';
 
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/delete-account`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      });
-      const result = await res.json();
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // don't hang forever
 
-      if (!res.ok || !result.deleted) {
-        triggerToast(`Account deletion failed: ${result.error || 'unknown error'}`);
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/delete-account`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${session.access_token}` },
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
+        const result = await res.json();
+
+        if (!res.ok || !result.deleted) {
+          throw new Error(result.error || `Server returned status ${res.status}`);
+        }
+
+        // Deletion is permanent, so use a blocking alert (not a toast that
+        // could be missed) as the actual confirmation before reloading.
+        alert('Your account has been permanently deleted.');
+        await supabaseClient.auth.signOut();
+        location.reload();
+
+      } catch (err) {
+        const message = err.name === 'AbortError'
+          ? 'The request timed out. Please check your connection and try again.'
+          : err.message;
+        alert(`Account deletion failed: ${message}`);
         btn.disabled = false;
         btn.innerText = 'Permanently Delete My Account';
-        return;
       }
-
-      await supabaseClient.auth.signOut();
-      location.reload();
     }
 
     function setProfileMode(mode) {
@@ -2397,17 +2425,36 @@
       }
     }
 
+    let pendingPhotoFile = null; // holds the picked file during signup, before a session exists
+
     async function handleProfilePhotoUpload(input) {
       if (!input.files || !input.files[0]) return;
+      const file = input.files[0];
+
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) {
-        triggerToast('Please create an account or log in before adding a photo.');
+        // No account yet (mid-signup) — just preview it locally and hold
+        // onto the file. It gets uploaded for real right after the account
+        // is created, in handleProfileSubmit.
+        pendingPhotoFile = file;
+        const reader = new FileReader();
+        reader.onload = e => setAllAvatars(e.target.result);
+        reader.readAsDataURL(file);
         return;
       }
 
-      const file = input.files[0];
+      const uploadedUrl = await uploadPendingPhoto(session.user.id, file);
+      if (uploadedUrl) triggerToast('Profile photo updated! 📸');
+    }
+
+    // Actually uploads to Supabase Storage and saves the URL — called either
+    // right after signup completes, or immediately when already logged in.
+    async function uploadPendingPhoto(userId, fileOverride) {
+      const file = fileOverride || pendingPhotoFile;
+      if (!file) return null;
+
       const fileExt = file.name.split('.').pop();
-      const filePath = `${session.user.id}/avatar.${fileExt}`;
+      const filePath = `${userId}/avatar.${fileExt}`;
 
       const { error: uploadError } = await supabaseClient.storage
         .from('avatars')
@@ -2415,24 +2462,26 @@
 
       if (uploadError) {
         triggerToast(`Photo upload failed: ${uploadError.message}`);
-        return;
+        return null;
       }
 
       const { data: urlData } = supabaseClient.storage.from('avatars').getPublicUrl(filePath);
       const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`; // cache-bust so the new photo shows immediately
 
-      await supabaseClient.from('users').update({ photo_url: publicUrl }).eq('user_id', session.user.id);
+      await supabaseClient.from('users').update({ photo_url: publicUrl }).eq('user_id', userId);
 
       currentUser.photo = publicUrl;
+      pendingPhotoFile = null;
       setAllAvatars(publicUrl);
-      triggerToast('Profile photo updated! 📸');
+      return publicUrl;
     }
 
     async function removeProfilePhoto() {
+      pendingPhotoFile = null;
       const { data: { session } } = await supabaseClient.auth.getSession();
-      if (!session) return;
-
-      await supabaseClient.from('users').update({ photo_url: null }).eq('user_id', session.user.id);
+      if (session) {
+        await supabaseClient.from('users').update({ photo_url: null }).eq('user_id', session.user.id);
+      }
       currentUser.photo = null;
       setAllAvatars(initialsAvatarDataUri(currentUser.name));
       triggerToast('Profile photo removed.');
@@ -2440,19 +2489,18 @@
 
     async function handleProfileSubmit(event) {
       event.preventDefault();
-
-      const emailVal = document.getElementById('input-email').value.trim();
       const pwdVal = document.getElementById('input-password').value;
-
-      if (!emailVal) {
-        triggerToast('Email and password are required.');
-        return;
-      }
 
       // ---- LOG IN ----
       if (isLoginMode) {
+        const emailVal = document.getElementById('input-email').value.trim();
+        if (!emailVal || !pwdVal) {
+          triggerToast('Email and password are required.');
+          return;
+        }
         const user = await signInUser(emailVal, pwdVal);
         if (!user) return; // signInUser already showed the error toast
+        currentUser.email = emailVal;
         await applyLoggedInState(user.id);
         closeProfileModal();
         triggerToast('Welcome back! 👋');
@@ -2467,40 +2515,63 @@
         return;
       }
 
+      // ---- SAVE CHANGES WHILE ALREADY LOGGED IN (password re-confirms identity) ----
+      if (isLoggedIn) {
+        if (!pwdVal) {
+          triggerToast('Enter your password to confirm this change.');
+          return;
+        }
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) { triggerToast('Session expired — please log in again.'); return; }
+
+        const { error: reAuthErr } = await supabaseClient.auth.signInWithPassword({
+          email: currentUser.email, password: pwdVal,
+        });
+        if (reAuthErr) {
+          triggerToast('Incorrect password — changes were not saved.');
+          return;
+        }
+
+        await supabaseClient.from('users').update({ display_name: nameVal, title: titleVal || null }).eq('user_id', session.user.id);
+        if (pendingPhotoFile) await uploadPendingPhoto(session.user.id);
+
+        currentUser.name = nameVal;
+        document.getElementById('welcome-username').innerText = nameVal;
+        document.getElementById('overview-user-name').innerText = nameVal;
+        closeProfileModal();
+        triggerToast(`Profile saved: ${nameVal}! ✅`);
+        return;
+      }
+
+      // ---- CREATE ACCOUNT ----
+      const emailVal = document.getElementById('input-email').value.trim();
+      if (!emailVal) {
+        triggerToast('Email and password are required.');
+        return;
+      }
+
       const isPwdOk = validatePasswordRules();
-      if (!isLoggedIn && !isPwdOk) {
+      if (!isPwdOk) {
         triggerToast('⚠️ Password must meet all uppercase, lowercase & special char rules!');
         playSfx("D3", "8n");
         return;
       }
 
-      // ---- UPDATE NAME/TITLE WHILE ALREADY LOGGED IN ----
-      if (isLoggedIn) {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (session) {
-          await supabaseClient.from('users').update({ display_name: nameVal, title: titleVal || null }).eq('user_id', session.user.id);
-        }
-      } else {
-        // ---- CREATE ACCOUNT ----
-        const authedUser = await signUpUser(emailVal, pwdVal, nameVal, titleVal);
-        if (!authedUser) return; // signUpUser already showed the error toast
-        isLoggedIn = true;
-      }
-
-      currentUser.name = nameVal;
+      const authedUser = await signUpUser(emailVal, pwdVal, nameVal, titleVal);
+      if (!authedUser) return; // signUpUser already showed the error toast
+      isLoggedIn = true;
       currentUser.email = emailVal;
 
-      document.getElementById('welcome-username').innerText = nameVal;
-      document.getElementById('overview-user-name').innerText = nameVal;
+      // The photo picked during signup couldn't upload earlier (no session
+      // existed yet) — do it now that the account is real.
+      if (pendingPhotoFile) await uploadPendingPhoto(authedUser.id);
+
+      await applyLoggedInState(authedUser.id); // reflects real saved state + awards the daily point + loads the poll
       document.getElementById('storekit-user-email').innerText = `All-Sport Account: ${emailVal}`;
-      if (!currentUser.photo) {
-        setAllAvatars(initialsAvatarDataUri(nameVal));
-      }
 
       closeProfileModal();
-      addXP(100);
       playSfx("G5", "8n");
-      triggerToast(`Profile saved: ${nameVal}! 🏆 (+100 XP)`);
+      triggerToast(`Account created! Welcome, ${nameVal} 🎉`);
     }
 
     // Pulls the real profile data from the database and reflects the
@@ -2508,13 +2579,17 @@
     // placeholder showing after a session restores.
     async function applyLoggedInState(userId) {
       isLoggedIn = true;
+
+      const { data: { user: authUser } } = await supabaseClient.auth.getUser();
+      if (authUser?.email) currentUser.email = authUser.email;
+
       const { data: profile } = await supabaseClient
         .from('users')
-        .select('display_name, title, role, photo_url, active_sport_id, sport_verticals(display_name)')
+        .select('display_name, title, role, photo_url, active_sport_id, wallet_points, sport_verticals(display_name, assessment_label)')
         .eq('user_id', userId)
         .single();
 
-      const displayName = profile?.display_name || 'Verified Athlete';
+      const displayName = profile?.display_name || 'Guest';
       currentUser.name = displayName;
       currentUser.photo = profile?.photo_url || null;
 
@@ -2535,21 +2610,39 @@
       const avatarUrl = currentUser.photo || initialsAvatarDataUri(displayName);
       setAllAvatars(avatarUrl);
 
-      // Verified badge: only shown when an admin has granted role='verified_pro',
-      // never something the user can set themselves.
+      // Verified badge: only shown when an admin has granted role='verified_pro'.
+      // A user's own chosen title never implies verification by itself —
+      // no fallback text like "Athlete" or "Verified" is shown otherwise.
       const isVerified = profile?.role === 'verified_pro';
       const sportName = profile?.sport_verticals?.display_name;
       const badgeText = isVerified
         ? `✓ ${profile?.title || 'Verified'}${sportName ? ' · ' + sportName : ''}`
-        : (profile?.title || 'Athlete');
+        : (profile?.title || '');
 
       const titleEl = document.getElementById('welcome-user-title');
       if (titleEl) titleEl.innerText = badgeText;
       const overviewTitleEl = document.getElementById('overview-user-title');
       if (overviewTitleEl) overviewTitleEl.innerText = badgeText;
 
+      // SwingType (or whatever the active sport calls its assessment) —
+      // no fake result shown until Segment 1/2 actually produces one.
+      const assessmentLabel = profile?.sport_verticals?.assessment_label || 'SwingType';
+      const labelEl = document.getElementById('overview-assessment-label');
+      if (labelEl) labelEl.innerText = assessmentLabel;
+
+      // Real wallet points, awarding the once-per-24-hours login point
+      // server-side (client can't forge this — see award_daily_login_point()).
+      const walletEl = document.getElementById('wallet-points-display');
+      if (walletEl) walletEl.innerText = `${profile?.wallet_points ?? 0} point${profile?.wallet_points === 1 ? '' : 's'}`;
+      const { data: pointResult } = await supabaseClient.rpc('award_daily_login_point');
+      if (pointResult?.awarded && walletEl) {
+        walletEl.innerText = `${pointResult.wallet_points} point${pointResult.wallet_points === 1 ? '' : 's'}`;
+        triggerToast('+1 point for today\'s check-in! 🎯');
+      }
+
       setAuthMode('signup');       // reset the toggle link back to default wording
       setProfileMode('view');      // show their real "Current Profile" tab by default
+      document.getElementById('auth-mode-toggle').classList.add('hidden');
     }
 
     function updateCharCount(el) {
@@ -2734,8 +2827,7 @@
       document.getElementById('composer-text').value = '';
       updateCharCount(document.getElementById('composer-text'));
       resetComposerPanes();
-      addXP(100);
-      triggerToast('Broadcast published! (+100 XP)');
+      triggerToast('Broadcast published!');
     }
 
     function openStoreKitSheet() {
@@ -2765,8 +2857,7 @@
           </button>
         </div>
       `;
-      addXP(250);
-      triggerToast('🎉 Masterclass Ticket + PULSE VIP Pack Unlocked! (+250 XP)');
+      triggerToast('🎉 Masterclass Ticket + PULSE VIP Pack Unlocked!');
       myTickets.push({ title: 'Mastering Ground Forces & Speed', date: 'Live masterclass', price: '$49.00' });
       renderMyTickets();
     }
