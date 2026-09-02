@@ -2541,15 +2541,15 @@
     async function applyLoggedInState(userId) {
       const { data: { user: authUser } } = await supabaseClient.auth.getUser();
 
+      // Core profile fields only - no joined/embedded resource here, so
+      // nothing about sport_verticals can ever break the ability to log in.
       const { data: profile, error: profileErr } = await supabaseClient
         .from('users')
-        .select('display_name, title, role, photo_url, active_sport_id, wallet_points, sport_verticals(display_name, assessment_label)')
+        .select('display_name, title, role, photo_url, active_sport_id, wallet_points')
         .eq('user_id', userId)
         .single();
 
       if (profileErr || !profile) {
-        // Surface the REAL error instead of a generic message - this is
-        // what actually tells us what's wrong, instead of guessing.
         console.error('applyLoggedInState profile fetch failed:', profileErr);
         triggerToast(`Profile fetch error: ${profileErr ? profileErr.message : 'no data returned'}`);
         await supabaseClient.auth.signOut();
@@ -2564,9 +2564,27 @@
       currentUser.name = displayName;
       currentUser.photo = profile?.photo_url || null;
 
+      // Sport info fetched separately and defensively - if this fails for
+      // any reason, the person is still fully logged in, they just won't
+      // see a sport name/label until this resolves.
+      let sportName = null;
+      let assessmentLabel = 'SwingType';
       if (profile?.active_sport_id) {
         currentSportId = profile.active_sport_id;
         loadActivePoll();
+        try {
+          const { data: sport } = await supabaseClient
+            .from('sport_verticals')
+            .select('display_name, assessment_label')
+            .eq('sport_id', profile.active_sport_id)
+            .single();
+          if (sport) {
+            sportName = sport.display_name;
+            assessmentLabel = sport.assessment_label || 'SwingType';
+          }
+        } catch (e) {
+          console.error('Sport lookup failed (non-fatal):', e);
+        }
       }
 
       document.getElementById('welcome-username').innerText = displayName;
@@ -2586,7 +2604,6 @@
       // no fallback text like "Athlete" or "Verified" is shown otherwise.
       const isVerified = profile?.role === 'verified_pro';
       currentUser.role = profile?.role || 'fan';
-      const sportName = profile?.sport_verticals?.display_name;
       const badgeText = isVerified
         ? `✓ ${profile?.title || 'Verified'}${sportName ? ' · ' + sportName : ''}`
         : (profile?.title || '');
@@ -2598,7 +2615,6 @@
 
       // SwingType (or whatever the active sport calls its assessment) —
       // no fake result shown until Segment 1/2 actually produces one.
-      const assessmentLabel = profile?.sport_verticals?.assessment_label || 'SwingType';
       const labelEl = document.getElementById('overview-assessment-label');
       if (labelEl) labelEl.innerText = assessmentLabel;
 
