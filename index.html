@@ -2459,6 +2459,10 @@
         if (!user) return; // signInUser already showed the error toast
         currentUser.email = emailVal;
         await applyLoggedInState(user.id);
+        if (!isLoggedIn) {
+          triggerToast('Your account is missing profile data. Please contact support.');
+          return;
+        }
         closeProfileModal();
         triggerToast(`Welcome, ${currentUser.name}! 👋`);
         return;
@@ -2535,16 +2539,27 @@
     // logged-in state across the UI, instead of leaving the stale mock
     // placeholder showing after a session restores.
     async function applyLoggedInState(userId) {
-      isLoggedIn = true;
-
       const { data: { user: authUser } } = await supabaseClient.auth.getUser();
-      if (authUser?.email) currentUser.email = authUser.email;
 
-      const { data: profile } = await supabaseClient
+      const { data: profile, error: profileErr } = await supabaseClient
         .from('users')
         .select('display_name, title, role, photo_url, active_sport_id, wallet_points, sport_verticals(display_name, assessment_label)')
         .eq('user_id', userId)
         .single();
+
+      if (profileErr || !profile) {
+        // The session references a user_id that no longer has a matching
+        // row (e.g. the account was deleted, or the local session is stale)
+        // - this must NOT be treated as a real login. Clear it out so the
+        // person lands on a genuine, usable login/signup screen instead of
+        // a false "logged in as Guest" state with no way back to the form.
+        await supabaseClient.auth.signOut();
+        isLoggedIn = false;
+        return;
+      }
+
+      isLoggedIn = true;
+      if (authUser?.email) currentUser.email = authUser.email;
 
       const displayName = profile?.display_name || 'Guest';
       currentUser.name = displayName;
@@ -3095,7 +3110,7 @@
       const existingUser = await restoreSession();
       if (existingUser) {
         await applyLoggedInState(existingUser.id);
-        triggerToast(`Welcome, ${currentUser.name}! 👋`);
+        if (isLoggedIn) triggerToast(`Welcome, ${currentUser.name}! 👋`);
       }
     };
   </script>
