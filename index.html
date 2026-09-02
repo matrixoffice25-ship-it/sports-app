@@ -2677,7 +2677,11 @@
       mediaRecorder = new MediaRecorder(stream);
       mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
       mediaRecorder.onstop = async () => {
-        const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+        // Using the recorder's OWN reported mimeType (e.g. 'audio/webm;codecs=opus')
+        // is required here - a generic hardcoded 'audio/webm' label is missing
+        // the codec info and causes playback to silently fail/hang forever,
+        // which is exactly what was happening before this fix.
+        const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
         recordedAudioDataUrl = await new Promise(resolve => {
           const reader = new FileReader();
           reader.onload = () => resolve(reader.result);
