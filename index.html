@@ -2548,11 +2548,10 @@
         .single();
 
       if (profileErr || !profile) {
-        // The session references a user_id that no longer has a matching
-        // row (e.g. the account was deleted, or the local session is stale)
-        // - this must NOT be treated as a real login. Clear it out so the
-        // person lands on a genuine, usable login/signup screen instead of
-        // a false "logged in as Guest" state with no way back to the form.
+        // Surface the REAL error instead of a generic message - this is
+        // what actually tells us what's wrong, instead of guessing.
+        console.error('applyLoggedInState profile fetch failed:', profileErr);
+        triggerToast(`Profile fetch error: ${profileErr ? profileErr.message : 'no data returned'}`);
         await supabaseClient.auth.signOut();
         isLoggedIn = false;
         return;
