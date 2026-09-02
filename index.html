@@ -409,6 +409,19 @@
           </div>
         </div>
 
+        <!-- PULSE AD PLACEHOLDER - replace with real ad partner once MVP ships -->
+        <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all" onclick="triggerToast('PULSE Performance Gear Opened!')">
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white flex-shrink-0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,12 7,12 9,6 13,18 16,12 22,12"/></svg>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-red-400 uppercase">PULSE</div>
+              <div class="text-xs font-bold text-[var(--text-main)]">Performance Gear for Today's Round</div>
+            </div>
+          </div>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div onclick="switchTab('tab-lessons'); activateLessonsSubtab();" class="bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-subtle)] flex flex-col justify-between space-y-3 relative overflow-hidden cursor-pointer hover:border-[var(--accent-main)] transition-all">
             <div class="flex items-start justify-between">
@@ -446,42 +459,8 @@
           </div>
         </div>
 
-        <div onclick="switchTab('tab-stream')" class="cursor-pointer bg-gradient-to-r from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border border-violet-accent/30 hover:border-violet-accent/60 transition-all space-y-3 relative overflow-hidden group">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-violet-accent shadow">
-                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80" alt="Head Coach" class="w-full h-full object-cover">
-              </div>
-              <div>
-                <h4 class="text-xs font-bold text-[var(--text-main)] group-hover:text-violet-light transition-colors flex items-center gap-1.5">
-                  Coach Ansel Cruz
-                  
-                </h4>
-                <p class="text-sm text-[var(--text-muted)]">Coach's Daily Voice Dispatch</p>
-              </div>
-            </div>
-            <div class="bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded text-sm font-mono font-bold flex items-center gap-1">
-              
-              <span>29h 42m</span>
-            </div>
-          </div>
-
-          <div class="bg-[var(--bg-app)] p-3 rounded-xl border border-[var(--border-subtle)] flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-              <button onclick="event.stopPropagation(); playAudioPreview();" class="w-8 h-8 rounded-full bg-violet-accent text-white flex items-center justify-center text-xs hover:scale-105 transition-all">▶</button>
-              <div>
-                <div class="text-xs font-semibold text-[var(--text-main)]">Ground Pressure Tip: Trail Heel Load</div>
-                <div class="text-sm text-[var(--text-muted)]">Listen to this 42s drill cue</div>
-              </div>
-            </div>
-            <div class="flex items-end space-x-1 h-6">
-              <div class="w-1 bg-[var(--accent-main)] rounded-full soundwave-bar"></div>
-              <div class="w-1 bg-violet-accent rounded-full soundwave-bar"></div>
-              <div class="w-1 bg-amber-400 rounded-full soundwave-bar"></div>
-              <div class="w-1 bg-[var(--accent-main)] rounded-full soundwave-bar"></div>
-              <div class="w-1 bg-violet-accent rounded-full soundwave-bar"></div>
-            </div>
-          </div>
+        <div id="home-pro-voice-preview" class="space-y-3">
+          <p class="text-sm text-[var(--text-muted)] text-center py-4">Log in and select a sport to see the latest Pro Voice posts.</p>
         </div>
 
         <!-- PULSE AD: TRACK YOUR HYDRATION -->
@@ -1507,10 +1486,18 @@
 
           <!-- VOICE PANE -->
           <div id="composer-pane-Voice" class="composer-pane space-y-2 hidden">
+            <input type="text" id="voice-subject-input" maxlength="60" placeholder="Subject, e.g. Ground Pressure Tip: Trail Heel Load" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
             <div class="flex flex-col items-center gap-3 py-3">
               <button id="voice-rec-btn" onclick="toggleVoiceRecording()" class="w-16 h-16 rounded-full theme-accent-bg flex items-center justify-center text-xs font-black">REC</button>
               <div id="voice-rec-timer" class="text-sm font-mono text-[var(--text-muted)]">Tap to record — 30s max</div>
               <div class="flex items-end space-x-1 h-5" id="voice-rec-bars"></div>
+
+              <div id="voice-replay-controls" class="hidden w-full space-y-2">
+                <audio id="voice-preview-player" controls class="w-full"></audio>
+                <button type="button" onclick="reRecordVoice()" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-muted)] text-sm font-bold py-2 rounded-xl border border-[var(--border-subtle)]">
+                  Re-record
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1731,6 +1718,7 @@
       // before rendering those screens to gate access.
       loadActivePoll();
       loadProFeed();
+      loadHomeProVoicePreview();
     }
 
     async function enterSport(slug) {
@@ -2076,6 +2064,7 @@
       playSfx("C5", "32n");
 
       if (tabId === 'tab-stream') loadProFeed();
+      if (tabId === 'tab-home') loadHomeProVoicePreview();
     }
 
 
@@ -2572,6 +2561,7 @@
       if (profile?.active_sport_id) {
         currentSportId = profile.active_sport_id;
         loadActivePoll();
+        loadHomeProVoicePreview();
         try {
           const { data: sport } = await supabaseClient
             .from('sport_verticals')
@@ -2670,6 +2660,77 @@
     let pendingPhotoDataUrl = null;
     let selectedGifEmoji = null;
     let voiceRecording = false, voiceSeconds = 0, voiceTimerHandle = null;
+    let mediaRecorder = null, recordedChunks = [], recordedAudioDataUrl = null, micStream = null;
+
+    async function toggleVoiceRecording() {
+      if (voiceRecording) { stopVoiceRecording(false); return; }
+
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch (err) {
+        triggerToast('Microphone access denied or unavailable.');
+        return;
+      }
+      micStream = stream;
+      recordedChunks = [];
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+      mediaRecorder.onstop = async () => {
+        const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+        recordedAudioDataUrl = await new Promise(resolve => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        });
+        document.getElementById('voice-preview-player').src = recordedAudioDataUrl;
+        document.getElementById('voice-replay-controls').classList.remove('hidden');
+        micStream.getTracks().forEach(t => t.stop()); // release the mic once done
+      };
+      mediaRecorder.start();
+
+      voiceRecording = true; voiceSeconds = 0;
+      document.getElementById('voice-replay-controls').classList.add('hidden');
+      const btn = document.getElementById('voice-rec-btn');
+      btn.className = 'w-16 h-16 rounded-full bg-red-600 flex items-center justify-center text-xs font-black text-white';
+      btn.innerText = 'STOP';
+      const bars = document.getElementById('voice-rec-bars');
+      bars.innerHTML = '';
+      for (let i = 0; i < 5; i++) {
+        const b = document.createElement('span');
+        b.className = 'w-1 h-4 theme-accent-bg rounded soundwave-bar';
+        bars.appendChild(b);
+      }
+      voiceTimerHandle = setInterval(() => {
+        voiceSeconds++;
+        document.getElementById('voice-rec-timer').innerText = 'Recording — ' + voiceSeconds + 's / 30s';
+        if (voiceSeconds >= 30) stopVoiceRecording(false);
+      }, 1000);
+    }
+
+    function stopVoiceRecording(silent) {
+      clearInterval(voiceTimerHandle); voiceTimerHandle = null;
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+      const btn = document.getElementById('voice-rec-btn');
+      btn.className = 'w-16 h-16 rounded-full theme-accent-bg flex items-center justify-center text-xs font-black';
+      btn.innerText = 'REC';
+      document.getElementById('voice-rec-bars').innerHTML = '';
+      if (silent) {
+        document.getElementById('voice-rec-timer').innerText = 'Tap to record — 30s max';
+        voiceSeconds = 0;
+      } else if (voiceRecording) {
+        document.getElementById('voice-rec-timer').innerText = 'Recorded ' + voiceSeconds + 's — listen below before posting';
+      }
+      voiceRecording = false;
+    }
+
+    function reRecordVoice() {
+      recordedAudioDataUrl = null;
+      document.getElementById('voice-replay-controls').classList.add('hidden');
+      document.getElementById('voice-preview-player').src = '';
+      document.getElementById('voice-rec-timer').innerText = 'Tap to record — 30s max';
+      voiceSeconds = 0;
+    }
 
     function setMediaFormat(fmt) {
       currentMediaFormat = fmt;
@@ -2706,40 +2767,6 @@
       playSfx("A5", "32n");
     }
 
-    function toggleVoiceRecording() {
-      if (voiceRecording) { stopVoiceRecording(false); return; }
-      voiceRecording = true; voiceSeconds = 0;
-      const btn = document.getElementById('voice-rec-btn');
-      btn.className = 'w-16 h-16 rounded-full bg-red-600 flex items-center justify-center text-xs font-black text-white';
-      btn.innerText = 'STOP';
-      const bars = document.getElementById('voice-rec-bars');
-      bars.innerHTML = '';
-      for (let i = 0; i < 5; i++) {
-        const b = document.createElement('span');
-        b.className = 'w-1 h-4 theme-accent-bg rounded soundwave-bar';
-        bars.appendChild(b);
-      }
-      voiceTimerHandle = setInterval(() => {
-        voiceSeconds++;
-        document.getElementById('voice-rec-timer').innerText = 'Recording — ' + voiceSeconds + 's / 30s';
-        if (voiceSeconds >= 30) stopVoiceRecording(false);
-      }, 1000);
-    }
-    function stopVoiceRecording(silent) {
-      clearInterval(voiceTimerHandle); voiceTimerHandle = null;
-      const btn = document.getElementById('voice-rec-btn');
-      btn.className = 'w-16 h-16 rounded-full theme-accent-bg flex items-center justify-center text-xs font-black';
-      btn.innerText = 'REC';
-      document.getElementById('voice-rec-bars').innerHTML = '';
-      if (silent) {
-        document.getElementById('voice-rec-timer').innerText = 'Tap to record — 30s max';
-        voiceSeconds = 0;
-      } else if (voiceRecording) {
-        document.getElementById('voice-rec-timer').innerText = 'Recorded ' + voiceSeconds + 's — tap to re-record';
-      }
-      voiceRecording = false;
-    }
-
     function setAudience(aud) {
       currentAudience = aud;
       const pubBtn = document.getElementById('vis-public');
@@ -2764,6 +2791,8 @@
       document.getElementById('photo-dropzone').classList.remove('hidden');
       document.querySelectorAll('.gif-pick').forEach(g => g.classList.remove('theme-accent-subtle-bg', 'theme-accent-subtle-border', 'border-2'));
       stopVoiceRecording(true);
+      reRecordVoice();
+      document.getElementById('voice-subject-input').value = '';
     }
 
     async function publishProPost() {
@@ -2773,17 +2802,28 @@
       if (!currentSportId) { triggerToast('Select a sport first.'); return; }
 
       let mediaUrl = null;
+      let bodyText = currentMediaFormat === 'Text' ? (text || null) : null;
+
       if (currentMediaFormat === 'Photo') mediaUrl = pendingPhotoDataUrl || null;
       if (currentMediaFormat === 'GIF') mediaUrl = selectedGifEmoji || null;
       if (currentMediaFormat === 'Voice') {
-        triggerToast('Voice posts are coming soon — please use Text, Photo, or GIF for now.');
-        return;
+        if (!recordedAudioDataUrl) {
+          triggerToast('Record a voice memo first, then listen to it before posting.');
+          return;
+        }
+        const subject = document.getElementById('voice-subject-input').value.trim();
+        if (!subject) {
+          triggerToast('Add a subject for your voice memo before posting.');
+          return;
+        }
+        mediaUrl = recordedAudioDataUrl;
+        bodyText = subject;
       }
 
       const { error } = await supabaseClient.from('pro_posts').insert({
         author_id: session.user.id,
         sport_id: currentSportId,
-        body_text: currentMediaFormat === 'Text' ? (text || null) : null,
+        body_text: bodyText,
         media_type: currentMediaFormat,
         media_url: mediaUrl,
         audience: currentAudience === 'Public' ? 'public' : 'inner_circle',
@@ -2803,12 +2843,96 @@
       resetComposerPanes();
       triggerToast('Broadcast published!');
       loadProFeed();
+      loadHomeProVoicePreview();
     }
 
     // ============================================================
     // PRO VOICE FEED: real posts, 5-emoji one-pick reactions.
     // ============================================================
     const REACTION_EMOJIS = ['🙏', '❤️', '👍', '😂', '😔'];
+
+    // Reusable voice memo player - same play button + subject + animated
+    // bars structure everywhere a voice memo appears (feed, Command Center).
+    function buildVoiceMemoHtml(subject, audioUrl, playerId) {
+      return `
+        <div class="bg-[var(--bg-app)] p-3 rounded-xl border border-[var(--border-subtle)] flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <button onclick="event.stopPropagation(); toggleMemoPlayback('${playerId}')" id="${playerId}-btn" class="w-8 h-8 rounded-full bg-violet-accent text-white flex items-center justify-center text-xs hover:scale-105 transition-all flex-shrink-0">▶</button>
+            <div>
+              <div class="text-xs font-semibold text-[var(--text-main)]">${subject}</div>
+              <div class="text-sm text-[var(--text-muted)]">Voice memo</div>
+            </div>
+          </div>
+          <div class="flex items-end space-x-1 h-6 flex-shrink-0">
+            <div class="w-1 bg-[var(--accent-main)] rounded-full soundwave-bar"></div>
+            <div class="w-1 bg-violet-accent rounded-full soundwave-bar"></div>
+            <div class="w-1 bg-amber-400 rounded-full soundwave-bar"></div>
+            <div class="w-1 bg-[var(--accent-main)] rounded-full soundwave-bar"></div>
+            <div class="w-1 bg-violet-accent rounded-full soundwave-bar"></div>
+          </div>
+          <audio id="${playerId}" src="${audioUrl}" class="hidden" onended="resetMemoButton('${playerId}')"></audio>
+        </div>
+      `;
+    }
+
+    function toggleMemoPlayback(playerId) {
+      const audio = document.getElementById(playerId);
+      const btn = document.getElementById(playerId + '-btn');
+      if (!audio) return;
+      if (audio.paused) {
+        audio.play();
+        btn.innerText = '❚❚';
+      } else {
+        audio.pause();
+        btn.innerText = '▶';
+      }
+    }
+
+    function resetMemoButton(playerId) {
+      const btn = document.getElementById(playerId + '-btn');
+      if (btn) btn.innerText = '▶';
+    }
+
+    // Command Center shows just the 3 most recent posts - same card
+    // renderer as the full feed, just capped and with a different
+    // id prefix so voice memo player IDs never collide with the full feed.
+    async function loadHomeProVoicePreview() {
+      const container = document.getElementById('home-pro-voice-preview');
+      if (!container) return;
+      if (!currentSportId) {
+        container.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-4">Log in and select a sport to see the latest Pro Voice posts.</p>';
+        return;
+      }
+
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const { data: sport } = await supabaseClient
+        .from('sport_verticals').select('display_name').eq('sport_id', currentSportId).single();
+      const currentSportName = sport?.display_name || '';
+
+      const { data: posts, error } = await supabaseClient
+        .from('pro_posts')
+        .select('post_id, author_id, body_text, media_type, media_url, audience, posted_at, expires_at')
+        .eq('sport_id', currentSportId)
+        .order('posted_at', { ascending: false })
+        .limit(3);
+
+      if (error || !posts || !posts.length) {
+        container.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-4">No Pro Voice posts yet.</p>';
+        return;
+      }
+
+      const authorIds = [...new Set(posts.map(p => p.author_id))];
+      const { data: authors } = await supabaseClient
+        .from('users').select('user_id, display_name, title, photo_url, role')
+        .in('user_id', authorIds);
+      const authorMap = {};
+      (authors || []).forEach(a => authorMap[a.user_id] = a);
+
+      const cardsHtml = await Promise.all(posts.map(post =>
+        renderProPostCard(post, session?.user?.id, authorMap[post.author_id], currentSportName, 'home')
+      ));
+      container.innerHTML = cardsHtml.join('');
+    }
 
     async function loadProFeed() {
       const feed = document.getElementById('stream-feed-list');
@@ -2820,9 +2944,16 @@
 
       const { data: { session } } = await supabaseClient.auth.getSession();
 
+      // Current sport's display name, fetched once - every post in this
+      // feed is already for this one sport (filtered below), so this one
+      // lookup covers every card without needing a per-post join.
+      const { data: sport } = await supabaseClient
+        .from('sport_verticals').select('display_name').eq('sport_id', currentSportId).single();
+      const currentSportName = sport?.display_name || '';
+
       const { data: posts, error } = await supabaseClient
         .from('pro_posts')
-        .select('post_id, author_id, body_text, media_type, media_url, audience, posted_at, expires_at, users(display_name, title, photo_url)')
+        .select('post_id, author_id, body_text, media_type, media_url, audience, posted_at, expires_at')
         .eq('sport_id', currentSportId)
         .order('posted_at', { ascending: false });
 
@@ -2835,11 +2966,23 @@
         return;
       }
 
-      const cardsHtml = await Promise.all(posts.map(post => renderProPostCard(post, session?.user?.id)));
+      // Fetch every distinct author's info in one simple query (no join),
+      // then look each one up client-side per card - this sidesteps the
+      // embedding ambiguity entirely instead of working around it.
+      const authorIds = [...new Set(posts.map(p => p.author_id))];
+      const { data: authors } = await supabaseClient
+        .from('users').select('user_id, display_name, title, photo_url, role')
+        .in('user_id', authorIds);
+      const authorMap = {};
+      (authors || []).forEach(a => authorMap[a.user_id] = a);
+
+      const cardsHtml = await Promise.all(posts.map(post =>
+        renderProPostCard(post, session?.user?.id, authorMap[post.author_id], currentSportName, 'feed')
+      ));
       feed.innerHTML = cardsHtml.join('');
     }
 
-    async function renderProPostCard(post, myUserId) {
+    async function renderProPostCard(post, myUserId, author, sportName, idPrefix) {
       const { data: counts } = await supabaseClient.rpc('get_post_reaction_counts', { p_post_id: post.post_id });
       const countMap = {};
       (counts || []).forEach(c => countMap[c.emoji] = Number(c.reaction_count));
@@ -2852,9 +2995,14 @@
         myReaction = mine?.emoji || null;
       }
 
-      const authorName = post.users?.display_name || 'Verified Pro';
-      const authorPhoto = post.users?.photo_url || initialsAvatarDataUri(authorName);
+      const authorName = author?.display_name || 'Verified Pro';
+      const authorPhoto = author?.photo_url || initialsAvatarDataUri(authorName);
       const secondsLeft = Math.max(0, Math.floor((new Date(post.expires_at) - new Date()) / 1000));
+
+      // Checkmark next to the name only when admin-verified - never
+      // implied just from a self-chosen title.
+      const isVerifiedAuthor = author?.role === 'verified_pro' || author?.role === 'admin';
+      const checkBadge = isVerifiedAuthor ? ' <span class="text-[var(--accent-main)]">✓</span>' : '';
 
       let mediaHtml = '';
       if (post.media_type === 'Text' && post.body_text) {
@@ -2863,6 +3011,8 @@
         mediaHtml = `<img src="${post.media_url}" class="w-full aspect-video object-cover rounded-xl">`;
       } else if (post.media_type === 'GIF' && post.media_url) {
         mediaHtml = `<div class="w-full aspect-video bg-[var(--bg-card)] rounded-xl flex items-center justify-center text-5xl">${post.media_url}</div>`;
+      } else if (post.media_type === 'Voice' && post.media_url) {
+        mediaHtml = buildVoiceMemoHtml(post.body_text || 'Voice memo', post.media_url, `${idPrefix}-voice-${post.post_id}`);
       }
 
       const reactionButtons = REACTION_EMOJIS.map(emoji => {
@@ -2873,6 +3023,10 @@
         </button>`;
       }).join('');
 
+      // Sport shown alongside title so multi-sport posts are never
+      // ambiguous about which sport a Pro is speaking as.
+      const sportLabel = sportName ? ` · ${sportName}` : '';
+
       return `
         <div class="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl p-4 space-y-3 relative overflow-hidden">
           <div class="flex items-start justify-between">
@@ -2881,8 +3035,8 @@
                 <img src="${authorPhoto}" class="w-full h-full object-cover">
               </div>
               <div>
-                <h4 class="text-xs font-bold text-[var(--text-main)]">${authorName}</h4>
-                <p class="text-sm text-[var(--text-muted)]">${post.users?.title || 'Verified Pro'} · ${post.audience === 'public' ? '🌐 Public' : '🔒 Inner Circle'}</p>
+                <h4 class="text-xs font-bold text-[var(--text-main)]">${authorName}${checkBadge}</h4>
+                <p class="text-sm text-[var(--text-muted)]">${author?.title || 'Verified Pro'}${sportLabel} · ${post.audience === 'public' ? '🌐 Public' : '🔒 Inner Circle'}</p>
               </div>
             </div>
             <div class="bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded-full text-sm font-mono font-bold">
