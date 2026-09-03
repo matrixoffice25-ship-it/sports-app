@@ -1864,53 +1864,35 @@
       });
     }
 
-    let dynamicNewsBriefs = [
-      {
-        id: 1,
-        title: "PGA Tour Biomechanics Study Released",
-        detail: "Lead-leg dominant players saw 8.4 mph ball speed gains switching to ST-04 posture setup.",
-        color: "bg-emerald-fairway"
-      },
-      {
-        id: 2,
-        title: "Coach Priya Shah Answers Common Push-Fade Questions",
-        detail: "New 3-minute video breakdown on keeping the chest over the ball in downswing.",
-        color: "bg-violet-accent"
-      },
-      {
-        id: 3,
-        title: "PULSE Zero Sugar Hydration Study",
-        detail: "Electrolyte retention curves indicate 22% faster neuromuscular recovery in back-nine rounds.",
-        color: "bg-red-500"
-      },
-      {
-        id: 4,
-        title: "Equipment Lab: High-MOI Drivers Tested",
-        detail: "10K MOI heads benchmarked for ST-04 heel-miss protection. Full breakdown in Technology.",
-        color: "bg-amber-400"
-      },
-      {
-        id: 5,
-        title: "Live Masterclass Stream Room Unlocks Today",
-        detail: "Interactive coaching clinic kicks off at 7:00 PM EST. Check your access pass.",
-        color: "bg-teal-400"
-      }
-    ];
-
-    function renderDynamicBriefs() {
+    async function loadNewsBriefs() {
       const container = document.getElementById('dynamic-briefs-list');
       if (!container) return;
 
+      const { data: briefs, error } = await supabaseClient
+        .from('news_briefs')
+        .select('brief_id, title, body, source_url, created_at')
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (error) {
+        container.innerHTML = `<p class="text-sm text-[var(--text-muted)] text-center py-4">Could not load news: ${error.message}</p>`;
+        return;
+      }
+      if (!briefs || !briefs.length) {
+        container.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-4">No news briefs yet.</p>';
+        return;
+      }
+
       container.innerHTML = '';
-      dynamicNewsBriefs.forEach(brief => {
+      briefs.forEach(brief => {
         const item = document.createElement('div');
         item.className = 'bg-[var(--bg-card)] p-2.5 rounded-xl border border-[var(--border-subtle)] hover:border-[var(--accent-main)] transition-colors';
         item.innerHTML = `
           <div class="text-xs font-bold text-[var(--text-main)] flex items-center gap-2">
-            <span class="w-1.5 h-1.5 rounded-full ${brief.color}"></span>
+            <span class="w-1.5 h-1.5 rounded-full theme-accent-bg"></span>
             <span>${brief.title}</span>
           </div>
-          <p class="text-sm text-[var(--text-muted)] mt-1 pl-3">${brief.detail}</p>
+          <p class="text-sm text-[var(--text-muted)] mt-1 pl-3">${brief.body}</p>
         `;
         container.appendChild(item);
       });
@@ -3384,7 +3366,7 @@
       setAccentPalette('emerald', false);
       setFontScale(1, false);
       switchTab('tab-home');
-      renderDynamicBriefs();
+      loadNewsBriefs();
       initQuizCanvas();
       initFitnessQuizCanvas();
       validatePasswordRules();
