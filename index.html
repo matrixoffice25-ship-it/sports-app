@@ -337,10 +337,10 @@
           </div>
         </div>
 
-        <!-- Sport 3: Basketball -->
+        <!-- Sport 3: Pickleball -->
         <div class="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl overflow-hidden shadow-md space-y-0 relative">
           <div class="relative h-32 w-full overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1546519638-68e109498ffc?w=600&auto=format&fit=crop&q=80" alt="Basketball" class="w-full h-full object-cover">
+            <img src="https://images.unsplash.com/photo-1747027694256-575ee28c793e?w=600&auto=format&fit=crop&q=80" alt="Pickleball" class="w-full h-full object-cover">
             <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-surface)] via-black/40 to-transparent"></div>
             
             <div class="absolute top-2.5 right-2.5 bg-slate-900/90 text-amber-400 border border-amber-500/30 text-xs font-bold px-2.5 py-0.5 rounded-full">
@@ -348,7 +348,7 @@
             </div>
 
             <div class="absolute bottom-2.5 left-3.5">
-              <h3 class="text-lg font-bold text-white">Basketball</h3>
+              <h3 class="text-lg font-bold text-white">Pickleball</h3>
             </div>
           </div>
 
@@ -361,12 +361,12 @@
                 </svg>
                 <div class="text-xs font-bold text-white">PULSE Energy</div>
               </div>
-              <button onclick="triggerToast('Claimed Basketball Beta Key! 🏀')" class="min-h-touch px-4 py-1 bg-red-600 hover:bg-red-700 text-white font-extrabold text-sm rounded-lg shadow transition-all">
+              <button onclick="triggerToast('Claimed Pickleball Beta Key! 🏓')" class="min-h-touch px-4 py-1 bg-red-600 hover:bg-red-700 text-white font-extrabold text-sm rounded-lg shadow transition-all">
                 Beta Key
               </button>
             </div>
 
-            <button onclick="triggerToast('Joined Basketball Waitlist! 🏀')" class="w-full min-h-touch px-4 py-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] text-xs font-bold rounded-xl border border-[var(--border-subtle)] transition-all flex items-center justify-center gap-2">
+            <button onclick="triggerToast('Joined Pickleball Waitlist! 🏓')" class="w-full min-h-touch px-4 py-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] text-xs font-bold rounded-xl border border-[var(--border-subtle)] transition-all flex items-center justify-center gap-2">
               
               <span>Request Early Access</span>
             </button>
@@ -1416,6 +1416,11 @@
         </div>
 
         <div class="space-y-3">
+
+          <div class="space-y-1">
+            <label class="text-sm text-slate-400 font-medium">Post to which sport?</label>
+            <select id="composer-sport-select" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] focus:outline-none focus:border-violet-accent"></select>
+          </div>
 
           <div class="space-y-1">
             <label class="text-sm text-slate-400 font-medium">Select Media Format</label>
@@ -2546,15 +2551,38 @@
       // see a sport name/label until this resolves.
       let sportName = null;
       let assessmentLabel = 'SwingType';
-      if (profile?.active_sport_id) {
-        currentSportId = profile.active_sport_id;
+      let effectiveSportId = profile?.active_sport_id;
+
+      if (!effectiveSportId) {
+        // No sport chosen yet (brand new account, or one that never tapped
+        // "Enter Golf"). Since Golf is the only sport live right now, there's
+        // no reason to force a manual selection - auto-assign it once, and
+        // persist it so this only ever happens the first time for this account.
+        try {
+          const { data: golfSport } = await supabaseClient
+            .from('sport_verticals').select('sport_id').eq('slug', 'golf').single();
+          if (golfSport) {
+            effectiveSportId = golfSport.sport_id;
+            await supabaseClient.from('users').update({ active_sport_id: effectiveSportId }).eq('user_id', userId);
+            await supabaseClient.from('user_sport_profiles').upsert(
+              { user_id: userId, sport_id: effectiveSportId },
+              { onConflict: 'user_id,sport_id', ignoreDuplicates: true }
+            );
+          }
+        } catch (e) {
+          console.error('Auto-assigning default sport failed (non-fatal):', e);
+        }
+      }
+
+      if (effectiveSportId) {
+        currentSportId = effectiveSportId;
         loadActivePoll();
         loadHomeProVoicePreview();
         try {
           const { data: sport } = await supabaseClient
             .from('sport_verticals')
             .select('display_name, assessment_label')
-            .eq('sport_id', profile.active_sport_id)
+            .eq('sport_id', effectiveSportId)
             .single();
           if (sport) {
             sportName = sport.display_name;
@@ -2637,8 +2665,20 @@
       openComposerModal();
     }
 
-    function openComposerModal() {
+    async function openComposerModal() {
       document.getElementById('composer-modal').classList.remove('hidden');
+
+      // Verified/admin authors can choose which sport a post appears in -
+      // it doesn't have to match whatever sport they're currently browsing.
+      // This is what lets a coach known across multiple sports stay
+      // identifiable (name/title/sport shown together) no matter which
+      // sport's feed they're posting into.
+      const select = document.getElementById('composer-sport-select');
+      const { data: sports } = await supabaseClient
+        .from('sport_verticals').select('sport_id, display_name').eq('is_active', true);
+      select.innerHTML = (sports || []).map(s =>
+        `<option value="${s.sport_id}" ${s.sport_id === currentSportId ? 'selected' : ''}>${s.display_name}</option>`
+      ).join('');
     }
     function closeComposerModal() {
       document.getElementById('composer-modal').classList.add('hidden');
@@ -2792,7 +2832,9 @@
       const text = document.getElementById('composer-text').value.trim();
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) { triggerToast('Please log in first.'); return; }
-      if (!currentSportId) { triggerToast('Select a sport first.'); return; }
+
+      const targetSportId = document.getElementById('composer-sport-select').value;
+      if (!targetSportId) { triggerToast('Select which sport this post is for.'); return; }
 
       let mediaUrl = null;
       let bodyText = currentMediaFormat === 'Text' ? (text || null) : null;
@@ -2815,7 +2857,7 @@
 
       const { error } = await supabaseClient.from('pro_posts').insert({
         author_id: session.user.id,
-        sport_id: currentSportId,
+        sport_id: targetSportId,
         body_text: bodyText,
         media_type: currentMediaFormat,
         media_url: mediaUrl,
@@ -2893,7 +2935,7 @@
       const container = document.getElementById('home-pro-voice-preview');
       if (!container) return;
       if (!currentSportId) {
-        container.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-4">Log in and select a sport to see the latest Pro Voice posts.</p>';
+        renderSportPickerPrompt('home-pro-voice-preview');
         return;
       }
 
@@ -2961,11 +3003,50 @@
       loadHomeProVoicePreview();
     }
 
+    // Reusable inline sport picker - replaces plain "select a sport" text
+    // with an actual dropdown + button, right where it's needed, so nobody
+    // has to leave the page to fix the situation.
+    async function renderSportPickerPrompt(containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      const { data: sports } = await supabaseClient
+        .from('sport_verticals').select('sport_id, display_name').eq('is_active', true);
+      const options = (sports || []).map(s => `<option value="${s.sport_id}">${s.display_name}</option>`).join('');
+      container.innerHTML = `
+        <div class="text-center py-4 space-y-3">
+          <p class="text-sm text-[var(--text-muted)]">Pick a sport to see its Pro Voice feed:</p>
+          <div class="flex items-center gap-2 justify-center max-w-xs mx-auto">
+            <select id="${containerId}-sport-picker" class="flex-1 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl py-2 px-3 text-xs text-[var(--text-main)] focus:outline-none">
+              ${options}
+            </select>
+            <button onclick="quickSelectSport('${containerId}')" class="min-h-touch px-4 py-2 theme-accent-bg text-xs font-bold rounded-xl">View</button>
+          </div>
+        </div>
+      `;
+    }
+
+    async function quickSelectSport(containerId) {
+      const sportId = document.getElementById(`${containerId}-sport-picker`).value;
+      if (!sportId) return;
+
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        await setActiveSport(sportId); // logged in - persists the choice too
+      } else {
+        // Not logged in yet - public posts are still visible to guests per
+        // RLS, so let them browse without forcing a login wall here.
+        currentSportId = sportId;
+        loadActivePoll();
+        loadProFeed();
+        loadHomeProVoicePreview();
+      }
+    }
+
     async function loadProFeed() {
       const feed = document.getElementById('stream-feed-list');
       if (!feed) return;
       if (!currentSportId) {
-        feed.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-6">Select a sport to see its Pro Voice feed.</p>';
+        renderSportPickerPrompt('stream-feed-list');
         return;
       }
 
