@@ -2606,13 +2606,13 @@
       const avatarUrl = currentUser.photo || initialsAvatarDataUri(displayName);
       setAllAvatars(avatarUrl);
 
-      // Verified badge: only shown when an admin has granted role='verified_pro'.
-      // A user's own chosen title never implies verification by itself —
-      // no fallback text like "Athlete" or "Verified" is shown otherwise.
+      // Sport/title shown together only for admin-verified accounts -
+      // no checkmark symbol anymore, per request. A self-chosen title
+      // alone never implies verification.
       const isVerified = profile?.role === 'verified_pro';
       currentUser.role = profile?.role || 'fan';
       const badgeText = isVerified
-        ? `✓ ${profile?.title || 'Verified'}${sportName ? ' · ' + sportName : ''}`
+        ? `${profile?.title || 'Verified'}${sportName ? ' · ' + sportName : ''}`
         : (profile?.title || '');
 
       const titleEl = document.getElementById('welcome-user-title');
@@ -2884,7 +2884,7 @@
     // ============================================================
     // PRO VOICE FEED: real posts, 5-emoji one-pick reactions.
     // ============================================================
-    const REACTION_EMOJIS = ['🙏', '❤️', '👍', '😂', '😔'];
+    const REACTION_EMOJIS = ['🙏', '❤️', '😂', '😔'];
 
     // Reusable voice memo player - same play button + subject + animated
     // bars structure everywhere a voice memo appears (feed, Command Center).
@@ -3107,11 +3107,6 @@
       const authorPhoto = author?.photo_url || initialsAvatarDataUri(authorName);
       const secondsLeft = Math.max(0, Math.floor((new Date(post.expires_at) - new Date()) / 1000));
 
-      // Checkmark next to the name only when admin-verified - never
-      // implied just from a self-chosen title.
-      const isVerifiedAuthor = author?.role === 'verified_pro' || author?.role === 'admin';
-      const checkBadge = isVerifiedAuthor ? ' <span class="text-[var(--accent-main)]">✓</span>' : '';
-
       let mediaHtml = '';
       if (post.media_type === 'Text' && post.body_text) {
         mediaHtml = `<p class="text-xs text-[var(--text-main)] leading-relaxed">"${post.body_text}"</p>`;
@@ -3131,9 +3126,8 @@
         </button>`;
       }).join('');
 
-      // Sport shown alongside title so multi-sport posts are never
-      // ambiguous about which sport a Pro is speaking as.
-      const sportLabel = sportName ? ` · ${sportName}` : '';
+      // Sport shown before title, matching the requested Photo/Name/Sport/Title order.
+      const sportLabel = sportName ? `${sportName} · ` : '';
 
       // Only the post's own author, or an admin, sees these - enforced
       // for real by the RLS policies too, this is just the matching UI.
@@ -3154,8 +3148,8 @@
                 <img src="${authorPhoto}" class="w-full h-full object-cover">
               </div>
               <div>
-                <h4 class="text-xs font-bold text-[var(--text-main)]">${authorName}${checkBadge}</h4>
-                <p class="text-sm text-[var(--text-muted)]">${author?.title || 'Verified Pro'}${sportLabel} · ${post.audience === 'public' ? '🌐 Public' : '🔒 Inner Circle'}</p>
+                <h4 class="text-xs font-bold text-[var(--text-main)]">${authorName}</h4>
+                <p class="text-sm text-[var(--text-muted)]">${sportLabel}${author?.title || 'Verified Pro'} · ${post.audience === 'public' ? '🌐 Public' : '🔒 Inner Circle'}</p>
               </div>
             </div>
             <div class="bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded-full text-sm font-mono font-bold">
