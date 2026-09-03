@@ -380,24 +380,6 @@
       <!-- TAB 2: GOLF COMMAND CENTER -->
       <!-- ================================================================= -->
       <section id="tab-home" class="tab-page space-y-4">
-        
-        <div class="bg-gradient-to-r from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-subtle)] flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <div class="w-12 h-12 rounded-2xl overflow-hidden border-2 border-[var(--accent-main)] shadow-md cursor-pointer relative" onclick="openProfileModal()">
-              <img id="welcome-avatar-img" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iIzMzNDE1NSIvPjx0ZXh0IHg9IjYwIiB5PSI3OCIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNTIiIGZvbnQtd2VpZ2h0PSI4MDAiIGZpbGw9IiM5NEEzQjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPj88L3RleHQ+PC9zdmc+" alt="Profile" class="w-full h-full object-cover">
-            </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-extrabold text-[var(--text-main)]">Golf Command</span>
-              </div>
-              <p class="text-sm text-[var(--text-muted)] flex items-center gap-1">
-                <span>Good morning,</span>
-                <span id="welcome-username" class="theme-accent-text font-bold">Guest</span>
-              </p>
-              <div id="welcome-user-title" class="text-sm text-amber-400/90 font-medium"></div>
-            </div>
-          </div>
-        </div>
 
         <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3" id="poll-card">
           <div class="flex items-center space-x-2">
@@ -1391,10 +1373,6 @@
             <span>Edit Credentials / Title</span>
           </button>
 
-          <button onclick="handleLogOut()" class="w-full min-h-touch bg-red-950/40 hover:bg-red-950/60 text-red-300 font-bold text-xs py-2.5 rounded-xl border border-red-500/30 flex items-center justify-center gap-2 transition-all">
-            <span>Log Out</span>
-          </button>
-
           <div class="pt-2 border-t border-[var(--border-subtle)]">
             <button type="button" id="delete-account-toggle" onclick="toggleDeleteAccountPanel()" class="text-xs text-red-400/70 hover:text-red-400 underline min-h-touch">
               Delete my account
@@ -1409,6 +1387,13 @@
             </div>
           </div>
         </div>
+
+        <!-- Persistent - visible regardless of which tab (Edit/Current) is
+             active, so signing out is always easy to find, matching the
+             common pattern of a bottom-anchored, always-reachable sign-out. -->
+        <button id="persistent-logout-btn" onclick="handleLogOut()" class="hidden w-full min-h-touch bg-red-950/40 hover:bg-red-950/60 text-red-300 font-bold text-xs py-2.5 rounded-xl border border-red-500/30 items-center justify-center gap-2 transition-all">
+          <span>Log Out</span>
+        </button>
 
       </div>
     </div>
@@ -2486,10 +2471,11 @@
         if (pendingPhotoFile) await uploadPendingPhoto(session.user.id);
 
         currentUser.name = nameVal;
-        document.getElementById('welcome-username').innerText = nameVal;
+        const welcomeNameEl = document.getElementById('welcome-username');
+        if (welcomeNameEl) welcomeNameEl.innerText = nameVal;
         document.getElementById('overview-user-name').innerText = nameVal;
         closeProfileModal();
-        triggerToast(`Profile saved: ${nameVal}! ✅`);
+        triggerToast(`✅ Your profile changes have been saved successfully.`);
         return;
       }
 
@@ -2547,6 +2533,8 @@
       }
 
       isLoggedIn = true;
+      document.getElementById('persistent-logout-btn').classList.remove('hidden');
+      document.getElementById('persistent-logout-btn').classList.add('flex');
       if (authUser?.email) currentUser.email = authUser.email;
 
       const displayName = profile?.display_name || 'Guest';
@@ -2577,7 +2565,8 @@
         }
       }
 
-      document.getElementById('welcome-username').innerText = displayName;
+      const welcomeNameEl = document.getElementById('welcome-username');
+      if (welcomeNameEl) welcomeNameEl.innerText = displayName;
       document.getElementById('overview-user-name').innerText = displayName;
       document.getElementById('input-name').value = displayName;
       document.getElementById('input-title').value = profile?.title || '';
@@ -2938,6 +2927,40 @@
       container.innerHTML = cardsHtml.join('');
     }
 
+    async function editProPost(postId) {
+      const { data: post, error: fetchErr } = await supabaseClient
+        .from('pro_posts').select('body_text').eq('post_id', postId).single();
+      if (fetchErr) { triggerToast(`Could not load post: ${fetchErr.message}`); return; }
+
+      const newText = prompt('Edit your post:', post?.body_text || '');
+      if (newText === null) return; // user cancelled
+      if (!newText.trim()) { triggerToast('Text cannot be empty.'); return; }
+
+      const { error } = await supabaseClient.from('pro_posts').update({ body_text: newText.trim() }).eq('post_id', postId);
+      if (error) {
+        // If this fails for a non-admin editing someone else's post, that's
+        // the RLS policy doing its job, not a bug.
+        triggerToast(`Could not update post: ${error.message}`);
+        return;
+      }
+      triggerToast('✅ Post updated.');
+      loadProFeed();
+      loadHomeProVoicePreview();
+    }
+
+    async function deleteProPost(postId) {
+      if (!confirm('Delete this post permanently? This cannot be undone.')) return;
+
+      const { error } = await supabaseClient.from('pro_posts').delete().eq('post_id', postId);
+      if (error) {
+        triggerToast(`Could not delete post: ${error.message}`);
+        return;
+      }
+      triggerToast('Post deleted.');
+      loadProFeed();
+      loadHomeProVoicePreview();
+    }
+
     async function loadProFeed() {
       const feed = document.getElementById('stream-feed-list');
       if (!feed) return;
@@ -3031,6 +3054,17 @@
       // ambiguous about which sport a Pro is speaking as.
       const sportLabel = sportName ? ` · ${sportName}` : '';
 
+      // Only the post's own author, or an admin, sees these - enforced
+      // for real by the RLS policies too, this is just the matching UI.
+      const canManage = (myUserId && myUserId === post.author_id) || currentUser.role === 'admin';
+      const canEditText = canManage && (post.media_type === 'Text' || post.media_type === 'Voice');
+      const manageButtons = canManage ? `
+        <div class="flex items-center gap-3 pt-1">
+          ${canEditText ? `<button onclick="editProPost('${post.post_id}')" class="text-xs font-bold text-[var(--text-muted)] hover:theme-accent-text underline min-h-touch">Edit</button>` : ''}
+          <button onclick="deleteProPost('${post.post_id}')" class="text-xs font-bold text-red-400/70 hover:text-red-400 underline min-h-touch">Delete</button>
+        </div>
+      ` : '';
+
       return `
         <div class="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl p-4 space-y-3 relative overflow-hidden">
           <div class="flex items-start justify-between">
@@ -3048,6 +3082,7 @@
             </div>
           </div>
           ${mediaHtml}
+          ${manageButtons}
           <div class="flex items-center flex-wrap gap-2 border-t border-[var(--border-subtle)] pt-3">
             ${reactionButtons}
           </div>
