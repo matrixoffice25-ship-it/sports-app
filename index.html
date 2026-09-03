@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>MY SPORTS NETWORK — Your Sports Companion</title>
 
+  <!-- PWA: required for installability and for Google Play's Trusted Web
+       Activity path, and generally good practice regardless of which
+       native-wrapping approach gets used later. -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#10b981">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -1412,6 +1420,22 @@
 
 
     <!-- PRO COMPOSER MODAL -->
+    <!-- REPORT MODAL -->
+    <div id="report-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden transition-all">
+      <div class="bg-[var(--bg-surface)] rounded-2xl p-5 w-full max-w-sm space-y-3 border border-[var(--border-subtle)]">
+        <h3 class="text-sm font-bold text-[var(--text-main)]">Report this post</h3>
+        <p class="text-sm text-[var(--text-muted)]">What's the issue? Our team will review it.</p>
+        <div class="space-y-2">
+          <button onclick="submitReport('spam')" class="w-full min-h-touch text-left px-3 py-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] rounded-xl text-xs text-[var(--text-main)]">Spam</button>
+          <button onclick="submitReport('inappropriate')" class="w-full min-h-touch text-left px-3 py-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] rounded-xl text-xs text-[var(--text-main)]">Inappropriate content</button>
+          <button onclick="submitReport('harassment')" class="w-full min-h-touch text-left px-3 py-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] rounded-xl text-xs text-[var(--text-main)]">Harassment or bullying</button>
+          <button onclick="submitReport('misinformation')" class="w-full min-h-touch text-left px-3 py-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] rounded-xl text-xs text-[var(--text-main)]">Misinformation</button>
+          <button onclick="submitReport('other')" class="w-full min-h-touch text-left px-3 py-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] rounded-xl text-xs text-[var(--text-main)]">Other</button>
+        </div>
+        <button onclick="closeReportModal()" class="w-full min-h-touch text-center px-3 py-2 text-xs text-[var(--text-muted)] underline">Cancel</button>
+      </div>
+    </div>
+
     <div id="composer-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all">
       <div class="w-full max-w-md bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-t-3xl sm:rounded-3xl p-5 space-y-4 shadow-2xl relative animate-slide-up">
         
@@ -3099,6 +3123,38 @@
       loadHomeProVoicePreview();
     }
 
+    let reportingPostId = null;
+
+    function openReportModal(postId) {
+      reportingPostId = postId;
+      document.getElementById('report-modal').classList.remove('hidden');
+    }
+    function closeReportModal() {
+      reportingPostId = null;
+      document.getElementById('report-modal').classList.add('hidden');
+    }
+
+    async function submitReport(reason) {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) { triggerToast('Please log in first.'); return; }
+      if (!reportingPostId) return;
+
+      const { error } = await supabaseClient.from('content_reports').insert({
+        post_id: reportingPostId,
+        reporter_id: session.user.id,
+        reason,
+      });
+
+      closeReportModal();
+      if (error) {
+        // Most likely cause: they already reported this exact post before -
+        // the database's own unique constraint prevents duplicate reports.
+        triggerToast(error.message.includes('duplicate') ? 'You already reported this post.' : `Could not submit report: ${error.message}`);
+        return;
+      }
+      triggerToast('Thanks - our team will review this. 🛡️');
+    }
+
     async function loadProFeed() {
       const feed = document.getElementById('stream-feed-list');
       if (!feed) return;
@@ -3197,6 +3253,13 @@
         </div>
       ` : '';
 
+      // Reporting your own post doesn't make sense - only shown for other
+      // people's posts. Baseline expectation for apps with user-generated
+      // content, on both app stores.
+      const reportButton = (myUserId && myUserId !== post.author_id) ? `
+        <button onclick="openReportModal('${post.post_id}')" class="text-xs text-[var(--text-muted)] hover:text-red-400 underline min-h-touch">Report</button>
+      ` : '';
+
       return `
         <div class="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl p-4 space-y-3 relative overflow-hidden">
           <div class="flex items-start justify-between">
@@ -3215,8 +3278,11 @@
           </div>
           ${mediaHtml}
           ${manageButtons}
-          <div class="flex items-center flex-wrap gap-2 border-t border-[var(--border-subtle)] pt-3">
-            ${reactionButtons}
+          <div class="flex items-center justify-between flex-wrap gap-2 border-t border-[var(--border-subtle)] pt-3">
+            <div class="flex items-center flex-wrap gap-2">
+              ${reactionButtons}
+            </div>
+            ${reportButton}
           </div>
         </div>
       `;
@@ -3471,6 +3537,17 @@
       loadHomeProVoicePreview();
       loadActivePoll();
       renderSportSwitcherLabel();
+
+      // Register the service worker - makes the app installable and gives
+      // it offline resilience (see service-worker.js for what this covers).
+      // Wrapped defensively since file:// testing and some environments
+      // don't support service workers at all - this must never block
+      // anything else from working.
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/service-worker.js').catch((err) => {
+          console.error('Service worker registration failed (non-fatal):', err);
+        });
+      }
     };
   </script>
 </body>
