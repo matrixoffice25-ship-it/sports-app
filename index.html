@@ -156,26 +156,21 @@
 
 <body class="bg-[var(--bg-body)] text-[var(--text-main)] font-sans antialiased selection:bg-[var(--accent-main)] selection:text-white min-h-screen flex flex-col items-center justify-start transition-colors duration-300">
 
-  <!-- Production Web MVP App Shell Container -->
   <div class="w-full max-w-lg min-h-screen bg-[var(--bg-app)] text-[var(--text-main)] flex flex-col relative shadow-2xl border-x border-[var(--border-subtle-light)] transition-colors duration-300">
     
-    <!-- App Navigation Header & Core Tab Bar -->
     <header class="w-full bg-[var(--nav-bar-bg)] backdrop-blur-md border-b border-[var(--border-subtle)] z-40 sticky top-0 flex flex-col transition-colors">
       
-      <!-- Top Global Sponsor Strip (ENLARGED) -->
       <div class="bg-gradient-to-r from-red-950/90 via-slate-900 to-red-950/90 border-b border-red-500/30 px-5 py-3 flex items-center justify-between shadow-md">
         <div class="flex items-center space-x-3">
           <svg class="h-6 w-auto" viewBox="0 0 100 24" fill="none">
             <rect width="100" height="24" rx="12" fill="#F40009"/>
-            <path d="M12 17C22 17 28 8 40 8C52 8 58 17 68 17C78 17 84 9 92 9" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.85"/>
-            <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11.5" fill="white" letter-spacing="0.5">Coca-Cola</text>
+            <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11.5" fill="white" letter-spacing="0.5">PULSE</text>
           </svg>
           <span class="text-xs text-slate-200 font-extrabold uppercase tracking-wider">Official Global Partner</span>
         </div>
         <span class="text-[10px] font-mono font-bold text-red-300 bg-red-500/25 px-2 py-1 rounded border border-red-500/40">SPONSORED</span>
       </div>
 
-      <!-- Top Title & Quick Actions -->
       <div class="px-4 py-3 flex items-center justify-between">
         <div class="flex items-center space-x-2.5">
           <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[var(--accent-main)] to-violet-accent flex items-center justify-center text-white font-black text-xs shadow-md">
@@ -190,7 +185,6 @@
         </div>
 
         <div class="flex items-center space-x-2">
-          <!-- Sport Switcher -->
           <div class="relative">
             <button id="sport-switcher-btn" onclick="toggleSportSwitcher()" class="h-8 px-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-main)] flex items-center gap-1 text-xs font-bold hover:scale-105 transition-all touch-target">
               <span id="sport-switcher-label">Select Sport</span>
@@ -201,12 +195,10 @@
             </div>
           </div>
 
-          <!-- Light/Dark Mode Switcher -->
           <button id="quick-mode-btn" onclick="toggleThemeMode()" class="w-8 h-8 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-main)] flex items-center justify-center text-xs hover:scale-105 transition-all touch-target" title="Toggle Light / Dark Mode">
             🌙
           </button>
 
-          <!-- User Profile Avatar -->
           <button onclick="openProfileModal()" class="w-8 h-8 rounded-full bg-[var(--bg-surface)] border-2 border-[var(--accent-main)] flex items-center justify-center relative hover:scale-105 transition-all overflow-hidden touch-target" title="View Profile">
             <img id="top-avatar-img" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iIzMzNDE1NSIvPjx0ZXh0IHg9IjYwIiB5PSI3OCIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNTIiIGZvbnQtd2VpZ2h0PSI4MDAiIGZpbGw9IiM5NEEzQjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPj88L3RleHQ+PC9zdmc+" alt="Athlete Profile" class="w-full h-full object-cover">
             <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[var(--accent-main)] rounded-full ring-2 ring-[var(--bg-app)]"></span>
@@ -214,7 +206,6 @@
         </div>
       </div>
 
-      <!-- TOP NAV -->
       <nav class="flex items-stretch gap-1 px-1.5 py-1 border-t border-[var(--border-subtle)] bg-[var(--nav-bar-sub)] transition-colors">
         <button onclick="switchTab('tab-news')" id="nav-tab-news" class="nav-btn flex-1 min-w-0 py-1.5 rounded-xl text-xs font-semibold flex flex-col items-center gap-0.5 transition-all text-[var(--text-muted)] hover:text-[var(--text-main)] touch-target">
           <span class="truncate">News</span>
@@ -235,7 +226,6 @@
       </nav>
     </header>
 
-    <!-- BOTTOM NAV -->
     <nav class="fixed bottom-0 left-0 right-0 mx-auto max-w-lg flex items-stretch px-2 py-1.5 border-t border-[var(--border-subtle)] bg-[var(--nav-bar-bg)] backdrop-blur-md z-40">
       <button onclick="switchTab('tab-selector')" id="nav-tab-selector" class="nav-btn flex-1 py-2 rounded-xl text-xs font-semibold flex flex-col items-center gap-1 transition-all text-[var(--text-muted)] hover:text-[var(--text-main)] touch-target">
         <span>Multi-Sport</span>
@@ -250,349 +240,82 @@
       </button>
     </nav>
 
-    <!-- Main Content Dynamic View Canvas -->
     <main class="flex-1 p-4 pb-24 space-y-5 relative w-full" id="main-viewport">
 
-      <!-- ================================================================= -->
-      <!-- TAB 1: MULTI-SPORT PLATFORM SELECTOR -->
-      <!-- ================================================================= -->
       <section id="tab-selector" class="tab-page hidden space-y-4">
         <div class="text-center py-2">
-          <div class="inline-flex items-center gap-2 bg-red-950/40 border border-red-500/30 px-3 py-1 rounded-full text-xs mb-2 shadow-sm">
+          <div class="inline-flex items-center gap-2 bg-red-950/40 border border-red-500/30 px-3 py-1 rounded-full text-sm mb-2 shadow-sm">
             <svg class="h-3 w-auto inline-block" viewBox="0 0 100 24" fill="none">
               <rect width="100" height="24" rx="12" fill="#F40009"/>
-              <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
+              <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
             </svg>
             <span class="text-red-300 font-bold uppercase tracking-wider">Multi-Sport Championship Series</span>
           </div>
           <h2 class="text-xl font-extrabold text-[var(--text-main)]">Sport Hubs</h2>
         </div>
 
-        <!-- Sport 1: Golf -->
         <div class="bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-card)] border-2 theme-accent-subtle-border rounded-2xl overflow-hidden shadow-xl accent-glow-effect space-y-0">
           <div class="relative h-32 w-full overflow-hidden">
             <img src="https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=600&auto=format&fit=crop&q=80" alt="Golf" class="w-full h-full object-cover">
             <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-surface)] via-black/40 to-transparent"></div>
-            
-            <div class="absolute top-2.5 right-2.5 theme-accent-bg text-xs font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider shadow">
-              Active Hub
-            </div>
-
+            <div class="absolute top-2.5 right-2.5 theme-accent-bg text-sm font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider shadow">Active Hub</div>
             <div class="absolute bottom-2.5 left-3.5 flex items-center space-x-2">
               <span class="text-lg font-black text-white">Golf</span>
-              <span class="text-xs text-emerald-300 bg-emerald-950/80 px-2 py-0.5 rounded-full font-bold border border-emerald-500/30">Active</span>
+              <span class="text-sm text-emerald-300 bg-emerald-950/80 px-2 py-0.5 rounded-full font-bold border border-emerald-500/30">Active</span>
             </div>
           </div>
-
           <div class="p-4 space-y-3">
             <div class="bg-gradient-to-r from-red-950/40 via-[var(--bg-app)] to-red-950/30 p-2.5 rounded-xl border border-red-500/30 flex items-center justify-between">
               <div class="flex items-center space-x-2.5">
                 <svg class="h-4 w-auto" viewBox="0 0 100 24" fill="none">
                   <rect width="100" height="24" rx="12" fill="#F40009"/>
-                  <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
+                  <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
                 </svg>
                 <div class="text-xs font-bold text-white">Zero Sugar Fuel</div>
               </div>
-              <button onclick="triggerToast('Claimed Coca-Cola Fuel! ⛳')" class="min-h-touch px-4 py-1 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-lg shadow transition-all">
-                Claim
-              </button>
+              <button onclick="triggerToast('Claimed PULSE Fuel! ⛳')" class="min-h-touch px-4 py-1 bg-red-600 hover:bg-red-700 text-white font-extrabold text-sm rounded-lg shadow transition-all">Claim</button>
             </div>
-
             <button onclick="enterSport('golf')" class="w-full min-h-touch theme-accent-bg font-extrabold text-xs py-3 px-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 hover:opacity-90">
               <span>ENTER GOLF</span>
             </button>
           </div>
         </div>
-
-        <!-- Sport 2: Tennis -->
-        <div class="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl overflow-hidden shadow-md space-y-0 relative">
-          <div class="relative h-32 w-full overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=600&auto=format&fit=crop&q=80" alt="Tennis" class="w-full h-full object-cover">
-            <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-surface)] via-black/40 to-transparent"></div>
-            
-            <div class="absolute top-2.5 right-2.5 bg-slate-900/90 text-amber-400 border border-amber-500/30 text-xs font-bold px-2.5 py-0.5 rounded-full">
-              Launching Q4 2026
-            </div>
-
-            <div class="absolute bottom-2.5 left-3.5">
-              <h3 class="text-lg font-bold text-white">Tennis</h3>
-            </div>
-          </div>
-
-          <div class="p-4 space-y-3">
-            <div class="bg-gradient-to-r from-red-950/40 via-[var(--bg-app)] to-red-950/30 p-2.5 rounded-xl border border-red-500/30 flex items-center justify-between">
-              <div class="flex items-center space-x-2.5">
-                <svg class="h-4 w-auto" viewBox="0 0 100 24" fill="none">
-                  <rect width="100" height="24" rx="12" fill="#F40009"/>
-                  <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
-                </svg>
-                <div class="text-xs font-bold text-white">Powerade Active</div>
-              </div>
-              <button onclick="triggerToast('Claimed VIP Pass! 🎾')" class="min-h-touch px-4 py-1 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-lg shadow transition-all">
-                VIP Pass
-              </button>
-            </div>
-
-            <button onclick="triggerToast('Reserved Early Access for Tennis! 🎾')" class="w-full min-h-touch px-4 py-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] text-xs font-bold rounded-xl border border-[var(--border-subtle)] transition-all flex items-center justify-center gap-2">
-              <span>Request Early Access</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Sport 3: Basketball -->
-        <div class="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl overflow-hidden shadow-md space-y-0 relative">
-          <div class="relative h-32 w-full overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1546519638-68e109498ffc?w=600&auto=format&fit=crop&q=80" alt="Basketball" class="w-full h-full object-cover">
-            <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-surface)] via-black/40 to-transparent"></div>
-            
-            <div class="absolute top-2.5 right-2.5 bg-slate-900/90 text-amber-400 border border-amber-500/30 text-xs font-bold px-2.5 py-0.5 rounded-full">
-              Launching Q1 2027
-            </div>
-
-            <div class="absolute bottom-2.5 left-3.5">
-              <h3 class="text-lg font-bold text-white">Basketball</h3>
-            </div>
-          </div>
-
-          <div class="p-4 space-y-3">
-            <div class="bg-gradient-to-r from-red-950/40 via-[var(--bg-app)] to-red-950/30 p-2.5 rounded-xl border border-red-500/30 flex items-center justify-between">
-              <div class="flex items-center space-x-2.5">
-                <svg class="h-4 w-auto" viewBox="0 0 100 24" fill="none">
-                  <rect width="100" height="24" rx="12" fill="#F40009"/>
-                  <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
-                </svg>
-                <div class="text-xs font-bold text-white">Sprite Energy</div>
-              </div>
-              <button onclick="triggerToast('Claimed Basketball Beta Key! 🏀')" class="min-h-touch px-4 py-1 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-lg shadow transition-all">
-                Beta Key
-              </button>
-            </div>
-
-            <button onclick="triggerToast('Joined Basketball Waitlist! 🏀')" class="w-full min-h-touch px-4 py-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] text-xs font-bold rounded-xl border border-[var(--border-subtle)] transition-all flex items-center justify-center gap-2">
-              <span>Request Early Access</span>
-            </button>
-          </div>
-        </div>
       </section>
 
-      <!-- ================================================================= -->
-      <!-- TAB 2: GOLF COMMAND CENTER -->
-      <!-- ================================================================= -->
       <section id="tab-home" class="tab-page space-y-4">
-        <div class="bg-gradient-to-r from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-subtle)] flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <div class="w-12 h-12 rounded-2xl overflow-hidden border-2 border-[var(--accent-main)] shadow-md cursor-pointer relative" onclick="openProfileModal()">
-              <img id="welcome-avatar-img" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iIzMzNDE1NSIvPjx0ZXh0IHg9IjYwIiB5PSI3OCIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNTIiIGZvbnQtd2VpZ2h0PSI4MDAiIGZpbGw9IiM5NEEzQjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPj88L3RleHQ+PC9zdmc+" alt="Profile" class="w-full h-full object-cover">
-            </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-extrabold text-[var(--text-main)]">Golf Command</span>
-              </div>
-              <p class="text-[11px] text-[var(--text-muted)] flex items-center gap-1">
-                <span>Good morning,</span>
-                <span id="welcome-username" class="theme-accent-text font-bold">Jack Nicklaus</span>
-              </p>
-              <div id="welcome-user-title" class="text-[10px] text-amber-400/90 font-medium">Co-Founder & Biomechanics Director</div>
-            </div>
-          </div>
-          <button onclick="switchTab('tab-selector')" class="min-h-touch px-3 py-1.5 bg-[var(--bg-app)] hover:bg-[var(--bg-card)] text-[var(--text-main)] text-xs font-semibold rounded-xl border border-[var(--border-subtle)] flex items-center gap-1.5 transition-all">
-            <span>Switch</span>
-          </button>
-        </div>
-
         <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3" id="poll-card">
           <div class="flex items-center space-x-2">
             <span class="text-lg">🗳️</span>
             <h4 class="text-xs font-bold text-[var(--text-main)]">Community Poll</h4>
           </div>
           <div id="poll-content" class="space-y-2">
-            <p class="text-xs text-[var(--text-muted)]">Log in and select a sport to vote in polls.</p>
+            <p class="text-sm text-[var(--text-muted)]">Log in and select a sport to vote in polls.</p>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div onclick="switchTab('tab-lessons'); activateLessonsSubtab();" class="bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-subtle)] flex flex-col justify-between space-y-3 relative overflow-hidden cursor-pointer hover:border-[var(--accent-main)] transition-all">
-            <div class="flex items-start justify-between">
-              <div>
-                <span class="text-xs font-bold uppercase tracking-wider theme-accent-text theme-accent-subtle-bg px-2 py-0.5 rounded theme-accent-subtle-border border">Golf Lessons</span>
-                <h3 class="text-sm font-bold text-[var(--text-main)] mt-1">Swing Drills Progress</h3>
-                <p class="text-xs text-[var(--text-muted)]">ST-04 Lead Post Rotation Drill</p>
-              </div>
-              <div class="relative w-14 h-14 flex items-center justify-center">
-                <svg class="w-14 h-14 transform -rotate-90">
-                  <circle cx="28" cy="28" r="22" stroke="currentColor" stroke-width="4" class="text-[var(--border-subtle)]" fill="transparent"/>
-                  <circle id="drill-progress-circle" cx="28" cy="28" r="22" stroke="var(--accent-main)" stroke-width="4" class="transition-all duration-500" fill="transparent" stroke-dasharray="138" stroke-dashoffset="48"/>
-                </svg>
-                <span id="drill-percent-text" class="absolute text-xs font-black text-[var(--text-main)]">65%</span>
-              </div>
-            </div>
-            <button onclick="event.stopPropagation(); incrementDrillProgress();" class="w-full min-h-touch bg-[var(--bg-app)] hover:bg-[var(--bg-card)] theme-accent-text font-bold text-xs py-2.5 px-3 rounded-xl border theme-accent-subtle-border flex items-center justify-center gap-2 transition-all">
-              <span>Log Completed Drill</span>
-            </button>
-          </div>
-
-          <div onclick="switchTab('tab-lessons'); activateFitnessSubtab();" class="bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-subtle)] flex flex-col justify-between space-y-3 relative overflow-hidden cursor-pointer hover:border-[var(--accent-main)] transition-all">
-            <div>
-              <div>
-                <span class="text-xs font-bold uppercase tracking-wider text-violet-light bg-violet-accent/10 px-2 py-0.5 rounded border border-violet-accent/20">Golf Fitness</span>
-              </div>
-              <h3 class="text-sm font-bold text-[var(--text-main)] mt-1">Thoracic Hip Mobility</h3>
-              <p class="text-xs text-[var(--text-muted)]">12 Min Joint Warmup</p>
-            </div>
-            <button onclick="event.stopPropagation(); switchTab('tab-lessons'); activateFitnessSubtab();" class="w-full min-h-touch bg-gradient-to-r from-violet-accent to-purple-800 hover:from-purple-600 hover:to-violet-accent text-white font-bold text-xs py-2.5 px-3 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all">
-              <span>Launch Mobility Session</span>
-            </button>
-          </div>
-        </div>
-
-        <div id="home-pro-voice-preview" class="space-y-3">
-          <p class="text-xs text-[var(--text-muted)] text-center py-4">Log in and select a sport to see the latest Pro Voice posts.</p>
-        </div>
-
-        <!-- COCA-COLA AD: TRACK YOUR HYDRATION -->
-        <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all" onclick="triggerToast('Hydration Tracker Opened! 💧')">
+        <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all" onclick="triggerToast('PULSE Performance Gear Opened!')">
           <div class="flex items-center space-x-3">
             <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white flex-shrink-0">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,12 7,12 9,6 13,18 16,12 22,12"/></svg>
             </div>
             <div>
-              <div class="text-xs font-bold text-red-400 uppercase">Coca-Cola Smart Hydration</div>
-              <div class="text-xs font-bold text-[var(--text-main)]">Track Your Hydration</div>
+              <div class="text-xs font-bold text-red-400 uppercase">PULSE</div>
+              <div class="text-xs font-bold text-[var(--text-main)]">Performance Gear for Today's Round</div>
             </div>
           </div>
-          <span class="text-xs text-[var(--text-muted)]">→</span>
         </div>
 
-        <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
-          <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
-            <div>
-              <h3 class="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider flex items-center gap-2">
-                <span>Daily News Brief Feed</span>
-              </h3>
-              <p class="text-[9px] text-[var(--text-muted)]">Curated daily athletic intelligence</p>
-            </div>
-            <button onclick="switchTab('tab-news')" class="text-xs font-bold text-red-400 hover:text-red-300 flex items-center gap-1">
-              <span>View Magazine</span>
-            </button>
-          </div>
-
-          <div id="dynamic-briefs-list" class="space-y-2"></div>
+        <div id="home-pro-voice-preview" class="space-y-3">
+          <p class="text-sm text-[var(--text-muted)] text-center py-4">Log in and select a sport to see the latest Pro Voice posts.</p>
         </div>
       </section>
 
-      <!-- ================================================================= -->
-      <!-- TAB 3: DEDICATED NEWS & MEDIA ONLINE MAGAZINE HUB -->
-      <!-- ================================================================= -->
       <section id="tab-news" class="tab-page hidden space-y-4">
-        <div class="bg-gradient-to-r from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="flex items-center space-x-2">
-                <span class="text-xs font-extrabold uppercase tracking-widest text-red-400 bg-red-950/40 px-2 py-0.5 rounded border border-red-500/30">ONLINE MAGAZINE</span>
-                <span class="text-[9px] text-[var(--text-muted)] font-mono">ISSUE #14 • AUG 2026</span>
-              </div>
-            </div>
-            <div class="text-right">
-              <span class="text-[8px] text-slate-400 block font-mono">POWERED BY</span>
-              <svg class="h-3.5 w-auto inline-block" viewBox="0 0 100 24" fill="none">
-                <rect width="100" height="24" rx="12" fill="#F40009"/>
-                <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
-              </svg>
-            </div>
-          </div>
-
-          <div class="flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar">
-            <button onclick="filterNewsCategory('all', this)" class="news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold theme-accent-bg flex-shrink-0 transition-all">All News</button>
-            <button onclick="filterNewsCategory('news', this)" class="news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-white flex-shrink-0 transition-all">⛳ News</button>
-            <button onclick="filterNewsCategory('technology', this)" class="news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-white flex-shrink-0 transition-all">⚙️ Technology</button>
-            <button onclick="filterNewsCategory('featured', this)" class="news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-white flex-shrink-0 transition-all">🥤 Featured</button>
-          </div>
-        </div>
-
-        <div class="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl overflow-hidden shadow-xl group">
-          <div class="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=700&auto=format&fit=crop&q=80" alt="Golf Athlete Swing" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500">
-            <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-app)] via-black/40 to-transparent z-10"></div>
-            
-            <div class="absolute top-3 left-3 z-20 bg-red-600 text-white text-xs font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow">
-              COVER STORY
-            </div>
-
-            <div class="absolute bottom-3 left-3 right-3 z-20">
-              <h3 class="text-sm sm:text-base font-black text-white leading-tight">The 10K MOI Revolution: How Tour Players Built Consistency Under Pressure</h3>
-            </div>
-          </div>
-
-          <div class="p-4 space-y-3">
-            <div class="flex items-center justify-between text-xs text-[var(--text-muted)] border-b border-[var(--border-subtle)] pb-2">
-              <span class="flex items-center gap-1.5">
-                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&auto=format&fit=crop&q=80" class="w-4 h-4 rounded-full object-cover">
-                <span>By Ansel Cruz & Priya Shah</span>
-              </span>
-              <span>4 Min Read • Aug 28, 2026</span>
-            </div>
-            <p class="text-xs text-[var(--text-main)] leading-relaxed">
-              When players match shaft tip firmness with high-inertia driver geometry, off-center hits retain up to 94% of ball speed. Our lead coaches break down the practical drills used with top tour pros.
-            </p>
-            <button onclick="triggerToast('Opening Cover Story Deep Dive 📖')" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] font-bold text-xs py-2.5 rounded-xl border border-[var(--border-subtle)] flex items-center justify-center gap-2 transition-all">
-              <span>Read Full Magazine Article</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="bg-gradient-to-r from-red-950/60 via-red-900/40 to-slate-900 p-4 rounded-2xl border-2 border-red-500/40 space-y-2.5 relative overflow-hidden coke-glow">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <svg class="h-5 w-auto" viewBox="0 0 100 24" fill="none">
-                <rect width="100" height="24" rx="12" fill="#F40009"/>
-                <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
-              </svg>
-              <div class="text-sm font-black text-white">Refresh Your Round</div>
-            </div>
-          </div>
-          <button onclick="triggerToast('Coca-Cola 2-for-1 Pro Shop Voucher Saved to Wallet! 🥤')" class="w-full min-h-touch bg-white hover:bg-slate-100 text-red-600 font-extrabold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg mt-2">
-            <span>Redeem Pro Shop Voucher</span>
-          </button>
-        </div>
-
         <div class="space-y-3">
-          <div class="bg-[var(--bg-surface)] p-3.5 rounded-xl border border-[var(--border-subtle)] space-y-2 hover:border-[var(--accent-main)] transition-colors">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-emerald-light bg-emerald-fairway/10 px-2 py-0.5 rounded">GOLF NEWS</span>
-              <span class="text-xs text-[var(--text-muted)]">2 Hours Ago</span>
-            </div>
-            <h4 class="text-xs font-bold text-[var(--text-main)]">How Lead-Side Dominant Players Eliminate the High Right Miss</h4>
-            <p class="text-xs text-[var(--text-muted)]">Our Coaching Staff demonstrates the simple range tee alignment drill that keeps your chest over the ball.</p>
-          </div>
-
-          <div class="bg-[var(--bg-surface)] p-3.5 rounded-xl border border-[var(--border-subtle)] space-y-2 hover:border-violet-accent transition-colors">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-violet-light bg-violet-accent/10 px-2 py-0.5 rounded">FEATURED RECOVERY</span>
-              <span class="text-xs text-[var(--text-muted)]">5 Hours Ago</span>
-            </div>
-            <h4 class="text-xs font-bold text-[var(--text-main)]">Morning Hip Opener Routine for Golfers Over 40</h4>
-            <p class="text-xs text-[var(--text-muted)]">Gentle mobility flows designed to loosen up the pelvic capsule without risking lower back strain.</p>
-          </div>
-        </div>
-
-        <!-- COCA-COLA AD: ATHLETE SPOTLIGHT -->
-        <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all mt-4" onclick="triggerToast('Opening Spotlight! 📖')">
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            </div>
-            <div>
-              <div class="text-xs font-bold text-red-400 uppercase">Coca-Cola Athlete Spotlight</div>
-              <div class="text-xs font-bold text-[var(--text-main)]">Athlete Hydration Tips</div>
-            </div>
-          </div>
-          <span class="text-xs text-[var(--text-muted)]">→</span>
+          <h3 class="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider">Latest News</h3>
         </div>
       </section>
 
-      <!-- ================================================================= -->
-      <!-- TAB 4: GOLF LESSONS & GOLF FITNESS -->
-      <!-- ================================================================= -->
       <section id="tab-lessons" class="tab-page hidden space-y-4">
         <div class="bg-[var(--bg-surface)] p-1 rounded-2xl border border-[var(--border-subtle)] flex items-center space-x-1">
           <button id="subtab-btn-lessons" onclick="toggleLessonsSubtab('lessons')" class="flex-1 min-h-touch py-2.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 transition-all theme-accent-bg shadow-md">
@@ -602,185 +325,10 @@
             <span>💪 Golf Fitness</span>
           </button>
         </div>
-
-        <!-- SUB-VIEW 1: GOLF LESSONS -->
-        <div id="subcontent-lessons" class="space-y-4">
-          <div class="bg-gradient-to-r from-red-950/40 via-[var(--bg-surface)] to-red-950/30 p-3 rounded-2xl border border-red-500/30 flex items-center justify-between shadow-sm">
-            <div class="flex items-center space-x-3">
-              <svg class="h-4 w-auto" viewBox="0 0 100 24" fill="none">
-                <rect width="100" height="24" rx="12" fill="#F40009"/>
-                <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
-              </svg>
-              <div>
-                <div class="text-xs font-extrabold text-red-400 uppercase tracking-wider">Presenting Sponsor</div>
-                <div class="text-xs font-bold text-[var(--text-main)]">Pro Coaching Master Biomechanics Clinic</div>
-              </div>
-            </div>
-            <span class="text-xs font-bold text-red-300 bg-red-900/60 px-2 py-0.5 rounded border border-red-500/30 uppercase">SPONSORED</span>
-          </div>
-
-          <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
-            <div class="flex items-center justify-between">
-              <div>
-                <span class="text-xs font-bold theme-accent-text uppercase tracking-wider theme-accent-subtle-bg px-2 py-0.5 rounded theme-accent-subtle-border border">Diagnostic Assessment</span>
-                <h3 class="text-sm font-bold text-[var(--text-main)] mt-1">15-Min Swing Diagnostic</h3>
-              </div>
-              <span class="text-xs text-amber-400 font-bold bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">Step 2 of 4</span>
-            </div>
-
-            <div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-[var(--border-subtle)] flex flex-col items-center justify-center group">
-              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10"></div>
-              <canvas id="quiz-canvas-video" class="w-full h-full object-cover opacity-80"></canvas>
-
-              <div class="absolute z-20 flex flex-col items-center text-center p-3">
-                <button id="quiz-play-btn" onclick="toggleVideoPlayback()" class="w-12 h-12 rounded-full theme-accent-bg flex items-center justify-center text-xs font-black shadow-lg hover:scale-110 transition-transform mb-2">PLAY</button>
-                <div class="text-xs font-bold text-white">ST-04 Lead Shoulder Plane Analysis</div>
-                <div class="text-xs text-slate-300">Tap to play the coaching demonstration</div>
-              </div>
-            </div>
-
-            <div class="pt-2">
-              <h4 class="text-xs font-bold text-[var(--text-main)] mb-1">Q: What is your primary miss under pressure?</h4>
-              <p class="text-xs text-[var(--text-muted)]">Select your typical ball flight so we can tailor your drill sequence.</p>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <button onclick="selectQuizOption(this)" class="quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
-                <div>
-                  <div class="text-xs font-bold text-[var(--text-main)] group-hover:theme-accent-text">A. High Push Fade</div>
-                  <div class="text-xs text-[var(--text-muted)]">Face slightly open to path</div>
-                </div>
-                <div class="quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
-              </button>
-              <button onclick="selectQuizOption(this)" class="quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
-                <div>
-                  <div class="text-xs font-bold text-[var(--text-main)] group-hover:theme-accent-text">B. Low Hook / Pull</div>
-                  <div class="text-xs text-[var(--text-muted)]">Hands flipping through impact</div>
-                </div>
-                <div class="quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
-              </button>
-              <button onclick="selectQuizOption(this)" class="quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
-                <div>
-                  <div class="text-xs font-bold text-[var(--text-main)] group-hover:theme-accent-text">C. Heavy / Fat Iron</div>
-                  <div class="text-xs text-[var(--text-muted)]">Weight hanging on trail foot</div>
-                </div>
-                <div class="quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
-              </button>
-              <button onclick="selectQuizOption(this)" class="quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
-                <div>
-                  <div class="text-xs font-bold text-[var(--text-main)] group-hover:theme-accent-text">D. High Thin Block</div>
-                  <div class="text-xs text-[var(--text-muted)]">Spine angle lifting early</div>
-                </div>
-                <div class="quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
-              </button>
-            </div>
-          </div>
-          
-          <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all mt-4" onclick="triggerToast('Loading Recovery Guide! 💧')">
-            <div class="flex items-center space-x-3">
-              <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white flex-shrink-0">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,12 7,12 9,6 13,18 16,12 22,12"/></svg>
-              </div>
-              <div>
-                <div class="text-xs font-bold text-red-400 uppercase">Coca-Cola Recovery Protocol</div>
-                <div class="text-xs font-bold text-[var(--text-main)]">Post-Drill Recovery Guide</div>
-              </div>
-            </div>
-            <span class="text-xs text-[var(--text-muted)]">→</span>
-          </div>
-        </div>
-
-        <!-- SUB-VIEW 2: GOLF FITNESS -->
-        <div id="subcontent-fitness" class="space-y-4 hidden">
-          <div class="bg-gradient-to-r from-red-950/40 via-[var(--bg-surface)] to-red-950/30 p-3 rounded-2xl border border-red-500/30 flex items-center justify-between shadow-sm">
-            <div class="flex items-center space-x-3">
-              <svg class="h-4 w-auto" viewBox="0 0 100 24" fill="none">
-                <rect width="100" height="24" rx="12" fill="#F40009"/>
-                <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
-              </svg>
-              <div>
-                <div class="text-xs font-extrabold text-red-400 uppercase tracking-wider">Presenting Sponsor</div>
-                <div class="text-xs font-bold text-[var(--text-main)]">Pro Coaching Mobility Clinic</div>
-              </div>
-            </div>
-            <span class="text-xs font-bold text-red-300 bg-red-900/60 px-2 py-0.5 rounded border border-red-500/30 uppercase">SPONSORED</span>
-          </div>
-
-          <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
-            <div class="flex items-center justify-between">
-              <div>
-                <span class="text-xs font-bold text-violet-light uppercase tracking-wider bg-violet-accent/10 px-2 py-0.5 rounded border border-violet-accent/20">Diagnostic Assessment</span>
-                <h3 class="text-sm font-bold text-[var(--text-main)] mt-1">15-Min Physical Fitness Screen</h3>
-              </div>
-              <span class="text-xs text-amber-400 font-bold bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">Step 2 of 4</span>
-            </div>
-
-            <div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-[var(--border-subtle)] flex flex-col items-center justify-center group">
-              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10"></div>
-              <canvas id="fitness-quiz-canvas-video" class="w-full h-full object-cover opacity-80"></canvas>
-
-              <div class="absolute z-20 flex flex-col items-center text-center p-3">
-                <button id="fitness-quiz-play-btn" onclick="toggleFitnessVideoPlayback()" class="w-12 h-12 rounded-full bg-violet-accent flex items-center justify-center text-xs font-black shadow-lg hover:scale-110 transition-transform mb-2">PLAY</button>
-                <div class="text-xs font-bold text-white">Trail Shoulder Mobility Screen</div>
-                <div class="text-xs text-slate-300">Tap to play the movement demonstration</div>
-              </div>
-            </div>
-
-            <div class="pt-2">
-              <h4 class="text-xs font-bold text-[var(--text-main)] mb-1">Q: How far can you rotate your trail shoulder without discomfort?</h4>
-              <p class="text-xs text-[var(--text-muted)]">Select the option that matches your current range of motion.</p>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <button onclick="selectFitnessQuizOption(this)" class="fitness-quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
-                <div>
-                  <div class="text-xs font-bold text-[var(--text-main)] group-hover:text-violet-light">A. Full, Comfortable Range</div>
-                  <div class="text-xs text-[var(--text-muted)]">No restriction or discomfort</div>
-                </div>
-                <div class="fitness-quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
-              </button>
-              <button onclick="selectFitnessQuizOption(this)" class="fitness-quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
-                <div>
-                  <div class="text-xs font-bold text-[var(--text-main)] group-hover:text-violet-light">B. Mild Tightness</div>
-                  <div class="text-xs text-[var(--text-muted)]">Slight pull, no pain</div>
-                </div>
-                <div class="fitness-quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
-              </button>
-              <button onclick="selectFitnessQuizOption(this)" class="fitness-quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
-                <div>
-                  <div class="text-xs font-bold text-[var(--text-main)] group-hover:text-violet-light">C. Noticeably Limited</div>
-                  <div class="text-xs text-[var(--text-muted)]">Clear restriction, no pain</div>
-                </div>
-                <div class="fitness-quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
-              </button>
-              <button onclick="selectFitnessQuizOption(this)" class="fitness-quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
-                <div>
-                  <div class="text-xs font-bold text-[var(--text-main)] group-hover:text-violet-light">D. Pain or Sharp Discomfort</div>
-                  <div class="text-xs text-[var(--text-muted)]">Stop and consult a professional</div>
-                </div>
-                <div class="fitness-quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
-              </button>
-            </div>
-          </div>
-
-          <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all mt-4" onclick="triggerToast('Loading Mobility Recovery Guide! 💧')">
-            <div class="flex items-center space-x-3">
-              <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white flex-shrink-0">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,12 7,12 9,6 13,18 16,12 22,12"/></svg>
-              </div>
-              <div>
-                <div class="text-xs font-bold text-red-400 uppercase">Coca-Cola Recovery Protocol</div>
-                <div class="text-xs font-bold text-[var(--text-main)]">Post-Mobility Recovery Guide</div>
-              </div>
-            </div>
-            <span class="text-xs text-[var(--text-muted)]">→</span>
-          </div>
-        </div>
+        <div id="subcontent-lessons" class="space-y-4"></div>
+        <div id="subcontent-fitness" class="space-y-4 hidden"></div>
       </section>
 
-      <!-- ================================================================= -->
-      <!-- TAB 5: PRO VOICE STREAM -->
-      <!-- ================================================================= -->
       <section id="tab-stream" class="tab-page hidden space-y-4 pb-16">
         <div class="flex items-center justify-between">
           <div>
@@ -788,468 +336,72 @@
               <span>Pro Voice Stream</span>
             </h2>
           </div>
-
-          <div class="flex items-center gap-1 bg-red-950/40 border border-red-500/30 px-2 py-1 rounded-xl">
-            <svg class="h-3 w-auto" viewBox="0 0 100 24" fill="none">
-              <rect width="100" height="24" rx="12" fill="#F40009"/>
-              <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
-            </svg>
-            <span class="text-xs font-bold text-red-300 uppercase">Supporter</span>
-          </div>
         </div>
 
         <div id="stream-feed-list" class="space-y-4">
-          <p class="text-xs text-[var(--text-muted)] text-center py-6">Loading broadcasts...</p>
+          <p class="text-sm text-[var(--text-muted)] text-center py-6">Loading broadcasts...</p>
         </div>
 
         <button onclick="handleComposerButtonClick()" class="fixed bottom-24 right-6 md:absolute md:bottom-24 md:right-6 w-14 h-14 rounded-full bg-gradient-to-tr from-violet-accent to-purple-600 text-white shadow-2xl border-2 border-white/20 flex items-center justify-center text-xl hover:scale-110 active:scale-95 transition-all z-30 shadow-violet-500/30" title="Compose Broadcast">✎</button>
       </section>
 
-      <!-- ================================================================= -->
-      <!-- TAB 6: SHOWS & EQUIPMENT/TECH LAB -->
-      <!-- ================================================================= -->
-      <section id="tab-gear" class="tab-page hidden space-y-4">
-        <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
-          <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
-            <div>
-              <span class="text-xs font-bold text-amber-400 uppercase tracking-wider bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">Shows & Conversations</span>
-              <h3 class="text-sm font-bold text-[var(--text-main)] mt-1">Terry Rowles Podcast</h3>
-            </div>
-          </div>
-
-          <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-black">
-            <iframe id="podcast-iframe" class="w-full h-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1" title="Terry Rowles Podcast" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-          </div>
-
-          <!-- PLACEMENT 1: UNDER PODCAST VIDEO -->
-          <div class="bg-gradient-to-r from-red-950/40 via-[var(--bg-app)] to-[var(--bg-surface)] p-3 rounded-xl border border-red-500/30 space-y-2 mt-3">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2">
-                <svg class="h-3.5 w-auto" viewBox="0 0 100 24" fill="none">
-                  <rect width="100" height="24" rx="12" fill="#F40009"/>
-                  <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
-                </svg>
-                <div>
-                  <div class="text-xs font-extrabold text-red-400 uppercase tracking-wider">Official Show Partner</div>
-                  <div class="text-xs font-bold text-[var(--text-main)]">Terry's Mid-Round Hydration Guide for ST-04</div>
-                </div>
-              </div>
-              <span class="text-xs font-bold text-slate-300 bg-red-900/60 px-1.5 py-0.5 rounded uppercase border border-red-500/30">SPONSORED</span>
-            </div>
-            <button onclick="triggerToast('Loading Terry Rowles x Coca-Cola Hydration Blueprint 🥤')" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-slate-200 text-xs font-bold py-2 rounded-lg border border-red-500/20 flex items-center justify-center gap-1.5 transition-all">
-              <span>View 4-Step Hydration & Electrolyte Timing</span>
-            </button>
-          </div>
-
-          <div>
-            <div class="text-xs font-bold text-[var(--text-main)] mb-2 mt-3">Episode Chapter Jumps:</div>
-            <div class="flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar">
-              <button onclick="seekPodcast(0)" class="min-h-touch flex-shrink-0 px-3 py-1.5 bg-[var(--bg-card)] hover:theme-accent-bg text-[var(--text-main)] text-xs font-bold rounded-xl border border-[var(--border-subtle)] transition-all flex items-center gap-1">
-                <span>0:00 Welcome & Meet the Coaches</span>
-              </button>
-              <button onclick="seekPodcast(255)" class="min-h-touch flex-shrink-0 px-3 py-1.5 bg-[var(--bg-card)] hover:theme-accent-bg text-[var(--text-main)] text-xs font-bold rounded-xl border border-[var(--border-subtle)] transition-all flex items-center gap-1">
-                <span>4:15 Fixing the Push-Fade</span>
-              </button>
-              <button onclick="seekPodcast(860)" class="min-h-touch flex-shrink-0 px-3 py-1.5 bg-[var(--bg-card)] hover:theme-accent-bg text-[var(--text-main)] text-xs font-bold rounded-xl border border-[var(--border-subtle)] transition-all flex items-center gap-1">
-                <span>14:20 Ground Force Secrets</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
-          <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
-            <div>
-              <span class="text-xs font-bold theme-accent-text uppercase tracking-wider theme-accent-subtle-bg px-2 py-0.5 rounded theme-accent-subtle-border border">Equipment & Fitting</span>
-              <h3 class="text-sm font-bold text-[var(--text-main)] mt-1">Independent Gear & Shaft Lab</h3>
-            </div>
-            <div class="text-right">
-              <span class="text-xs font-mono text-[var(--text-muted)] block uppercase">TESTING SUPPORT</span>
-              <svg class="h-3 w-auto inline-block" viewBox="0 0 100 24" fill="none">
-                <rect width="100" height="24" rx="12" fill="#F40009"/>
-                <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
-              </svg>
-            </div>
-          </div>
-
-          <div class="space-y-2">
-            <div class="text-xs font-bold text-[var(--text-main)] flex items-center gap-1.5">
-              <span>Gear Lab Video Review: ST-04 Clubhead & Shaft Fitting</span>
-            </div>
-            <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-black">
-              <iframe id="gear-iframe" class="w-full h-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1" title="Gear & Tech Audit Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-            </div>
-          </div>
-
-          <!-- PLACEMENT 2: UNDER GEAR LAB VIDEO -->
-          <div class="bg-gradient-to-r from-red-950/40 via-[var(--bg-app)] to-[var(--bg-surface)] p-3 rounded-xl border border-red-500/30 space-y-2 mt-4">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2">
-                <svg class="h-3.5 w-auto" viewBox="0 0 100 24" fill="none">
-                  <rect width="100" height="24" rx="12" fill="#F40009"/>
-                  <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
-                </svg>
-                <div>
-                  <div class="text-xs font-extrabold text-red-400 uppercase tracking-wider">Coca-Cola Studios Feature</div>
-                  <div class="text-xs font-bold text-[var(--text-main)]">Refresh Your Equipment Loadout</div>
-                </div>
-              </div>
-              <span class="text-xs font-bold text-slate-300 bg-red-900/60 px-1.5 py-0.5 rounded uppercase border border-red-500/30">SPONSORED</span>
-            </div>
-            <button onclick="triggerToast('Added Coca-Cola Tour Towel to Bag! 🛒')" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-slate-200 text-xs font-bold py-2 rounded-lg border border-red-500/20 flex items-center justify-center gap-1.5 transition-all">
-              <span>Claim Free Coca-Cola Tour Towel with Fitting</span>
-            </button>
-          </div>
-
-          <div class="bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <div>
-                <div class="text-xs font-bold text-amber-400">⭐ Recommended for your SwingType</div>
-                <div id="gear-recommendation-subtitle" class="text-xs text-[var(--text-muted)]">Not yet assessed</div>
-              </div>
-            </div>
-            <button onclick="triggerToast('Filters updated')" class="min-h-touch text-xs text-[var(--text-muted)] underline">Reset</button>
-          </div>
-
-          <div id="gear-match-cards" class="space-y-2 hidden">
-            <div class="bg-[var(--bg-card)] p-3 rounded-xl border border-[var(--border-subtle)] flex items-center justify-between">
-              <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-lg overflow-hidden border border-slate-700 bg-slate-800 flex-shrink-0">
-                  <img src="https://images.unsplash.com/photo-1593111774240-d529f12cf4bb?w=100&auto=format&fit=crop&q=80" alt="Golf Shaft" class="w-full h-full object-cover">
-                </div>
-                <div>
-                  <div class="text-xs font-bold text-[var(--text-main)]">Fujikura Ventus Blue TR 6X</div>
-                  <div class="text-xs text-[var(--text-muted)]">Official Shaft Partner: Tour Spec Stiff Tip</div>
-                </div>
-              </div>
-              <div class="text-right">
-                <div class="text-xs font-black theme-accent-text">98% Match</div>
-                <div class="text-[10px] text-[var(--text-muted)]">Stiffness</div>
-              </div>
-            </div>
-
-            <div class="bg-[var(--bg-card)] p-3 rounded-xl border border-[var(--border-subtle)] flex items-center justify-between">
-              <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-lg overflow-hidden border border-slate-700 bg-slate-800 flex-shrink-0">
-                  <img src="https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=100&auto=format&fit=crop&q=80" alt="Driver Head" class="w-full h-full object-cover">
-                </div>
-                <div>
-                  <div class="text-xs font-bold text-[var(--text-main)]">Titleist TSR3 9.0° Driver Head</div>
-                  <div class="text-xs text-[var(--text-muted)]">Hardware Fitting Partner: CG Heel Bias</div>
-                </div>
-              </div>
-              <div class="text-right">
-                <div class="text-xs font-black theme-accent-text">94% Match</div>
-                <div class="text-[10px] text-[var(--text-muted)]">Optimal Launch</div>
-              </div>
-            </div>
-          </div>
-
-          <div id="gear-not-assessed-notice" class="bg-[var(--bg-app)] border border-dashed border-[var(--border-subtle)] p-4 rounded-xl text-center">
-            <p class="text-xs text-[var(--text-muted)]">Personalized gear matches unlock once your SwingType assessment is complete.</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- ================================================================= -->
-      <!-- TAB 7: EDUCATION HUB -->
-      <!-- ================================================================= -->
-      <section id="tab-market" class="tab-page hidden space-y-4">
-        
-        <div class="bg-gradient-to-r from-red-950/40 via-[var(--bg-surface)] to-red-950/30 p-2.5 rounded-xl border border-red-500/30 flex items-center justify-between shadow-sm">
-          <div class="flex items-center space-x-2.5">
-            <svg class="h-4 w-auto" viewBox="0 0 100 24" fill="none">
-              <rect width="100" height="24" rx="12" fill="#F40009"/>
-              <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
-            </svg>
-            <div class="text-xs font-bold text-white">Presenting Partner</div>
-          </div>
-        </div>
-
-        <!-- Featured Live Masterclass Card -->
-        <div class="bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border-2 border-violet-accent/50 space-y-3 relative overflow-hidden shadow-xl">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-white bg-violet-accent px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow">LIVE MASTERCLASS</span>
-            <span class="text-xs text-amber-400 font-bold bg-amber-500/10 px-2.5 py-0.5 rounded border border-amber-500/20">Starts in 3 Hours</span>
-          </div>
-
-          <div>
-            <h3 class="text-base font-extrabold text-[var(--text-main)]">Mastering Ground Forces & Speed</h3>
-            <p class="text-xs text-[var(--text-muted)] mt-1">Live 2-Hour Interactive Clinic with Ansel Cruz & Priya Shah.</p>
-          </div>
-
-          <div class="bg-[var(--bg-app)] p-3 rounded-xl border border-[var(--border-subtle)] space-y-1.5 text-xs text-[var(--text-main)]">
-            <div class="flex items-center gap-2">
-              <span>Live Force Plate Visualizers</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <span>Interactive Q&A Session with the Coaches</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <span>Lifetime Recording Access & Practice Drills</span>
-            </div>
-          </div>
-
-          <div id="iap-container">
-            <button id="iap-buy-btn" onclick="openStoreKitSheet()" class="w-full min-h-touch theme-accent-bg font-black text-sm py-3 px-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all hover:opacity-90">
-              <span>Unlock Masterclass — $49.00</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
-          <h3 class="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider">My Tickets</h3>
-          <div id="my-tickets-list" class="space-y-2">
-            <p class="text-xs text-[var(--text-muted)]" id="tickets-empty-state">No tickets yet — purchases will appear here.</p>
-          </div>
-        </div>
-
-        <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all mt-4" onclick="triggerToast('Opening Grant Application! 🎓')">
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-            </div>
-            <div>
-              <div class="text-xs font-bold text-red-400 uppercase">Coca-Cola Community Initiative</div>
-              <div class="text-xs font-bold text-[var(--text-main)]">Apply for Grassroots Grants</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
-          <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
-            <h3 class="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider">
-              Partner Workshops & Clinics
-            </h3>
-          </div>
-
-          <div class="space-y-2">
-            <div class="bg-[var(--bg-card)] p-3 rounded-xl border border-[var(--border-subtle)] flex items-center justify-between">
-              <div>
-                <div class="text-xs font-bold text-[var(--text-main)]">Short Game Clinic with Master Instructors</div>
-                <div class="text-xs text-[var(--text-muted)]">Interactive Online Certification</div>
-              </div>
-              <button onclick="triggerToast('Workshop details sent to email! 📬')" class="min-h-touch px-3 py-1.5 bg-[var(--bg-app)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] text-xs font-bold rounded-lg border border-[var(--border-subtle)]">
-                $129
-              </button>
-            </div>
-
-            <div class="bg-[var(--bg-card)] p-3 rounded-xl border border-[var(--border-subtle)] flex items-center justify-between">
-              <div>
-                <div class="text-xs font-bold text-[var(--text-main)]">Junior Athlete Certification</div>
-                <div class="text-xs text-[var(--text-muted)]">Sponsored by Athlete Development</div>
-              </div>
-              <button onclick="triggerToast('Workshop details sent to email! 📬')" class="min-h-touch px-3 py-1.5 bg-[var(--bg-app)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] text-xs font-bold rounded-lg border border-[var(--border-subtle)]">
-                $199
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
+      <section id="tab-gear" class="tab-page hidden space-y-4"></section>
+      <section id="tab-market" class="tab-page hidden space-y-4"></section>
     </main>
 
-    <!-- ================================================================= -->
-    <!-- PROFILE & APP PREFERENCES MODAL -->
-    <!-- ================================================================= -->
     <div id="profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all">
       <div class="w-full max-w-md bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-t-3xl sm:rounded-3xl p-5 space-y-4 shadow-2xl relative animate-slide-up max-h-[90vh] overflow-y-auto">
         
         <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
           <div class="flex items-center space-x-2.5">
-            <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-[var(--accent-main)] shadow relative">
+            <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-[var(--accent-main)] shadow relative group cursor-pointer" onclick="changeProfilePhoto()" title="Change Profile Photo">
               <img id="profile-modal-avatar" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iIzMzNDE1NSIvPjx0ZXh0IHg9IjYwIiB5PSI3OCIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNTIiIGZvbnQtd2VpZ2h0PSI4MDAiIGZpbGw9IiM5NEEzQjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPj88L3RleHQ+PC9zdmc+" class="w-full h-full object-cover">
             </div>
             <div>
-              <h3 id="profile-modal-title" class="text-sm font-extrabold text-[var(--text-main)]">Verified Pro Profile</h3>
-              <p class="text-xs text-[var(--text-muted)]">Edit credentials, professional title & display</p>
+              <h3 id="profile-modal-title" class="text-sm font-extrabold text-[var(--text-main)]">Profile</h3>
             </div>
           </div>
           <button onclick="closeProfileModal()" class="w-8 h-8 rounded-full bg-[var(--bg-card)] text-[var(--text-muted)] flex items-center justify-center hover:text-[var(--text-main)] transition-colors" title="Close">✕</button>
         </div>
 
-        <div class="bg-gradient-to-r from-red-950/50 via-red-900/30 to-[var(--bg-app)] p-3.5 rounded-2xl border border-red-500/40 space-y-2 relative overflow-hidden coke-glow">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <svg class="h-3.5 w-auto" viewBox="0 0 100 24" fill="none">
-                <rect width="100" height="24" rx="12" fill="#F40009"/>
-                <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
-              </svg>
-              <span class="text-xs font-extrabold text-red-300 uppercase tracking-wider">Athlete VIP Club</span>
-            </div>
-          </div>
-          <p class="text-xs text-slate-200">
-            Complimentary hydration credits linked to your profile.
-          </p>
-          <div class="flex items-center justify-between pt-1">
-            <span class="text-xs text-red-300 font-mono font-bold">Status: Active Member (ST-04)</span>
-            <button onclick="triggerToast('Coca-Cola VIP Barcode Generated! 🥤')" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg shadow">
-              View Digital Card
-            </button>
-          </div>
-        </div>
-
-        <div class="bg-[var(--bg-app)] p-3.5 rounded-2xl border border-[var(--border-subtle)] space-y-3">
-          <div class="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider flex items-center justify-between">
-            <span class="flex items-center gap-1.5">
-              <span>Display & Theme</span>
-            </span>
-            <span class="text-[10px] theme-accent-text font-bold">LIVE SYNC</span>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">Appearance</label>
-              <div class="grid grid-cols-2 gap-1 bg-[var(--bg-surface)] p-1 rounded-xl border border-[var(--border-subtle)]">
-                <button type="button" id="btn-mode-dark" onclick="setThemeMode('dark', true)" class="min-h-touch py-1.5 px-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow">
-                  <span>Dark</span>
-                </button>
-                <button type="button" id="btn-mode-light" onclick="setThemeMode('light', true)" class="min-h-touch py-1.5 px-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5">
-                  <span>Light</span>
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">Color Palette</label>
-              <div class="grid grid-cols-2 gap-1 bg-[var(--bg-surface)] p-1 rounded-xl border border-[var(--border-subtle)]">
-                <button type="button" id="btn-pal-emerald" onclick="setAccentPalette('emerald', true)" class="min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 text-emerald-400">
-                  <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
-                  <span class="text-xs">Emerald</span>
-                </button>
-                <button type="button" id="btn-pal-rose" onclick="setAccentPalette('rose', true)" class="min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 text-pink-400">
-                  <span class="w-3 h-3 rounded-full bg-pink-500 inline-block"></span>
-                  <span class="text-xs">Rose</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">Text Size</label>
-            <div class="grid grid-cols-3 gap-1 bg-[var(--bg-surface)] p-1 rounded-xl border border-[var(--border-subtle)]">
-              <button type="button" id="btn-font-sm" onclick="setFontScale(0.92, true)" class="min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all text-[var(--text-muted)]">Small</button>
-              <button type="button" id="btn-font-md" onclick="setFontScale(1, true)" class="min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all shadow">Default</button>
-              <button type="button" id="btn-font-lg" onclick="setFontScale(1.2, true)" class="min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all text-[var(--text-muted)]">Large</button>
-            </div>
-          </div>
-        </div>
-
         <div class="bg-[var(--bg-app)] p-1 rounded-xl border border-[var(--border-subtle)] flex items-center space-x-1">
-          <button id="profile-tab-signup" onclick="setProfileMode('signup')" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all theme-accent-bg shadow">
-            Edit Credentials & Title
-          </button>
-          <button id="profile-tab-view" onclick="setProfileMode('view')" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all text-[var(--text-muted)] hover:text-[var(--text-main)]">
-            Current Profile
-          </button>
+          <button id="profile-tab-signup" onclick="setProfileMode('signup')" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all theme-accent-bg shadow">Edit Credentials</button>
+          <button id="profile-tab-view" onclick="setProfileMode('view')" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all text-[var(--text-muted)] hover:text-[var(--text-main)]">Current Profile</button>
         </div>
 
         <div id="auth-mode-toggle" class="text-center">
-          <button type="button" id="auth-mode-link" onclick="setAuthMode(isLoginMode ? 'signup' : 'login')" class="text-xs font-bold theme-accent-text underline min-h-touch">
-            Already have an account? Log In
-          </button>
-        </div>
-
-        <div id="forgot-password-link" class="text-center hidden">
-          <button type="button" onclick="requestPasswordReset()" class="text-xs font-bold text-[var(--text-muted)] underline min-h-touch">
-            Forgot password?
-          </button>
-        </div>
-
-        <div id="password-reset-form" class="hidden space-y-3 p-3 bg-[var(--bg-app)] border border-[var(--accent-border)] rounded-xl">
-          <p class="text-xs text-[var(--text-main)] font-bold">Set a new password</p>
-          <p class="text-xs text-[var(--text-muted)]">You clicked a password reset link. Choose a new password below.</p>
-          <input type="password" id="input-new-password" placeholder="New password" class="w-full bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl py-2.5 px-3 text-xs text-[var(--text-main)] focus:outline-none focus:border-[var(--accent-main)]">
-          <button type="button" onclick="submitNewPassword()" class="w-full min-h-touch theme-accent-bg font-extrabold text-xs py-2.5 rounded-xl">Save New Password</button>
+          <button type="button" id="auth-mode-link" onclick="setAuthMode(isLoginMode ? 'signup' : 'login')" class="text-xs font-bold theme-accent-text underline min-h-touch">Already have an account? Log In</button>
         </div>
 
         <form id="profile-form" onsubmit="handleProfileSubmit(event)" class="space-y-3.5">
           <div id="signup-only-fields">
             <div>
-              <label class="block text-xs font-bold text-[var(--text-main)] mb-1">Profile Photo <span class="text-[10px] text-[var(--text-muted)] font-medium">(optional)</span></label>
-              <div class="flex items-center gap-3">
-                <div class="w-14 h-14 rounded-full bg-[var(--bg-app)] border border-[var(--border-subtle)] overflow-hidden flex items-center justify-center flex-shrink-0">
-                  <img id="form-photo-preview" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iIzMzNDE1NSIvPjx0ZXh0IHg9IjYwIiB5PSI3OCIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNTIiIGZvbnQtd2VpZ2h0PSI4MDAiIGZpbGw9IiM5NEEzQjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPj88L3RleHQ+PC9zdmc+" class="w-full h-full object-cover">
-                </div>
-                <label class="min-h-touch px-3 flex items-center bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-xs font-bold rounded-xl border border-[var(--border-subtle)] cursor-pointer">
-                  Upload photo
-                  <input type="file" accept="image/*" class="hidden" onchange="handleProfilePhotoUpload(this)">
-                </label>
-                <button type="button" onclick="removeProfilePhoto()" class="min-h-touch px-3 flex items-center text-xs font-bold text-red-300 hover:text-red-200">
-                  Remove
-                </button>
-              </div>
+              <label class="block text-sm font-bold text-[var(--text-main)] mb-1">Full Name</label>
+              <input type="text" id="input-name" placeholder="Your full name" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 px-3 text-xs text-[var(--text-main)]">
             </div>
-
-            <div>
-              <label class="block text-xs font-bold text-[var(--text-main)] mb-1 flex items-center justify-between">
-                <span>Full Name</span>
-                <span id="name-required-label" class="text-[10px] theme-accent-text font-bold">Required</span>
-              </label>
-              <div class="relative">
-                <input type="text" id="input-name" placeholder="Your full name" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 px-3 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-main)] transition-all">
-              </div>
-            </div>
-
-            <div>
-              <button type="button" id="verification-toggle-btn" onclick="toggleVerificationRequest()" class="text-xs font-bold theme-accent-text underline min-h-touch">
-                Coach, professional athlete, or industry expert? Request verification
-              </button>
-
-              <div id="verification-fields" class="hidden mt-2 space-y-1">
-                <label class="block text-xs font-bold text-[var(--text-main)] mb-1">Which best describes you?</label>
-                <select id="input-title" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 px-3 text-xs text-[var(--text-main)] focus:outline-none focus:border-[var(--accent-main)] transition-all">
-                  <option value="">Select one</option>
-                  <option value="Professional Athlete">Professional Athlete</option>
-                  <option value="Coach">Coach</option>
-                  <option value="Industry Expert">Industry Expert</option>
-                  <option value="Athlete">Athlete</option>
-                </select>
-                <p class="text-[10px] text-[var(--text-muted)] mt-1">This submits a request for our team to review. An admin will add approval and the sport tag after review.</p>
-              </div>
+            <div class="mt-2">
+              <label class="block text-sm font-bold text-[var(--text-main)] mb-1">Which best describes you?</label>
+              <select id="input-title" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 px-3 text-xs text-[var(--text-main)] focus:outline-none focus:border-[var(--accent-main)]">
+                <option value="">Select one</option>
+                <option value="Professional Athlete">Professional Athlete</option>
+                <option value="Coach">Coach</option>
+                <option value="Industry Expert">Industry Expert</option>
+                <option value="Athlete">Athlete</option>
+              </select>
             </div>
           </div>
 
           <div id="email-field-wrapper">
-            <label class="block text-xs font-bold text-[var(--text-main)] mb-1 flex items-center justify-between">
-              <span>Email Address</span>
-              <span class="text-[10px] theme-accent-text font-bold">Required</span>
-            </label>
-            <div class="relative">
-              <input type="email" id="input-email" required placeholder="name@domain.com" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 px-3 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-main)] transition-all">
-            </div>
+            <label class="block text-sm font-bold text-[var(--text-main)] mb-1">Email Address</label>
+            <input type="email" id="input-email" required placeholder="name@domain.com" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 px-3 text-xs text-[var(--text-main)]">
           </div>
 
           <div>
-            <div class="flex items-center justify-between mb-1">
-              <label id="password-field-label" class="text-xs font-bold text-[var(--text-main)]">Preferred Password</label>
-              <button type="button" onclick="togglePasswordVisibility()" class="text-xs text-[var(--text-muted)] hover:theme-accent-text flex items-center gap-1">
-                <span id="pwd-eye-text">Show</span>
-              </button>
-            </div>
-            <p id="password-field-hint" class="hidden text-[10px] text-[var(--text-muted)] mb-1">Enter your current password to confirm this change.</p>
-            <div class="relative">
-              <input type="password" id="input-password" oninput="validatePasswordRules()" placeholder="Create secure password" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 px-3 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-main)] transition-all font-mono">
-            </div>
-
-            <div id="password-requirements-box" class="mt-2.5 p-3 bg-[var(--bg-app)] rounded-xl border border-[var(--border-subtle)] space-y-1.5">
-              <div class="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Password Requirements:</div>
-              <div id="rule-upper" class="flex items-center space-x-2 text-xs theme-accent-text font-medium transition-colors">
-                <span>At least 1 uppercase letter (A-Z)</span>
-              </div>
-              <div id="rule-lower" class="flex items-center space-x-2 text-xs theme-accent-text font-medium transition-colors">
-                <span>At least 1 lowercase letter (a-z)</span>
-              </div>
-              <div id="rule-special" class="flex items-center space-x-2 text-xs theme-accent-text font-medium transition-colors">
-                <span>At least 1 special character (!@#$%^&*...)</span>
-              </div>
-              <div id="rule-length" class="flex items-center space-x-2 text-xs theme-accent-text font-medium transition-colors">
-                <span>Minimum 8 characters</span>
-              </div>
-            </div>
+            <label id="password-field-label" class="text-sm font-bold text-[var(--text-main)] mb-1">Password</label>
+            <input type="password" id="input-password" placeholder="Create secure password" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 px-3 text-xs text-[var(--text-main)] font-mono">
           </div>
 
-          <button type="submit" id="profile-submit-btn" class="w-full min-h-touch theme-accent-bg font-extrabold text-xs py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all mt-2 hover:opacity-90">
+          <button type="submit" id="profile-submit-btn" class="w-full min-h-touch theme-accent-bg font-extrabold text-xs py-3 rounded-xl shadow-lg mt-2">
             <span id="profile-submit-text">Create Account</span>
           </button>
         </form>
@@ -1257,47 +409,19 @@
         <div id="profile-overview-view" class="space-y-3 hidden">
           <div class="bg-[var(--bg-app)] p-3.5 rounded-xl border border-[var(--border-subtle)] space-y-2">
             <div class="flex items-center justify-between">
-              <span class="text-xs text-[var(--text-muted)]">Full Name</span>
+              <span class="text-sm text-[var(--text-muted)]">Full Name</span>
               <span id="overview-user-name" class="text-xs font-bold text-white">Guest</span>
             </div>
-            <div class="flex items-center justify-between">
-              <span class="text-xs text-[var(--text-muted)]">Verified Title</span>
-              <span id="overview-user-title" class="text-xs font-black text-amber-400"></span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span id="overview-assessment-label" class="text-xs text-[var(--text-muted)]">SwingType</span>
-              <span id="overview-assessment-value" class="text-xs font-black text-[var(--text-muted)]">Not yet assessed</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span class="text-xs text-[var(--text-muted)]">Wallet</span>
-              <span id="wallet-credits" class="text-xs font-black theme-accent-text flex items-center gap-1.5">
-                <span id="wallet-points-display">0 points</span>
-              </span>
-            </div>
           </div>
-
-          <button onclick="setProfileMode('signup')" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] font-bold text-xs py-2.5 rounded-xl border border-[var(--border-subtle)] flex items-center justify-center gap-2 transition-all">
-            <span>Edit Credentials / Title</span>
+          <button onclick="setProfileMode('signup')" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] font-bold text-xs py-2.5 rounded-xl border border-[var(--border-subtle)]">
+            Edit Credentials
           </button>
-
-          <div class="pt-2 border-t border-[var(--border-subtle)]">
-            <button type="button" id="delete-account-toggle" onclick="toggleDeleteAccountPanel()" class="text-xs text-red-400/70 hover:text-red-400 underline min-h-touch">
-              Delete my account
-            </button>
-
-            <div id="delete-account-panel" class="hidden mt-2 space-y-2 p-3 bg-red-950/20 border border-red-500/30 rounded-xl">
-              <p class="text-xs text-red-300">This permanently deletes your account and all of your data. This cannot be undone.</p>
-              <input type="text" id="delete-confirm-input" oninput="checkDeleteConfirmText()" placeholder="Type DELETE to confirm" class="w-full bg-[var(--bg-app)] border border-red-500/30 rounded-xl py-2 px-3 text-xs text-[var(--text-main)] focus:outline-none">
-              <button type="button" id="delete-confirm-btn" onclick="handleDeleteAccount()" disabled class="w-full min-h-touch bg-red-600 disabled:bg-red-950 disabled:text-red-400/50 text-white font-bold text-xs py-2.5 rounded-xl transition-all">
-                Permanently Delete My Account
-              </button>
-            </div>
-          </div>
         </div>
 
         <button id="persistent-logout-btn" onclick="handleLogOut()" class="hidden w-full min-h-touch bg-red-950/40 hover:bg-red-950/60 text-red-300 font-bold text-xs py-2.5 rounded-xl border border-red-500/30 items-center justify-center gap-2 transition-all">
           <span>Log Out</span>
         </button>
+
       </div>
     </div>
 
@@ -1305,61 +429,45 @@
     <div id="report-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden transition-all">
       <div class="bg-[var(--bg-surface)] rounded-2xl p-5 w-full max-w-sm space-y-3 border border-[var(--border-subtle)]">
         <h3 class="text-sm font-bold text-[var(--text-main)]">Report this post</h3>
-        <p class="text-xs text-[var(--text-muted)]">What's the issue? Our team will review it.</p>
         <div class="space-y-2">
           <button onclick="submitReport('spam')" class="w-full min-h-touch text-left px-3 py-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] rounded-xl text-xs text-[var(--text-main)]">Spam</button>
           <button onclick="submitReport('inappropriate')" class="w-full min-h-touch text-left px-3 py-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] rounded-xl text-xs text-[var(--text-main)]">Inappropriate content</button>
-          <button onclick="submitReport('harassment')" class="w-full min-h-touch text-left px-3 py-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] rounded-xl text-xs text-[var(--text-main)]">Harassment or bullying</button>
-          <button onclick="submitReport('misinformation')" class="w-full min-h-touch text-left px-3 py-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] rounded-xl text-xs text-[var(--text-main)]">Misinformation</button>
-          <button onclick="submitReport('other')" class="w-full min-h-touch text-left px-3 py-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] rounded-xl text-xs text-[var(--text-main)]">Other</button>
         </div>
         <button onclick="closeReportModal()" class="w-full min-h-touch text-center px-3 py-2 text-xs text-[var(--text-muted)] underline">Cancel</button>
       </div>
     </div>
 
-    <!-- PRO COMPOSER MODAL (NATIVE CAMERA RECORDING) -->
+    <!-- PRO COMPOSER MODAL (NATIVE CAMERA ADDED HERE) -->
     <div id="composer-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all">
       <div class="w-full max-w-md bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-t-3xl sm:rounded-3xl p-5 space-y-4 shadow-2xl relative animate-slide-up">
         
         <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
           <div class="flex items-center space-x-2">
-            <div class="w-8 h-8 rounded-full bg-violet-accent text-white flex items-center justify-center text-xs font-bold">
-              PRO
-            </div>
-            <div>
-              <h3 class="text-xs font-bold text-[var(--text-main)]">Pro Voice Broadcast Composer</h3>
-            </div>
+            <div class="w-8 h-8 rounded-full bg-violet-accent text-white flex items-center justify-center text-xs font-bold">PRO</div>
+            <div><h3 class="text-xs font-bold text-[var(--text-main)]">Pro Voice Broadcast Composer</h3></div>
           </div>
           <button onclick="closeComposerModal()" class="w-8 h-8 rounded-full bg-[var(--bg-card)] text-[var(--text-muted)] flex items-center justify-center hover:text-[var(--text-main)]" title="Close">✕</button>
         </div>
 
         <div class="space-y-3">
           <div class="space-y-1">
-            <label class="text-xs text-slate-400 font-medium">Post to which sport?</label>
+            <label class="text-sm text-slate-400 font-medium">Post to which sport?</label>
             <select id="composer-sport-select" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] focus:outline-none focus:border-violet-accent"></select>
           </div>
 
           <div class="space-y-1">
-            <label class="text-xs text-slate-400 font-medium">Select Media Format</label>
+            <label class="text-sm text-slate-400 font-medium">Select Media Format</label>
             <div class="grid grid-cols-4 gap-1.5">
-              <button id="fmt-btn-Text" onclick="setMediaFormat('Text')" class="media-fmt-btn min-h-touch py-2 bg-violet-accent/20 border border-violet-accent text-violet-light text-xs font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all">
-                <span>Text</span>
-              </button>
-              <button id="fmt-btn-Photo" onclick="setMediaFormat('Photo')" class="media-fmt-btn min-h-touch py-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-white text-xs font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all">
-                <span>Photo</span>
-              </button>
-              <button id="fmt-btn-Video" onclick="setMediaFormat('Video')" class="media-fmt-btn min-h-touch py-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-white text-xs font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all">
-                <span>Video</span>
-              </button>
-              <button id="fmt-btn-Voice" onclick="setMediaFormat('Voice')" class="media-fmt-btn min-h-touch py-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-white text-xs font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all">
-                <span>Voice</span>
-              </button>
+              <button id="fmt-btn-Text" onclick="setMediaFormat('Text')" class="media-fmt-btn min-h-touch py-2 bg-violet-accent/20 border border-violet-accent text-violet-light text-sm font-bold rounded-xl">Text</button>
+              <button id="fmt-btn-Photo" onclick="setMediaFormat('Photo')" class="media-fmt-btn min-h-touch py-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-white text-sm font-bold rounded-xl">Photo</button>
+              <button id="fmt-btn-Video" onclick="setMediaFormat('Video')" class="media-fmt-btn min-h-touch py-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-white text-sm font-bold rounded-xl">Video</button>
+              <button id="fmt-btn-Voice" onclick="setMediaFormat('Voice')" class="media-fmt-btn min-h-touch py-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-white text-sm font-bold rounded-xl">Voice</button>
             </div>
           </div>
 
           <!-- TEXT PANE -->
           <div id="composer-pane-Text" class="composer-pane space-y-1">
-            <div class="flex items-center justify-between text-xs">
+            <div class="flex items-center justify-between text-sm">
               <span class="text-slate-400 font-medium">Broadcast Note (300 Char Max)</span>
               <span id="composer-char-count" class="font-mono text-emerald-light font-bold">0 / 300</span>
             </div>
@@ -1369,7 +477,7 @@
           <!-- PHOTO PANE -->
           <div id="composer-pane-Photo" class="composer-pane space-y-2 hidden">
             <div id="photo-dropzone" onclick="document.getElementById('composer-photo-input').click()" class="border-2 border-dashed border-[var(--border-subtle)] rounded-xl aspect-video flex flex-col items-center justify-center gap-2 cursor-pointer">
-              <span class="text-xs text-[var(--text-muted)]">Tap to add a photo</span>
+              <span class="text-sm text-[var(--text-muted)]">Tap to add a photo</span>
             </div>
             <img id="photo-preview-img" class="hidden w-full aspect-video object-cover rounded-xl">
             <input type="file" id="composer-photo-input" accept="image/*" class="hidden" onchange="handleComposerPhoto(this)">
@@ -1379,7 +487,7 @@
           <div id="composer-pane-Video" class="composer-pane space-y-3 hidden">
             <p class="text-xs text-[var(--text-muted)]">Record up to 25 seconds using your phone camera.</p>
 
-            <input type="file" id="composer-video-native-input" accept="video/mp4,video/quicktime,video/*" capture="user" class="hidden" onchange="handleNativeVideoSelect(this)">
+            <input type="file" id="composer-video-native-input" accept="video/mp4,video/quicktime,video/*" capture="environment" class="hidden" onchange="handleNativeVideoSelect(this)">
             <input type="file" id="composer-video-library-input" accept="video/mp4,video/quicktime,video/*" class="hidden" onchange="handleNativeVideoSelect(this)">
 
             <div id="video-placeholder-box" class="border-2 border-dashed border-[var(--border-subtle)] rounded-xl aspect-[9/16] max-h-72 mx-auto flex flex-col items-center justify-center gap-3 p-4">
@@ -1395,22 +503,22 @@
               <video id="native-video-player" controls playsinline webkit-playsinline class="w-full h-full object-cover"></video>
             </div>
 
-            <button type="button" id="native-video-reset-btn" onclick="resetNativeVideo()" class="hidden w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-muted)] text-xs font-bold py-2 rounded-xl border border-[var(--border-subtle)]">
+            <button type="button" id="native-video-reset-btn" onclick="resetNativeVideo()" class="hidden w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-muted)] text-sm font-bold py-2 rounded-xl border border-[var(--border-subtle)]">
               Retake Video
             </button>
           </div>
 
           <!-- VOICE PANE -->
           <div id="composer-pane-Voice" class="composer-pane space-y-2 hidden">
-            <input type="text" id="voice-subject-input" maxlength="60" placeholder="Subject, e.g. Trail Heel Pressure Key" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
+            <input type="text" id="voice-subject-input" maxlength="60" placeholder="Subject, e.g. Ground Pressure Tip: Trail Heel Load" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
             <div class="flex flex-col items-center gap-3 py-3">
               <button id="voice-rec-btn" onclick="toggleVoiceRecording()" class="w-16 h-16 rounded-full theme-accent-bg flex items-center justify-center text-xs font-black">REC</button>
-              <div id="voice-rec-timer" class="text-xs font-mono text-[var(--text-muted)]">Tap to record — 30s max</div>
+              <div id="voice-rec-timer" class="text-sm font-mono text-[var(--text-muted)]">Tap to record — 30s max</div>
               <div class="flex items-end space-x-1 h-5" id="voice-rec-bars"></div>
 
               <div id="voice-replay-controls" class="hidden w-full space-y-2">
                 <audio id="voice-preview-player" controls class="w-full"></audio>
-                <button type="button" onclick="reRecordVoice()" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-muted)] text-xs font-bold py-2 rounded-xl border border-[var(--border-subtle)]">
+                <button type="button" onclick="reRecordVoice()" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-muted)] text-sm font-bold py-2 rounded-xl border border-[var(--border-subtle)]">
                   Re-record
                 </button>
               </div>
@@ -1420,50 +528,24 @@
           <div class="flex items-center justify-between bg-[var(--bg-app)] p-2.5 rounded-xl border border-[var(--border-subtle)]">
             <span class="text-xs text-[var(--text-main)] font-semibold">Broadcast Audience</span>
             <div class="flex items-center space-x-1 bg-[var(--bg-surface)] p-1 rounded-lg border border-[var(--border-subtle)]">
-              <button id="vis-public" onclick="setAudience('Public')" class="px-2.5 py-1 text-xs font-bold rounded theme-accent-bg transition-all">Public</button>
-              <button id="vis-inner" onclick="setAudience('Inner Circle')" class="px-2.5 py-1 text-xs font-bold rounded text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all">Inner Circle</button>
+              <button id="vis-public" onclick="setAudience('Public')" class="px-2.5 py-1 text-[10px] font-bold rounded theme-accent-bg transition-all">Public</button>
+              <button id="vis-inner" onclick="setAudience('Inner Circle')" class="px-2.5 py-1 text-[10px] font-bold rounded text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all">Inner Circle</button>
             </div>
           </div>
         </div>
 
         <button onclick="publishProPost()" class="w-full min-h-touch bg-gradient-to-r from-violet-accent to-purple-700 hover:from-purple-600 hover:to-violet-accent text-white font-extrabold text-xs py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all">
-          <span>Publish (visible 30 hours)</span>
+          <span>Publish Broadcast</span>
         </button>
       </div>
     </div>
 
+
     <!-- STOREKIT IAP SIMULATOR SHEET -->
     <div id="storekit-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all">
       <div class="w-full max-w-md bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-t-3xl sm:rounded-3xl p-5 space-y-4 shadow-2xl relative">
-        <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
-          <div class="flex items-center space-x-2">
-            <div>
-              <h3 class="text-xs font-bold text-[var(--text-main)]">App Store In-App Purchase</h3>
-              <p class="text-xs text-[var(--text-muted)]">StoreKit Sandbox Confirmation</p>
-            </div>
-          </div>
-          <button onclick="closeStoreKitSheet()" class="w-8 h-8 rounded-full bg-[var(--bg-card)] text-[var(--text-muted)] flex items-center justify-center hover:text-[var(--text-main)]" title="Close">✕</button>
-        </div>
-
-        <div class="bg-[var(--bg-app)] p-3 rounded-xl border border-[var(--border-subtle)] flex items-center justify-between">
-          <div>
-            <div class="text-xs font-bold text-[var(--text-main)]">Mastering Ground Forces Live Pass</div>
-            <div id="storekit-user-email" class="text-xs theme-accent-text">All-Sport Account: guest@allsportnetwork.com</div>
-            <div class="text-xs text-red-400 font-bold mt-1 flex items-center gap-1">
-              <svg class="h-2 w-auto inline-block" viewBox="0 0 100 24" fill="none">
-                <rect width="100" height="24" rx="12" fill="#F40009"/>
-                <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
-              </svg>
-              <span>Includes Coca-Cola Tournament Care Pack</span>
-            </div>
-          </div>
-          <div class="text-base font-black text-[var(--text-main)]">$49.00</div>
-        </div>
-
-        <p class="text-xs text-[var(--text-muted)] text-center">Double click side button or press Confirm below to complete transaction.</p>
-
-        <button onclick="confirmStoreKitPurchase()" class="w-full min-h-touch theme-accent-bg font-extrabold text-xs py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all hover:opacity-90">
-          <span>Confirm $49.00 Purchase</span>
+        <button onclick="closeStoreKitSheet()" class="w-full min-h-touch theme-accent-bg font-extrabold text-sm py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all hover:opacity-90">
+          <span>Close</span>
         </button>
       </div>
     </div>
@@ -1477,13 +559,14 @@
 
   </div>
 
+
   <script>
     // ============================================================
-    // REAL SUPABASE CLIENT INITIALIZATION
+    // EPIC 0.2 / 0.5: REAL SUPABASE AUTH + SPORT SWITCHER
     // ============================================================
     const SUPABASE_URL = "https://ommgauajjxsswemokuhc.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tbWdhdWFqanhzc3dlbW9rdWhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwNDYzMzQsImV4cCI6MjEwMzYyMjMzNH0.mPTkAHUpPh9sZQEk9YRomiPGkZj15vLD0SDKaO5VD6Y";
-
+    
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
     });
@@ -1521,7 +604,7 @@
 
     async function signOutUser() {
       await supabaseClient.auth.signOut();
-      location.reload();
+      location.reload(); 
     }
 
     async function requestPasswordReset() {
@@ -1636,7 +719,7 @@
 
     async function makeThisMyHomeSport(sportId, displayName) {
       if (!confirm(`Make ${displayName} your main sport? Your daily check-in point will go toward ${displayName} from now on.`)) return;
-      await setActiveSport(sportId);
+      await setActiveSport(sportId); 
       document.getElementById('sport-switcher-panel').classList.add('hidden');
       renderSportSwitcherLabel(displayName);
       triggerToast(`${displayName} is now your main sport! 🏠`);
@@ -1671,6 +754,7 @@
         checkEntitlement(sportId, "fitness"),
       ]);
       window.activeSportEntitlements = { lessons, fitness };
+      
       loadActivePoll();
       loadProFeed();
       loadHomeProVoicePreview();
@@ -1704,7 +788,7 @@
 
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session || !currentSportId) {
-        pollContent.innerHTML = '<p class="text-xs text-[var(--text-muted)]">Log in and select a sport to vote in polls.</p>';
+        pollContent.innerHTML = '<p class="text-sm text-[var(--text-muted)]">Log in and select a sport to vote in polls.</p>';
         return;
       }
 
@@ -1718,7 +802,7 @@
         .maybeSingle();
 
       if (error || !poll) {
-        pollContent.innerHTML = '<p class="text-xs text-[var(--text-muted)]">No active poll right now — check back soon.</p>';
+        pollContent.innerHTML = '<p class="text-sm text-[var(--text-muted)]">No active poll right now — check back soon.</p>';
         return;
       }
 
@@ -1738,7 +822,7 @@
         const total = Object.values(countMap).reduce((a, b) => a + Number(b), 0) || 1;
 
         pollContent.innerHTML = `
-          <p class="text-xs font-bold text-[var(--text-main)]">${poll.question}</p>
+          <p class="text-sm font-bold text-[var(--text-main)]">${poll.question}</p>
           ${sortedOptions.map(o => {
             const count = Number(countMap[o.option_id] || 0);
             const pct = Math.round((count / total) * 100);
@@ -1753,11 +837,11 @@
               </div>
             </div>`;
           }).join('')}
-          <p class="text-[10px] text-[var(--text-muted)] mt-1">${total} vote${total === 1 ? '' : 's'} total</p>
+          <p class="text-xs text-[var(--text-muted)] mt-1">${total} vote${total === 1 ? '' : 's'} total</p>
         `;
       } else {
         pollContent.innerHTML = `
-          <p class="text-xs font-bold text-[var(--text-main)]">${poll.question}</p>
+          <p class="text-sm font-bold text-[var(--text-main)]">${poll.question}</p>
           ${sortedOptions.map(o => `
             <button onclick="voteInPoll('${poll.poll_id}', '${o.option_id}')" class="w-full min-h-touch text-left p-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-xs font-bold text-[var(--text-main)] transition-all">
               ${o.label}
@@ -1829,7 +913,7 @@
       if (!container) return;
 
       if (!currentSportId) {
-        container.innerHTML = '<p class="text-xs text-[var(--text-muted)] text-center py-4">Select a sport to see its news.</p>';
+        container.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-4">Select a sport to see its news.</p>';
         return;
       }
 
@@ -1841,11 +925,11 @@
         .limit(20);
 
       if (error) {
-        container.innerHTML = `<p class="text-xs text-[var(--text-muted)] text-center py-4">Could not load news: ${error.message}</p>`;
+        container.innerHTML = `<p class="text-sm text-[var(--text-muted)] text-center py-4">Could not load news: ${error.message}</p>`;
         return;
       }
       if (!briefs || !briefs.length) {
-        container.innerHTML = '<p class="text-xs text-[var(--text-muted)] text-center py-4">No news briefs yet.</p>';
+        container.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-4">No news briefs yet.</p>';
         return;
       }
 
@@ -1858,7 +942,7 @@
             <span class="w-1.5 h-1.5 rounded-full theme-accent-bg"></span>
             <span>${brief.title}</span>
           </div>
-          <p class="text-xs text-[var(--text-muted)] mt-1 pl-3">${brief.body}</p>
+          <p class="text-sm text-[var(--text-muted)] mt-1 pl-3">${brief.body}</p>
         `;
         container.appendChild(item);
       });
@@ -2005,6 +1089,33 @@
       if (tabId === 'tab-home') loadHomeProVoicePreview();
     }
 
+    function toggleTodayStreak() {
+      const el = document.getElementById('streak-today');
+      if (el.classList.contains('theme-accent-bg')) {
+        el.className = 'cursor-pointer bg-[var(--bg-app)] border border-dashed theme-accent-subtle-border theme-accent-text hover:opacity-80 rounded-lg py-1 text-center font-bold text-[10px] transition-all';
+        el.innerText = 'SAT';
+        triggerToast('Streak unchecked');
+      } else {
+        el.className = 'cursor-pointer theme-accent-bg rounded-lg py-1 text-center font-bold text-[10px] transition-all shadow';
+        el.innerText = 'SAT ✓';
+        addXP(50);
+        triggerToast('🔥 Day 6 Streak Locked! (+50 XP)');
+      }
+    }
+
+    function claimCokePerk(btn) {
+      btn.innerHTML = '<span>Coca-Cola Pack Claimed ✓</span>';
+      btn.className = 'w-full min-h-touch bg-emerald-600 text-white font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md';
+      playSfx("G5", "8n");
+      triggerToast('🥤 Free Coca-Cola Athlete Pack credited to Profile Wallet!');
+    }
+
+    function addXP(amount) {
+      xpPoints += amount;
+      document.getElementById('xp-counter').innerText = xpPoints.toLocaleString() + ' XP';
+      playSfx("C5", "8n");
+    }
+
     function incrementDrillProgress() {
       if (drillProgress < 100) {
         drillProgress += 15;
@@ -2016,6 +1127,7 @@
         circle.style.strokeDashoffset = offset;
 
         document.getElementById('drill-percent-text').innerText = drillProgress + '%';
+        addXP(50);
         triggerToast('Logged Swing Drill! Progress ' + drillProgress + '%');
       } else {
         triggerToast('Daily Swing Drills 100% Completed! ⛳');
@@ -2025,11 +1137,6 @@
     function playAudioPreview() {
       playSfx("E5", "4n");
       triggerToast("Playing Coach's Voice Preview 🎧");
-    }
-
-    function playVoiceMemo(btn) {
-      playSfx("G4", "8n");
-      triggerToast('Playing Coach Voice Dispatch 🔊');
     }
 
     function toggleLessonsSubtab(type) {
@@ -2164,7 +1271,7 @@
         pwdHint.classList.remove('hidden');
         pwdInput.value = '';
         submitText.innerText = 'Save Changes';
-        linkBtn.innerText = "Already have an account? Log In";
+        linkBtn.innerText = "Already have an account? Log In"; 
       } else {
         fieldsBlock.classList.remove('hidden');
         pwdReqBox.classList.remove('hidden');
@@ -2202,7 +1309,7 @@
 
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        const timeoutId = setTimeout(() => controller.abort(), 15000); 
 
         const res = await fetch(`${SUPABASE_URL}/functions/v1/delete-account`, {
           method: 'POST',
@@ -2288,13 +1395,13 @@
     function updateRuleUI(elementId, isValid) {
       const el = document.getElementById(elementId);
       if (isValid) {
-        el.className = 'flex items-center space-x-2 text-xs theme-accent-text font-semibold transition-colors';
+        el.className = 'flex items-center space-x-2 text-sm theme-accent-text font-semibold transition-colors';
       } else {
-        el.className = 'flex items-center space-x-2 text-xs text-[var(--text-muted)] transition-colors';
+        el.className = 'flex items-center space-x-2 text-sm text-[var(--text-muted)] transition-colors';
       }
     }
 
-    let pendingPhotoFile = null;
+    let pendingPhotoFile = null; 
 
     async function handleProfilePhotoUpload(input) {
       if (!input.files || !input.files[0]) return;
@@ -2331,7 +1438,7 @@
         }
 
         const { data: urlData } = supabaseClient.storage.from('avatars').getPublicUrl(filePath);
-        const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+        const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`; 
 
         await supabaseClient.from('users').update({ photo_url: publicUrl }).eq('user_id', userId);
 
@@ -2367,7 +1474,7 @@
           return;
         }
         const user = await signInUser(emailVal, pwdVal);
-        if (!user) return;
+        if (!user) return; 
         currentUser.email = emailVal;
         await applyLoggedInState(user.id);
         if (!isLoggedIn) {
@@ -2429,13 +1536,13 @@
       }
 
       const authedUser = await signUpUser(emailVal, pwdVal, nameVal, titleVal);
-      if (!authedUser) return;
+      if (!authedUser) return; 
       isLoggedIn = true;
       currentUser.email = emailVal;
 
       if (pendingPhotoFile) await uploadPendingPhoto(authedUser.id);
 
-      await applyLoggedInState(authedUser.id);
+      await applyLoggedInState(authedUser.id); 
       document.getElementById('storekit-user-email').innerText = `All-Sport Account: ${emailVal}`;
 
       closeProfileModal();
@@ -2542,8 +1649,8 @@
 
       await refreshWalletPointsDisplay();
 
-      setAuthMode('signup');
-      setProfileMode('view');
+      setAuthMode('signup');       
+      setProfileMode('view');      
       document.getElementById('auth-mode-toggle').classList.add('hidden');
     }
 
@@ -2600,27 +1707,28 @@
         `<option value="${s.sport_id}" ${s.sport_id === currentSportId ? 'selected' : ''}>${s.display_name}</option>`
       ).join('');
     }
-
+    
     function closeComposerModal() {
       document.getElementById('composer-modal').classList.add('hidden');
       if (typeof stopVoiceRecording === 'function') stopVoiceRecording(true);
       resetNativeVideo();
     }
 
-    const POST_EXPIRY_SECONDS = 30 * 3600;
+    const POST_EXPIRY_SECONDS = 30 * 3600; 
+    const MAX_VIDEO_SECONDS = 25; 
     let pendingPhotoDataUrl = null;
     let voiceRecording = false, voiceSeconds = 0, voiceTimerHandle = null;
     let mediaRecorder = null, recordedChunks = [], recordedAudioDataUrl = null, micStream = null;
-
-    // NATIVE VIDEO STATE
+    
+    // ==== NATIVE VIDEO RECORDING VARIABLES ====
     let nativeVideoFile = null;
 
     function handleNativeVideoSelect(input) {
       if (!input.files || !input.files[0]) return;
       const file = input.files[0];
-
-      if (file.size > 35 * 1024 * 1024) {
-        triggerToast('Video is too large! Please keep it under 25 seconds.');
+      
+      if (file.size > 30 * 1024 * 1024) {
+        triggerToast('Video file is too large! Please keep it under 25 seconds.');
         input.value = '';
         return;
       }
@@ -2633,26 +1741,19 @@
       document.getElementById('video-placeholder-box').classList.add('hidden');
       document.getElementById('video-preview-container').classList.remove('hidden');
       document.getElementById('native-video-reset-btn').classList.remove('hidden');
-      triggerToast('Video ready to broadcast! 🎬');
+      triggerToast('Video loaded! Ready to broadcast 🎬');
     }
 
     function resetNativeVideo() {
       nativeVideoFile = null;
       const player = document.getElementById('native-video-player');
-      if (player) {
-        player.pause();
-        player.src = '';
-      }
-      const nativeInput = document.getElementById('composer-video-native-input');
-      if (nativeInput) nativeInput.value = '';
-      const libraryInput = document.getElementById('composer-video-library-input');
-      if (libraryInput) libraryInput.value = '';
-      const previewContainer = document.getElementById('video-preview-container');
-      if (previewContainer) previewContainer.classList.add('hidden');
-      const resetBtn = document.getElementById('native-video-reset-btn');
-      if (resetBtn) resetBtn.classList.add('hidden');
-      const placeholderBox = document.getElementById('video-placeholder-box');
-      if (placeholderBox) placeholderBox.classList.remove('hidden');
+      player.pause();
+      player.src = '';
+      document.getElementById('composer-video-native-input').value = '';
+      document.getElementById('composer-video-library-input').value = '';
+      document.getElementById('video-preview-container').classList.add('hidden');
+      document.getElementById('native-video-reset-btn').classList.add('hidden');
+      document.getElementById('video-placeholder-box').classList.remove('hidden');
     }
 
     async function toggleVoiceRecording() {
@@ -2678,7 +1779,7 @@
         });
         document.getElementById('voice-preview-player').src = recordedAudioDataUrl;
         document.getElementById('voice-replay-controls').classList.remove('hidden');
-        micStream.getTracks().forEach(t => t.stop());
+        micStream.getTracks().forEach(t => t.stop()); 
       };
       mediaRecorder.start();
 
@@ -2731,10 +1832,10 @@
         const btn = document.getElementById('fmt-btn-' + f);
         const pane = document.getElementById('composer-pane-' + f);
         if (f === fmt) {
-          btn.className = 'media-fmt-btn min-h-touch py-2 bg-violet-accent/20 border border-violet-accent text-violet-light text-xs font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all';
+          btn.className = 'media-fmt-btn min-h-touch py-2 bg-violet-accent/20 border border-violet-accent text-violet-light text-sm font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all';
           pane.classList.remove('hidden');
         } else {
-          btn.className = 'media-fmt-btn min-h-touch py-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-white text-xs font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all';
+          btn.className = 'media-fmt-btn min-h-touch py-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-white text-sm font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all';
           pane.classList.add('hidden');
         }
       });
@@ -2758,11 +1859,11 @@
       const pubBtn = document.getElementById('vis-public');
       const innerBtn = document.getElementById('vis-inner');
       if (aud === 'Public') {
-        pubBtn.className = 'px-2.5 py-1 text-xs font-bold rounded theme-accent-bg transition-all';
-        innerBtn.className = 'px-2.5 py-1 text-xs font-bold rounded text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all';
+        pubBtn.className = 'px-2.5 py-1 text-sm font-bold rounded theme-accent-bg transition-all';
+        innerBtn.className = 'px-2.5 py-1 text-sm font-bold rounded text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all';
       } else {
-        innerBtn.className = 'px-2.5 py-1 text-xs font-bold rounded bg-violet-accent text-white transition-all';
-        pubBtn.className = 'px-2.5 py-1 text-xs font-bold rounded text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all';
+        innerBtn.className = 'px-2.5 py-1 text-sm font-bold rounded bg-violet-accent text-white transition-all';
+        pubBtn.className = 'px-2.5 py-1 text-sm font-bold rounded text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all';
       }
     }
 
@@ -2794,34 +1895,40 @@
 
       if (currentMediaFormat === 'Photo') mediaUrl = pendingPhotoDataUrl || null;
 
+      // ==== NATIVE VIDEO UPLOAD LOGIC ====
       if (currentMediaFormat === 'Video') {
         if (!nativeVideoFile) {
-          triggerToast('Please record or choose a video first.');
+          triggerToast('Please film or select a video first.');
           return;
         }
         triggerToast('Uploading video...');
         try {
-          const fileType = nativeVideoFile.type || 'video/mp4';
+          const fileExt = nativeVideoFile.name.split('.').pop() || 'mp4';
+          const uploadContentType = nativeVideoFile.type || 'video/mp4';
+
           const { data: uploadInfo, error: uploadUrlErr } = await supabaseClient.functions.invoke('get-r2-upload-url', {
             method: 'POST',
-            body: { contentType: fileType },
+            body: { contentType: uploadContentType, extension: fileExt },
           });
+
           if (uploadUrlErr || !uploadInfo?.uploadUrl) {
-            triggerToast(`Upload error: ${uploadUrlErr?.message || 'Could not prepare upload'}`);
+            triggerToast(`Could not prepare upload: ${uploadUrlErr?.message || 'Check permissions'}`);
             return;
           }
+
           const putRes = await fetch(uploadInfo.uploadUrl, {
             method: 'PUT',
-            headers: { 'Content-Type': fileType },
+            headers: { 'Content-Type': uploadContentType },
             body: nativeVideoFile,
           });
+
           if (!putRes.ok) {
-            triggerToast('Video upload failed. Please try again.');
+            triggerToast('Video upload failed on storage. Please retry.');
             return;
           }
           mediaUrl = uploadInfo.publicUrl;
         } catch (err) {
-          triggerToast(`Upload failed: ${err.message}`);
+          triggerToast(`Upload error: ${err.message}`);
           return;
         }
       }
@@ -2872,7 +1979,7 @@
             <button onclick="event.stopPropagation(); toggleMemoPlayback('${playerId}')" id="${playerId}-btn" class="w-8 h-8 rounded-full bg-violet-accent text-white flex items-center justify-center text-xs hover:scale-105 transition-all flex-shrink-0">▶</button>
             <div>
               <div class="text-xs font-semibold text-[var(--text-main)]">${subject}</div>
-              <div class="text-xs text-[var(--text-muted)]">Voice memo</div>
+              <div class="text-sm text-[var(--text-muted)]">Voice memo</div>
             </div>
           </div>
           <div class="flex items-end space-x-1 h-6 flex-shrink-0">
@@ -2909,7 +2016,7 @@
       const container = document.getElementById('home-pro-voice-preview');
       if (!container) return;
       if (!currentSportId) {
-        container.innerHTML = '<p class="text-xs text-[var(--text-muted)] text-center py-4">Use the sport switcher at the top to get started.</p>';
+        container.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-4">Use the sport switcher at the top to get started.</p>';
         return;
       }
 
@@ -2926,7 +2033,7 @@
         .limit(3);
 
       if (error || !posts || !posts.length) {
-        container.innerHTML = '<p class="text-xs text-[var(--text-muted)] text-center py-4">No Pro Voice posts yet.</p>';
+        container.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-4">No Pro Voice posts yet.</p>';
         return;
       }
 
@@ -2949,7 +2056,7 @@
       if (fetchErr) { triggerToast(`Could not load post: ${fetchErr.message}`); return; }
 
       const newText = prompt('Edit your post:', post?.body_text || '');
-      if (newText === null) return;
+      if (newText === null) return; 
       if (!newText.trim()) { triggerToast('Text cannot be empty.'); return; }
 
       const { error } = await supabaseClient.from('pro_posts').update({ body_text: newText.trim() }).eq('post_id', postId);
@@ -3009,7 +2116,7 @@
       const feed = document.getElementById('stream-feed-list');
       if (!feed) return;
       if (!currentSportId) {
-        feed.innerHTML = '<p class="text-xs text-[var(--text-muted)] text-center py-6">Use the sport switcher at the top to get started.</p>';
+        feed.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-6">Use the sport switcher at the top to get started.</p>';
         return;
       }
 
@@ -3026,11 +2133,11 @@
         .order('posted_at', { ascending: false });
 
       if (error) {
-        feed.innerHTML = `<p class="text-xs text-[var(--text-muted)] text-center py-6">Could not load feed: ${error.message}</p>`;
+        feed.innerHTML = `<p class="text-sm text-[var(--text-muted)] text-center py-6">Could not load feed: ${error.message}</p>`;
         return;
       }
       if (!posts || !posts.length) {
-        feed.innerHTML = '<p class="text-xs text-[var(--text-muted)] text-center py-6">No broadcasts yet.</p>';
+        feed.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-6">No broadcasts yet.</p>';
         return;
       }
 
@@ -3070,7 +2177,8 @@
       } else if (post.media_type === 'Photo' && post.media_url) {
         mediaHtml = `<img src="${post.media_url}" class="w-full aspect-video object-cover rounded-xl">`;
       } else if (post.media_type === 'Video' && post.media_url) {
-        mediaHtml = `<video controls playsinline webkit-playsinline preload="metadata" crossorigin="anonymous" class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${post.media_url}"></video>`;
+        // ADDED PLAYSINLINE AND CROSSORIGIN TO FIX IPHONE PLAYBACK
+        mediaHtml = `<video controls playsinline webkit-playsinline crossorigin="anonymous" preload="metadata" class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${post.media_url}"></video>`;
       } else if (post.media_type === 'Voice' && post.media_url) {
         mediaHtml = buildVoiceMemoHtml(post.body_text || 'Voice memo', post.media_url, `${idPrefix}-voice-${post.post_id}`);
       }
@@ -3107,10 +2215,10 @@
               </div>
               <div>
                 <h4 class="text-xs font-bold text-[var(--text-main)]">${authorName}</h4>
-                <p class="text-xs text-[var(--text-muted)]">${sportLabel}${author?.title || 'Verified Pro'} · ${post.audience === 'public' ? '🌐 Public' : '🔒 Inner Circle'}</p>
+                <p class="text-sm text-[var(--text-muted)]">${sportLabel}${author?.title || 'Verified Pro'} · ${post.audience === 'public' ? '🌐 Public' : '🔒 Inner Circle'}</p>
               </div>
             </div>
-            <div class="bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded-full text-xs font-mono font-bold">
+            <div class="bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded-full text-sm font-mono font-bold">
               <span class="stream-timer" data-seconds="${secondsLeft}">${formatCountdown(secondsLeft)}</span>
             </div>
           </div>
@@ -3162,11 +2270,11 @@
           <div class="text-xs font-black theme-accent-text flex items-center justify-center gap-1.5">
              TICKET CONFIRMED
           </div>
-          <div class="text-xs text-[var(--text-muted)]">Account: ${currentUser.email}</div>
-          <div class="text-xs text-red-400 font-bold flex items-center justify-center gap-1">
+          <div class="text-sm text-[var(--text-muted)]">Account: ${currentUser.email}</div>
+          <div class="text-sm text-red-400 font-bold flex items-center justify-center gap-1">
             <svg class="h-2.5 w-auto" viewBox="0 0 100 24" fill="none">
               <rect width="100" height="24" rx="12" fill="#F40009"/>
-              <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
+              <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">PULSE</text>
             </svg>
             <span>VIP Care Pack Activated</span>
           </div>
@@ -3175,7 +2283,7 @@
           </button>
         </div>
       `;
-      triggerToast('🎉 Masterclass Ticket + Coca-Cola VIP Pack Unlocked!');
+      triggerToast('🎉 Masterclass Ticket + PULSE VIP Pack Unlocked!');
       myTickets.push({ title: 'Mastering Ground Forces & Speed', date: 'Live masterclass', price: '$49.00' });
       renderMyTickets();
     }
@@ -3190,7 +2298,7 @@
       list.innerHTML = myTickets.map(t => `
         <div class="bg-[var(--bg-card)] p-3 rounded-xl border border-[var(--border-subtle)] flex items-center justify-between">
           <div><div class="text-xs font-bold text-[var(--text-main)]">${t.title}</div><div class="text-xs text-[var(--text-muted)]">${t.date}</div></div>
-          <span class="text-xs font-black theme-accent-text">${t.price}</span>
+          <span class="text-sm font-black theme-accent-text">${t.price}</span>
         </div>`).join('');
     }
 
@@ -3356,7 +2464,7 @@
             .from('sport_verticals').select('sport_id').eq('slug', 'golf').single();
           if (golfSport) currentSportId = golfSport.sport_id;
         } catch (e) {
-          console.error('Could not default guest to Golf:', e);
+          console.error('Could not default guest to Golf (non-fatal):', e);
         }
       }
 
