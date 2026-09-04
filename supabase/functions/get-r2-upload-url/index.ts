@@ -48,18 +48,28 @@ Deno.serve(async (req: Request) => {
     return json({ error: "not_verified" }, 401);
   }
 
-  // Use the browser's ACTUAL recorded format - different phones produce
-  // different real formats (iPhones commonly record MP4, Android/Chrome
-  // commonly records WebM). Always assuming webm regardless of what was
-  // really recorded causes uploads to succeed but fail to play back.
-  let contentType = "video/webm"; // sensible fallback if the client didn't specify
+  // Use the phone's ACTUAL native file format - videos now come from the
+  // native camera app (via the file input "capture" attribute) rather
+  // than the browser's MediaRecorder, so this is commonly video/quicktime
+  // (.mov) on iPhones, video/mp4 on Android, or whatever a chosen library
+  // video happens to be. The client sends both the real content type and
+  // the real file extension - trust the extension if given, since it's
+  // the most reliable signal for what the file actually is.
+  let contentType = "video/mp4"; // sensible fallback if the client didn't specify
+  let clientExtension: string | null = null;
   try {
     const body = await req.json();
     if (body?.contentType) contentType = body.contentType;
+    if (body?.extension) clientExtension = String(body.extension).toLowerCase().replace(/[^a-z0-9]/g, "");
   } catch {
     // No body provided - fall back to the default above, not a hard error
   }
-  const extension = contentType.includes("mp4") ? "mp4" : "webm";
+
+  const extension = clientExtension || (
+    contentType.includes("quicktime") ? "mov" :
+    contentType.includes("webm") ? "webm" :
+    "mp4"
+  );
 
   const accountId = Deno.env.get("R2_ACCOUNT_ID")!;
   const bucket = Deno.env.get("R2_BUCKET_NAME")!;

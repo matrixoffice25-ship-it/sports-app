@@ -28,7 +28,7 @@ Deno.serve(async (req: Request) => {
 
   const { data: expiredVideos, error } = await supabaseAdmin
     .from("pro_posts")
-    .select("post_id, media_url")
+    .select("post_id, media_url") // media_url stores the full R2 public URL for Video posts
     .eq("media_type", "Video")
     .lt("expires_at", new Date().toISOString());
 

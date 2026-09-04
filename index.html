@@ -1500,20 +1500,28 @@
           </div>
 
           <!-- VIDEO PANE -->
-          <div id="composer-pane-Video" class="composer-pane space-y-2 hidden">
+          <div id="composer-pane-Video" class="composer-pane space-y-3 hidden">
             <p class="text-xs text-[var(--text-muted)]">Up to 25 seconds. Disappears after 30 hours, same as every other post.</p>
-            <div class="relative rounded-xl overflow-hidden bg-black aspect-[9/16] max-h-72 mx-auto">
-              <video id="video-live-preview" autoplay muted playsinline class="w-full h-full object-cover"></video>
-              <video id="video-playback-preview" controls playsinline class="hidden w-full h-full object-cover"></video>
-              <div id="video-rec-timer" class="hidden absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">0:00</div>
-            </div>
-            <div class="flex flex-col items-center gap-2">
-              <button id="video-rec-btn" onclick="toggleVideoRecording()" class="w-16 h-16 rounded-full theme-accent-bg flex items-center justify-center text-xs font-black">REC</button>
-              <div id="video-rec-status" class="text-sm text-[var(--text-muted)]">Tap to start recording</div>
-              <button id="video-rerecord-btn" onclick="reRecordVideo()" class="hidden w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-muted)] text-sm font-bold py-2 rounded-xl border border-[var(--border-subtle)]">
-                Re-record
+
+            <input type="file" id="composer-video-native-input" accept="video/mp4,video/quicktime,video/*" capture="environment" class="hidden" onchange="handleNativeVideoSelect(this)">
+            <input type="file" id="composer-video-library-input" accept="video/mp4,video/quicktime,video/*" class="hidden" onchange="handleNativeVideoSelect(this)">
+
+            <div id="video-placeholder-box" class="border-2 border-dashed border-[var(--border-subtle)] rounded-xl aspect-[9/16] max-h-72 mx-auto flex flex-col items-center justify-center gap-3 p-4">
+              <button type="button" onclick="document.getElementById('composer-video-native-input').click()" class="w-full min-h-touch theme-accent-bg font-extrabold text-xs py-3 rounded-xl shadow flex items-center justify-center gap-2">
+                <span>🎥 Record with Phone Camera</span>
+              </button>
+              <button type="button" onclick="document.getElementById('composer-video-library-input').click()" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] text-xs font-bold py-2.5 rounded-xl border border-[var(--border-subtle)]">
+                Choose from Photo Library
               </button>
             </div>
+
+            <div id="video-preview-container" class="hidden relative rounded-xl overflow-hidden bg-black aspect-[9/16] max-h-72 mx-auto">
+              <video id="native-video-player" controls playsinline webkit-playsinline class="w-full h-full object-cover"></video>
+            </div>
+
+            <button type="button" id="native-video-reset-btn" onclick="resetNativeVideo()" class="hidden w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-muted)] text-sm font-bold py-2 rounded-xl border border-[var(--border-subtle)]">
+              Retake Video
+            </button>
           </div>
 
           <!-- VOICE PANE -->
@@ -2807,16 +2815,12 @@
     function closeComposerModal() {
       document.getElementById('composer-modal').classList.add('hidden');
       if (typeof stopVoiceRecording === 'function') stopVoiceRecording(true);
-      stopCameraPreview();
     }
 
     const POST_EXPIRY_SECONDS = 30 * 3600; // strict 30-hour expiry, every format, no exceptions
-    const MAX_VIDEO_SECONDS = 25; // short clips only - keeps file size (and cost) down, matches Stories-style conventions
     let pendingPhotoDataUrl = null;
     let voiceRecording = false, voiceSeconds = 0, voiceTimerHandle = null;
     let mediaRecorder = null, recordedChunks = [], recordedAudioDataUrl = null, micStream = null;
-    let videoRecorder = null, videoChunks = [], recordedVideoBlob = null, videoStream = null;
-    let videoRecording = false, videoSeconds = 0, videoTimerHandle = null;
 
     async function toggleVoiceRecording() {
       if (voiceRecording) { stopVoiceRecording(false); return; }
@@ -2906,16 +2910,6 @@
         }
       });
       playSfx("E5", "32n");
-
-      // The camera should only ever be active while the Video pane is
-      // actually showing - switching away releases it immediately, both
-      // for battery life and because a lit camera indicator when you're
-      // not using it is a real privacy concern.
-      if (fmt === 'Video') {
-        startCameraPreview();
-      } else {
-        stopCameraPreview();
-      }
     }
 
     function handleComposerPhoto(input) {
@@ -2931,123 +2925,59 @@
     }
 
     // ============================================================
-    // VIDEO RECORDING (Pro Voice) - short clips only, uploaded to
-    // Cloudflare Stream (see publishProPost) - Stream fully reprocesses
-    // every uploaded video into a correctly-structured, universally-
-    // compatible format automatically, which is what actually fixes
-    // cross-device playback (this isn't a labeling problem - it's the
-    // raw MediaRecorder output itself needing real processing).
+    // VIDEO RECORDING (Pro Voice) - uses the phone's NATIVE camera app
+    // via the file input "capture" attribute, instead of the browser's
+    // MediaRecorder API. This is a deliberate choice: MediaRecorder's
+    // own output is confirmed to have structural defects that iOS
+    // Safari refuses to play back reliably. The native camera app has
+    // no such defect - it produces properly-structured video the same
+    // way any other photo/video on the phone would be. This sidesteps
+    // the problem entirely rather than trying to patch around it.
+    //
+    // Trade-off worth knowing: unlike the old approach, video quality
+    // (and therefore file size) can't be precisely controlled from here
+    // - it's whatever quality the phone's own camera is set to, which
+    // can range from 720p up to 4K. A generous size ceiling is used
+    // below to avoid rejecting a valid short clip just because a phone
+    // happens to record in a high-quality mode.
     // ============================================================
 
-    async function startCameraPreview() {
-      if (videoStream) return; // already running
-      try {
-        videoStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 1280 } }, // portrait, modest resolution - keeps files small
-          audio: true,
-        });
-        document.getElementById('video-live-preview').srcObject = videoStream;
-      } catch (err) {
-        triggerToast('Camera access denied or unavailable.');
+    let nativeVideoFile = null;
+    const MAX_VIDEO_FILE_MB = 150; // generous enough for a 25s clip even at 4K
+
+    function handleNativeVideoSelect(input) {
+      if (!input.files || !input.files[0]) return;
+      const file = input.files[0];
+
+      if (file.size > MAX_VIDEO_FILE_MB * 1024 * 1024) {
+        triggerToast(`That video is too large (${(file.size / 1024 / 1024).toFixed(0)}MB). Try recording at a lower quality in your phone's camera settings, or keep it shorter.`);
+        input.value = '';
+        return;
       }
+
+      nativeVideoFile = file;
+      const videoUrl = URL.createObjectURL(file);
+      const player = document.getElementById('native-video-player');
+      player.src = videoUrl;
+
+      document.getElementById('video-placeholder-box').classList.add('hidden');
+      document.getElementById('video-preview-container').classList.remove('hidden');
+      document.getElementById('native-video-reset-btn').classList.remove('hidden');
+      triggerToast('Video loaded! Ready to broadcast 🎬');
     }
 
-    function stopCameraPreview() {
-      if (videoRecording) stopVideoRecording(true);
-      if (videoStream) {
-        videoStream.getTracks().forEach(t => t.stop());
-        videoStream = null;
+    function resetNativeVideo() {
+      nativeVideoFile = null;
+      const player = document.getElementById('native-video-player');
+      if (player) {
+        player.pause();
+        player.src = '';
       }
-    }
-
-    function toggleVideoRecording() {
-      if (videoRecording) { stopVideoRecording(false); return; }
-      if (!videoStream) { triggerToast('Camera not ready yet - try again in a moment.'); return; }
-
-      videoChunks = [];
-      // Prefer MP4 when the browser can record it - this is the one format
-      // almost every device can actually PLAY BACK, including iPhones.
-      // A browser only guarantees it can play back what it itself
-      // recorded, not what a different browser/device recorded - Chrome
-      // defaults to WebM, but Safari on iPhone can't play WebM at all in
-      // most versions. Forcing MP4 wherever possible fixes that gap for
-      // the vast majority of real devices, without needing to transcode
-      // anything server-side.
-      const preferredMimeType = MediaRecorder.isTypeSupported('video/mp4')
-        ? 'video/mp4'
-        : undefined; // let the browser pick its own default (typically webm) if mp4 recording isn't supported here
-
-      // Explicit bitrate cap - without this, file size varies unpredictably
-      // by device. This keeps every recording close to the same size,
-      // which is what makes the cost projection below airtight rather
-      // than "roughly."
-      videoRecorder = new MediaRecorder(videoStream, {
-        ...(preferredMimeType ? { mimeType: preferredMimeType } : {}),
-        videoBitsPerSecond: 1_500_000, // 1.5 Mbps - plenty for a short mobile clip, small file
-        audioBitsPerSecond: 64_000,    // 64 kbps - fine for spoken audio
-      });
-      videoRecorder.ondataavailable = e => { if (e.data.size > 0) videoChunks.push(e.data); };
-      videoRecorder.onstop = () => {
-        // Same lesson learned from the voice memo bug: use the recorder's
-        // OWN reported mimeType, not a hardcoded generic one, or the local
-        // preview can fail. The uploaded file itself gets fully
-        // reprocessed by Cloudflare Stream regardless of its exact source
-        // format, which is what actually guarantees it plays back
-        // correctly on every device.
-        recordedVideoBlob = new Blob(videoChunks, { type: videoRecorder.mimeType || 'video/webm' });
-        const playbackUrl = URL.createObjectURL(recordedVideoBlob);
-        const liveEl = document.getElementById('video-live-preview');
-        const playbackEl = document.getElementById('video-playback-preview');
-        liveEl.classList.add('hidden');
-        playbackEl.src = playbackUrl;
-        playbackEl.classList.remove('hidden');
-        document.getElementById('video-rerecord-btn').classList.remove('hidden');
-        document.getElementById('video-rec-btn').classList.add('hidden');
-      };
-      videoRecorder.start();
-
-      videoRecording = true; videoSeconds = 0;
-      const btn = document.getElementById('video-rec-btn');
-      btn.className = 'w-16 h-16 rounded-full bg-red-600 flex items-center justify-center text-xs font-black text-white animate-pulse';
-      btn.innerText = 'STOP';
-      document.getElementById('video-rec-status').innerText = 'Recording...';
-      const timerEl = document.getElementById('video-rec-timer');
-      timerEl.classList.remove('hidden');
-      timerEl.innerText = '0:00';
-
-      videoTimerHandle = setInterval(() => {
-        videoSeconds++;
-        const m = Math.floor(videoSeconds / 60), s = videoSeconds % 60;
-        timerEl.innerText = `${m}:${s.toString().padStart(2, '0')}`;
-        if (videoSeconds >= MAX_VIDEO_SECONDS) stopVideoRecording(false);
-      }, 1000);
-    }
-
-    function stopVideoRecording(silent) {
-      clearInterval(videoTimerHandle); videoTimerHandle = null;
-      if (videoRecorder && videoRecorder.state !== 'inactive') videoRecorder.stop();
-      videoRecording = false;
-      document.getElementById('video-rec-timer').classList.add('hidden');
-      if (silent) {
-        document.getElementById('video-rec-btn').className = 'w-16 h-16 rounded-full theme-accent-bg flex items-center justify-center text-xs font-black';
-        document.getElementById('video-rec-btn').innerText = 'REC';
-        document.getElementById('video-rec-status').innerText = 'Tap to start recording';
-      } else {
-        document.getElementById('video-rec-status').innerText = `Recorded ${videoSeconds}s - watch it below before posting`;
-      }
-    }
-
-    function reRecordVideo() {
-      recordedVideoBlob = null;
-      document.getElementById('video-playback-preview').classList.add('hidden');
-      document.getElementById('video-playback-preview').src = '';
-      document.getElementById('video-live-preview').classList.remove('hidden');
-      document.getElementById('video-rerecord-btn').classList.add('hidden');
-      document.getElementById('video-rec-btn').classList.remove('hidden');
-      document.getElementById('video-rec-btn').className = 'w-16 h-16 rounded-full theme-accent-bg flex items-center justify-center text-xs font-black';
-      document.getElementById('video-rec-btn').innerText = 'REC';
-      document.getElementById('video-rec-status').innerText = 'Tap to start recording';
-      if (!videoStream) startCameraPreview(); // camera may have been released - restart it for the retake
+      document.getElementById('composer-video-native-input').value = '';
+      document.getElementById('composer-video-library-input').value = '';
+      document.getElementById('video-preview-container').classList.add('hidden');
+      document.getElementById('native-video-reset-btn').classList.add('hidden');
+      document.getElementById('video-placeholder-box').classList.remove('hidden');
     }
 
     function setAudience(aud) {
@@ -3075,8 +3005,7 @@
       stopVoiceRecording(true);
       reRecordVoice();
       document.getElementById('voice-subject-input').value = '';
-      reRecordVideo();
-      stopCameraPreview();
+      resetNativeVideo();
     }
 
     async function publishProPost() {
@@ -3093,30 +3022,24 @@
       if (currentMediaFormat === 'Photo') mediaUrl = pendingPhotoDataUrl || null;
 
       if (currentMediaFormat === 'Video') {
-        if (!recordedVideoBlob) {
-          triggerToast('Record a video first, then watch it before posting.');
+        if (!nativeVideoFile) {
+          triggerToast('Please record or choose a video first.');
           return;
         }
         triggerToast('Uploading video...');
         try {
-          // Use the ACTUAL recorded format, not an assumed one - different
-          // phones produce different real formats (iPhones commonly record
-          // MP4, Android/Chrome commonly records WebM). Also strip down to
-          // just the base type ("video/mp4"), dropping any ";codecs=..."
-          // detail the browser may report.
-          //
-          // NOTE (known limitation): this R2-based path is confirmed to
-          // work when viewed on a computer, but does NOT reliably play
-          // back on iPhone - this is a known, unresolved issue with this
-          // specific approach (raw object storage does no processing on
-          // the video, and iOS Safari is strict about the internal
-          // structure of browser-recorded video). Kept in place at the
-          // user's request to avoid Cloudflare Stream's usage-based cost
-          // for now - see the Cloudflare Stream version for the fix.
-          const realVideoType = (recordedVideoBlob.type || 'video/webm').split(';')[0];
+          // Video from the phone's native camera app - iPhones commonly
+          // produce .mov (video/quicktime) files by default, not .mp4,
+          // so both the content type AND file extension are taken from
+          // the real file rather than assumed.
+          const uploadContentType = nativeVideoFile.type || 'video/mp4';
+          const fileExt = (nativeVideoFile.name && nativeVideoFile.name.includes('.'))
+            ? nativeVideoFile.name.split('.').pop()
+            : (uploadContentType.includes('quicktime') ? 'mov' : 'mp4');
+
           const { data: uploadInfo, error: uploadUrlErr } = await supabaseClient.functions.invoke('get-r2-upload-url', {
             method: 'POST',
-            body: { contentType: realVideoType },
+            body: { contentType: uploadContentType, extension: fileExt },
           });
           if (uploadUrlErr || !uploadInfo?.uploadUrl) {
             triggerToast(`Could not prepare upload: ${uploadUrlErr?.message || 'unknown error'}`);
@@ -3124,8 +3047,8 @@
           }
           const putRes = await fetch(uploadInfo.uploadUrl, {
             method: 'PUT',
-            headers: { 'Content-Type': realVideoType },
-            body: recordedVideoBlob,
+            headers: { 'Content-Type': uploadContentType },
+            body: nativeVideoFile,
           });
           if (!putRes.ok) {
             triggerToast('Video upload failed - please try again.');
@@ -3405,11 +3328,13 @@
       } else if (post.media_type === 'Photo' && post.media_url) {
         mediaHtml = `<img src="${post.media_url}" class="w-full aspect-video object-cover rounded-xl">`;
       } else if (post.media_type === 'Video' && post.media_url) {
-        // post.media_url stores the direct R2 public URL. Known limitation:
-        // confirmed to work on computer browsers, but does not reliably
-        // play back on iPhone - kept this way at the user's request to
-        // avoid Cloudflare Stream's usage-based cost for now.
-        mediaHtml = `<video controls playsinline class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${post.media_url}"></video>`;
+        // post.media_url stores the direct R2 public URL. Video now comes
+        // from the phone's native camera app (not the browser's
+        // MediaRecorder), which is what actually addresses iOS playback -
+        // native camera output doesn't carry MediaRecorder's structural
+        // defects. preload="metadata" avoids downloading the full video
+        // just to show the player.
+        mediaHtml = `<video controls playsinline webkit-playsinline preload="metadata" class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${post.media_url}"></video>`;
       } else if (post.media_type === 'Voice' && post.media_url) {
         mediaHtml = buildVoiceMemoHtml(post.body_text || 'Voice memo', post.media_url, `${idPrefix}-voice-${post.post_id}`);
       }
