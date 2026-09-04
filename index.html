@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>MY SPORTS NETWORK — Your Sports Companion</title>
 
-  <!-- PWA: required for installability and for Google Play's Trusted Web
-       Activity path, and generally good practice regardless of which
-       native-wrapping approach gets used later. -->
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#10b981">
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
@@ -19,10 +16,8 @@
   <!-- Tone.js for sound effects -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
 
-  <!-- Supabase client library (Epic 0.2: real auth) -->
+  <!-- Supabase client library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Icon library removed: text-only clean UI, one less external dependency -->
 
   <!-- Google Font: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -77,7 +72,6 @@
 
   <style>
     :root {
-      /* Palette 1: Fairway Emerald (Default) */
       --accent-main: #10B981;
       --accent-glow: #059669;
       --accent-light: #34D399;
@@ -86,7 +80,6 @@
       --accent-shadow: rgba(16, 185, 129, 0.25);
       --accent-text-btn: #0A0F1D;
 
-      /* Dark Mode Variables */
       --bg-body: #060913;
       --bg-app: #0A0F1D;
       --bg-surface: #131D31;
@@ -175,11 +168,11 @@
           <svg class="h-6 w-auto" viewBox="0 0 100 24" fill="none">
             <rect width="100" height="24" rx="12" fill="#F40009"/>
             <path d="M12 17C22 17 28 8 40 8C52 8 58 17 68 17C78 17 84 9 92 9" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.85"/>
-            <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11.5" fill="white" letter-spacing="0.5">PULSE</text>
+            <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11.5" fill="white" letter-spacing="0.5">Coca-Cola</text>
           </svg>
           <span class="text-xs text-slate-200 font-extrabold uppercase tracking-wider">Official Global Partner</span>
         </div>
-        <span class="text-sm font-mono font-bold text-red-300 bg-red-500/25 px-2 py-1 rounded border border-red-500/40">SPONSORED</span>
+        <span class="text-[10px] font-mono font-bold text-red-300 bg-red-500/25 px-2 py-1 rounded border border-red-500/40">SPONSORED</span>
       </div>
 
       <!-- Top Title & Quick Actions -->
@@ -192,13 +185,12 @@
             <h1 class="text-xs font-black tracking-widest uppercase flex items-center gap-1.5 text-[var(--text-main)]">
               MY SPORTS <span class="theme-accent-text font-extrabold">NETWORK</span>
             </h1>
-            <p class="text-xs text-[var(--text-muted)] font-medium">Your Sports Companion</p>
+            <p class="text-[9px] text-[var(--text-muted)] font-medium">Your Sports Companion</p>
           </div>
         </div>
 
         <div class="flex items-center space-x-2">
-          <!-- Sport Switcher - always visible, always current, replaces
-               the need for per-screen "select a sport" prompts entirely -->
+          <!-- Sport Switcher -->
           <div class="relative">
             <button id="sport-switcher-btn" onclick="toggleSportSwitcher()" class="h-8 px-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-main)] flex items-center gap-1 text-xs font-bold hover:scale-105 transition-all touch-target">
               <span id="sport-switcher-label">Select Sport</span>
@@ -222,45 +214,38 @@
         </div>
       </div>
 
-      <!-- TOP NAV: 4 of 7 tabs — single line, stacked icon/label -->
+      <!-- TOP NAV -->
       <nav class="flex items-stretch gap-1 px-1.5 py-1 border-t border-[var(--border-subtle)] bg-[var(--nav-bar-sub)] transition-colors">
         <button onclick="switchTab('tab-news')" id="nav-tab-news" class="nav-btn flex-1 min-w-0 py-1.5 rounded-xl text-xs font-semibold flex flex-col items-center gap-0.5 transition-all text-[var(--text-muted)] hover:text-[var(--text-main)] touch-target">
-          
           <span class="truncate">News</span>
         </button>
 
         <button onclick="switchTab('tab-lessons')" id="nav-tab-lessons" class="nav-btn flex-1 min-w-0 py-1.5 rounded-xl text-xs font-semibold flex flex-col items-center gap-0.5 transition-all text-[var(--text-muted)] hover:text-[var(--text-main)] touch-target">
-          
           <span class="truncate">Lessons & Fitness</span>
         </button>
 
         <button onclick="switchTab('tab-stream')" id="nav-tab-stream" class="nav-btn flex-1 min-w-0 py-1.5 rounded-xl text-xs font-semibold flex flex-col items-center gap-0.5 transition-all text-[var(--text-muted)] hover:text-[var(--text-main)] touch-target relative">
-          
           <span class="truncate">Pro Voice</span>
           <span class="w-2 h-2 rounded-full bg-violet-accent animate-ping absolute top-1 right-3"></span>
         </button>
 
         <button onclick="switchTab('tab-gear')" id="nav-tab-gear" class="nav-btn flex-1 min-w-0 py-1.5 rounded-xl text-xs font-semibold flex flex-col items-center gap-0.5 transition-all text-[var(--text-muted)] hover:text-[var(--text-main)] touch-target">
-          
           <span class="truncate">Shows & Gear</span>
         </button>
       </nav>
     </header>
 
-    <!-- BOTTOM NAV: remaining 3 of 7 tabs -->
+    <!-- BOTTOM NAV -->
     <nav class="fixed bottom-0 left-0 right-0 mx-auto max-w-lg flex items-stretch px-2 py-1.5 border-t border-[var(--border-subtle)] bg-[var(--nav-bar-bg)] backdrop-blur-md z-40">
       <button onclick="switchTab('tab-selector')" id="nav-tab-selector" class="nav-btn flex-1 py-2 rounded-xl text-xs font-semibold flex flex-col items-center gap-1 transition-all text-[var(--text-muted)] hover:text-[var(--text-main)] touch-target">
-        
         <span>Multi-Sport</span>
       </button>
 
       <button onclick="switchTab('tab-home')" id="nav-tab-home" class="nav-btn flex-1 py-2 rounded-xl text-xs font-semibold flex flex-col items-center gap-1 transition-all theme-accent-text theme-accent-subtle-bg theme-accent-subtle-border border touch-target">
-        
         <span>Command Center</span>
       </button>
 
       <button onclick="switchTab('tab-market')" id="nav-tab-market" class="nav-btn flex-1 py-2 rounded-xl text-xs font-semibold flex flex-col items-center gap-1 transition-all text-[var(--text-muted)] hover:text-[var(--text-main)] touch-target">
-        
         <span>Education</span>
       </button>
     </nav>
@@ -272,12 +257,11 @@
       <!-- TAB 1: MULTI-SPORT PLATFORM SELECTOR -->
       <!-- ================================================================= -->
       <section id="tab-selector" class="tab-page hidden space-y-4">
-        
         <div class="text-center py-2">
-          <div class="inline-flex items-center gap-2 bg-red-950/40 border border-red-500/30 px-3 py-1 rounded-full text-sm mb-2 shadow-sm">
+          <div class="inline-flex items-center gap-2 bg-red-950/40 border border-red-500/30 px-3 py-1 rounded-full text-xs mb-2 shadow-sm">
             <svg class="h-3 w-auto inline-block" viewBox="0 0 100 24" fill="none">
               <rect width="100" height="24" rx="12" fill="#F40009"/>
-              <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
+              <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
             </svg>
             <span class="text-red-300 font-bold uppercase tracking-wider">Multi-Sport Championship Series</span>
           </div>
@@ -290,13 +274,13 @@
             <img src="https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=600&auto=format&fit=crop&q=80" alt="Golf" class="w-full h-full object-cover">
             <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-surface)] via-black/40 to-transparent"></div>
             
-            <div class="absolute top-2.5 right-2.5 theme-accent-bg text-sm font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider shadow">
+            <div class="absolute top-2.5 right-2.5 theme-accent-bg text-xs font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider shadow">
               Active Hub
             </div>
 
             <div class="absolute bottom-2.5 left-3.5 flex items-center space-x-2">
               <span class="text-lg font-black text-white">Golf</span>
-              <span class="text-sm text-emerald-300 bg-emerald-950/80 px-2 py-0.5 rounded-full font-bold border border-emerald-500/30">Active</span>
+              <span class="text-xs text-emerald-300 bg-emerald-950/80 px-2 py-0.5 rounded-full font-bold border border-emerald-500/30">Active</span>
             </div>
           </div>
 
@@ -305,18 +289,17 @@
               <div class="flex items-center space-x-2.5">
                 <svg class="h-4 w-auto" viewBox="0 0 100 24" fill="none">
                   <rect width="100" height="24" rx="12" fill="#F40009"/>
-                  <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
+                  <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
                 </svg>
                 <div class="text-xs font-bold text-white">Zero Sugar Fuel</div>
               </div>
-              <button onclick="triggerToast('Claimed PULSE Fuel! ⛳')" class="min-h-touch px-4 py-1 bg-red-600 hover:bg-red-700 text-white font-extrabold text-sm rounded-lg shadow transition-all">
+              <button onclick="triggerToast('Claimed Coca-Cola Fuel! ⛳')" class="min-h-touch px-4 py-1 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-lg shadow transition-all">
                 Claim
               </button>
             </div>
 
             <button onclick="enterSport('golf')" class="w-full min-h-touch theme-accent-bg font-extrabold text-xs py-3 px-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 hover:opacity-90">
               <span>ENTER GOLF</span>
-              
             </button>
           </div>
         </div>
@@ -341,26 +324,25 @@
               <div class="flex items-center space-x-2.5">
                 <svg class="h-4 w-auto" viewBox="0 0 100 24" fill="none">
                   <rect width="100" height="24" rx="12" fill="#F40009"/>
-                  <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
+                  <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
                 </svg>
-                <div class="text-xs font-bold text-white">PULSE Active</div>
+                <div class="text-xs font-bold text-white">Powerade Active</div>
               </div>
-              <button onclick="triggerToast('Claimed VIP Pass! 🎾')" class="min-h-touch px-4 py-1 bg-red-600 hover:bg-red-700 text-white font-extrabold text-sm rounded-lg shadow transition-all">
+              <button onclick="triggerToast('Claimed VIP Pass! 🎾')" class="min-h-touch px-4 py-1 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-lg shadow transition-all">
                 VIP Pass
               </button>
             </div>
 
             <button onclick="triggerToast('Reserved Early Access for Tennis! 🎾')" class="w-full min-h-touch px-4 py-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] text-xs font-bold rounded-xl border border-[var(--border-subtle)] transition-all flex items-center justify-center gap-2">
-              
               <span>Request Early Access</span>
             </button>
           </div>
         </div>
 
-        <!-- Sport 3: Pickleball -->
+        <!-- Sport 3: Basketball -->
         <div class="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl overflow-hidden shadow-md space-y-0 relative">
           <div class="relative h-32 w-full overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1747027694256-575ee28c793e?w=600&auto=format&fit=crop&q=80" alt="Pickleball" class="w-full h-full object-cover">
+            <img src="https://images.unsplash.com/photo-1546519638-68e109498ffc?w=600&auto=format&fit=crop&q=80" alt="Basketball" class="w-full h-full object-cover">
             <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-surface)] via-black/40 to-transparent"></div>
             
             <div class="absolute top-2.5 right-2.5 bg-slate-900/90 text-amber-400 border border-amber-500/30 text-xs font-bold px-2.5 py-0.5 rounded-full">
@@ -368,7 +350,7 @@
             </div>
 
             <div class="absolute bottom-2.5 left-3.5">
-              <h3 class="text-lg font-bold text-white">Pickleball</h3>
+              <h3 class="text-lg font-bold text-white">Basketball</h3>
             </div>
           </div>
 
@@ -377,29 +359,46 @@
               <div class="flex items-center space-x-2.5">
                 <svg class="h-4 w-auto" viewBox="0 0 100 24" fill="none">
                   <rect width="100" height="24" rx="12" fill="#F40009"/>
-                  <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
+                  <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
                 </svg>
-                <div class="text-xs font-bold text-white">PULSE Energy</div>
+                <div class="text-xs font-bold text-white">Sprite Energy</div>
               </div>
-              <button onclick="triggerToast('Claimed Pickleball Beta Key! 🏓')" class="min-h-touch px-4 py-1 bg-red-600 hover:bg-red-700 text-white font-extrabold text-sm rounded-lg shadow transition-all">
+              <button onclick="triggerToast('Claimed Basketball Beta Key! 🏀')" class="min-h-touch px-4 py-1 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-lg shadow transition-all">
                 Beta Key
               </button>
             </div>
 
-            <button onclick="triggerToast('Joined Pickleball Waitlist! 🏓')" class="w-full min-h-touch px-4 py-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] text-xs font-bold rounded-xl border border-[var(--border-subtle)] transition-all flex items-center justify-center gap-2">
-              
+            <button onclick="triggerToast('Joined Basketball Waitlist! 🏀')" class="w-full min-h-touch px-4 py-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] text-xs font-bold rounded-xl border border-[var(--border-subtle)] transition-all flex items-center justify-center gap-2">
               <span>Request Early Access</span>
             </button>
           </div>
         </div>
-
       </section>
-
 
       <!-- ================================================================= -->
       <!-- TAB 2: GOLF COMMAND CENTER -->
       <!-- ================================================================= -->
       <section id="tab-home" class="tab-page space-y-4">
+        <div class="bg-gradient-to-r from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-subtle)] flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 rounded-2xl overflow-hidden border-2 border-[var(--accent-main)] shadow-md cursor-pointer relative" onclick="openProfileModal()">
+              <img id="welcome-avatar-img" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iIzMzNDE1NSIvPjx0ZXh0IHg9IjYwIiB5PSI3OCIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNTIiIGZvbnQtd2VpZ2h0PSI4MDAiIGZpbGw9IiM5NEEzQjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPj88L3RleHQ+PC9zdmc+" alt="Profile" class="w-full h-full object-cover">
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-extrabold text-[var(--text-main)]">Golf Command</span>
+              </div>
+              <p class="text-[11px] text-[var(--text-muted)] flex items-center gap-1">
+                <span>Good morning,</span>
+                <span id="welcome-username" class="theme-accent-text font-bold">Jack Nicklaus</span>
+              </p>
+              <div id="welcome-user-title" class="text-[10px] text-amber-400/90 font-medium">Co-Founder & Biomechanics Director</div>
+            </div>
+          </div>
+          <button onclick="switchTab('tab-selector')" class="min-h-touch px-3 py-1.5 bg-[var(--bg-app)] hover:bg-[var(--bg-card)] text-[var(--text-main)] text-xs font-semibold rounded-xl border border-[var(--border-subtle)] flex items-center gap-1.5 transition-all">
+            <span>Switch</span>
+          </button>
+        </div>
 
         <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3" id="poll-card">
           <div class="flex items-center space-x-2">
@@ -407,20 +406,7 @@
             <h4 class="text-xs font-bold text-[var(--text-main)]">Community Poll</h4>
           </div>
           <div id="poll-content" class="space-y-2">
-            <p class="text-sm text-[var(--text-muted)]">Log in and select a sport to vote in polls.</p>
-          </div>
-        </div>
-
-        <!-- PULSE AD PLACEHOLDER - replace with real ad partner once MVP ships -->
-        <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all" onclick="triggerToast('PULSE Performance Gear Opened!')">
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white flex-shrink-0">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,12 7,12 9,6 13,18 16,12 22,12"/></svg>
-            </div>
-            <div>
-              <div class="text-xs font-bold text-red-400 uppercase">PULSE</div>
-              <div class="text-xs font-bold text-[var(--text-main)]">Performance Gear for Today's Round</div>
-            </div>
+            <p class="text-xs text-[var(--text-muted)]">Log in and select a sport to vote in polls.</p>
           </div>
         </div>
 
@@ -430,94 +416,87 @@
               <div>
                 <span class="text-xs font-bold uppercase tracking-wider theme-accent-text theme-accent-subtle-bg px-2 py-0.5 rounded theme-accent-subtle-border border">Golf Lessons</span>
                 <h3 class="text-sm font-bold text-[var(--text-main)] mt-1">Swing Drills Progress</h3>
-                <p class="text-sm text-[var(--text-muted)]">ST-04 Lead Post Rotation Drill</p>
+                <p class="text-xs text-[var(--text-muted)]">ST-04 Lead Post Rotation Drill</p>
               </div>
               <div class="relative w-14 h-14 flex items-center justify-center">
                 <svg class="w-14 h-14 transform -rotate-90">
                   <circle cx="28" cy="28" r="22" stroke="currentColor" stroke-width="4" class="text-[var(--border-subtle)]" fill="transparent"/>
                   <circle id="drill-progress-circle" cx="28" cy="28" r="22" stroke="var(--accent-main)" stroke-width="4" class="transition-all duration-500" fill="transparent" stroke-dasharray="138" stroke-dashoffset="48"/>
                 </svg>
-                <span id="drill-percent-text" class="absolute text-sm font-black text-[var(--text-main)]">65%</span>
+                <span id="drill-percent-text" class="absolute text-xs font-black text-[var(--text-main)]">65%</span>
               </div>
             </div>
             <button onclick="event.stopPropagation(); incrementDrillProgress();" class="w-full min-h-touch bg-[var(--bg-app)] hover:bg-[var(--bg-card)] theme-accent-text font-bold text-xs py-2.5 px-3 rounded-xl border theme-accent-subtle-border flex items-center justify-center gap-2 transition-all">
-              
               <span>Log Completed Drill</span>
             </button>
           </div>
 
           <div onclick="switchTab('tab-lessons'); activateFitnessSubtab();" class="bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-subtle)] flex flex-col justify-between space-y-3 relative overflow-hidden cursor-pointer hover:border-[var(--accent-main)] transition-all">
             <div>
-              <div class="flex items-center justify-between">
+              <div>
                 <span class="text-xs font-bold uppercase tracking-wider text-violet-light bg-violet-accent/10 px-2 py-0.5 rounded border border-violet-accent/20">Golf Fitness</span>
               </div>
               <h3 class="text-sm font-bold text-[var(--text-main)] mt-1">Thoracic Hip Mobility</h3>
-              <p class="text-sm text-[var(--text-muted)]">12 Min Joint Warmup</p>
+              <p class="text-xs text-[var(--text-muted)]">12 Min Joint Warmup</p>
             </div>
             <button onclick="event.stopPropagation(); switchTab('tab-lessons'); activateFitnessSubtab();" class="w-full min-h-touch bg-gradient-to-r from-violet-accent to-purple-800 hover:from-purple-600 hover:to-violet-accent text-white font-bold text-xs py-2.5 px-3 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all">
-              
               <span>Launch Mobility Session</span>
             </button>
           </div>
         </div>
 
         <div id="home-pro-voice-preview" class="space-y-3">
-          <p class="text-sm text-[var(--text-muted)] text-center py-4">Log in and select a sport to see the latest Pro Voice posts.</p>
+          <p class="text-xs text-[var(--text-muted)] text-center py-4">Log in and select a sport to see the latest Pro Voice posts.</p>
         </div>
 
-        <!-- PULSE AD: TRACK YOUR HYDRATION -->
+        <!-- COCA-COLA AD: TRACK YOUR HYDRATION -->
         <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all" onclick="triggerToast('Hydration Tracker Opened! 💧')">
           <div class="flex items-center space-x-3">
             <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white flex-shrink-0">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,12 7,12 9,6 13,18 16,12 22,12"/></svg>
             </div>
             <div>
-              <div class="text-xs font-bold text-red-400 uppercase">PULSE</div>
+              <div class="text-xs font-bold text-red-400 uppercase">Coca-Cola Smart Hydration</div>
               <div class="text-xs font-bold text-[var(--text-main)]">Track Your Hydration</div>
             </div>
           </div>
-          
+          <span class="text-xs text-[var(--text-muted)]">→</span>
         </div>
 
         <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
           <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
             <div>
               <h3 class="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider flex items-center gap-2">
-                
                 <span>Daily News Brief Feed</span>
               </h3>
-              <p class="text-xs text-[var(--text-muted)]">Curated daily athletic intelligence</p>
+              <p class="text-[9px] text-[var(--text-muted)]">Curated daily athletic intelligence</p>
             </div>
-            <button onclick="switchTab('tab-news')" class="text-sm font-bold text-red-400 hover:text-red-300 flex items-center gap-1">
+            <button onclick="switchTab('tab-news')" class="text-xs font-bold text-red-400 hover:text-red-300 flex items-center gap-1">
               <span>View Magazine</span>
-              
             </button>
           </div>
 
           <div id="dynamic-briefs-list" class="space-y-2"></div>
         </div>
-
       </section>
-
 
       <!-- ================================================================= -->
       <!-- TAB 3: DEDICATED NEWS & MEDIA ONLINE MAGAZINE HUB -->
       <!-- ================================================================= -->
       <section id="tab-news" class="tab-page hidden space-y-4">
-        
         <div class="bg-gradient-to-r from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
           <div class="flex items-center justify-between">
             <div>
               <div class="flex items-center space-x-2">
                 <span class="text-xs font-extrabold uppercase tracking-widest text-red-400 bg-red-950/40 px-2 py-0.5 rounded border border-red-500/30">ONLINE MAGAZINE</span>
-                <span class="text-xs text-[var(--text-muted)] font-mono">ISSUE #14 • AUG 2026</span>
+                <span class="text-[9px] text-[var(--text-muted)] font-mono">ISSUE #14 • AUG 2026</span>
               </div>
             </div>
             <div class="text-right">
-              <span class="text-xs text-slate-400 block font-mono">POWERED BY</span>
+              <span class="text-[8px] text-slate-400 block font-mono">POWERED BY</span>
               <svg class="h-3.5 w-auto inline-block" viewBox="0 0 100 24" fill="none">
                 <rect width="100" height="24" rx="12" fill="#F40009"/>
-                <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
+                <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
               </svg>
             </div>
           </div>
@@ -538,10 +517,14 @@
             <div class="absolute top-3 left-3 z-20 bg-red-600 text-white text-xs font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow">
               COVER STORY
             </div>
+
+            <div class="absolute bottom-3 left-3 right-3 z-20">
+              <h3 class="text-sm sm:text-base font-black text-white leading-tight">The 10K MOI Revolution: How Tour Players Built Consistency Under Pressure</h3>
+            </div>
           </div>
 
           <div class="p-4 space-y-3">
-            <div class="flex items-center justify-between text-sm text-[var(--text-muted)] border-b border-[var(--border-subtle)] pb-2">
+            <div class="flex items-center justify-between text-xs text-[var(--text-muted)] border-b border-[var(--border-subtle)] pb-2">
               <span class="flex items-center gap-1.5">
                 <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&auto=format&fit=crop&q=80" class="w-4 h-4 rounded-full object-cover">
                 <span>By Ansel Cruz & Priya Shah</span>
@@ -553,7 +536,6 @@
             </p>
             <button onclick="triggerToast('Opening Cover Story Deep Dive 📖')" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] font-bold text-xs py-2.5 rounded-xl border border-[var(--border-subtle)] flex items-center justify-center gap-2 transition-all">
               <span>Read Full Magazine Article</span>
-              
             </button>
           </div>
         </div>
@@ -563,13 +545,12 @@
             <div class="flex items-center space-x-2">
               <svg class="h-5 w-auto" viewBox="0 0 100 24" fill="none">
                 <rect width="100" height="24" rx="12" fill="#F40009"/>
-                <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
+                <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
               </svg>
               <div class="text-sm font-black text-white">Refresh Your Round</div>
             </div>
           </div>
-          <button onclick="triggerToast('PULSE 2-for-1 Pro Shop Voucher Saved to Wallet! 🥤')" class="w-full min-h-touch bg-white hover:bg-slate-100 text-red-600 font-extrabold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg mt-2">
-            
+          <button onclick="triggerToast('Coca-Cola 2-for-1 Pro Shop Voucher Saved to Wallet! 🥤')" class="w-full min-h-touch bg-white hover:bg-slate-100 text-red-600 font-extrabold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg mt-2">
             <span>Redeem Pro Shop Voucher</span>
           </button>
         </div>
@@ -581,7 +562,7 @@
               <span class="text-xs text-[var(--text-muted)]">2 Hours Ago</span>
             </div>
             <h4 class="text-xs font-bold text-[var(--text-main)]">How Lead-Side Dominant Players Eliminate the High Right Miss</h4>
-            <p class="text-sm text-[var(--text-muted)]">Our Coaching Staff demonstrates the simple range tee alignment drill that keeps your chest over the ball.</p>
+            <p class="text-xs text-[var(--text-muted)]">Our Coaching Staff demonstrates the simple range tee alignment drill that keeps your chest over the ball.</p>
           </div>
 
           <div class="bg-[var(--bg-surface)] p-3.5 rounded-xl border border-[var(--border-subtle)] space-y-2 hover:border-violet-accent transition-colors">
@@ -590,7 +571,7 @@
               <span class="text-xs text-[var(--text-muted)]">5 Hours Ago</span>
             </div>
             <h4 class="text-xs font-bold text-[var(--text-main)]">Morning Hip Opener Routine for Golfers Over 40</h4>
-            <p class="text-sm text-[var(--text-muted)]">Gentle mobility flows designed to loosen up the pelvic capsule without risking lower back strain.</p>
+            <p class="text-xs text-[var(--text-muted)]">Gentle mobility flows designed to loosen up the pelvic capsule without risking lower back strain.</p>
           </div>
         </div>
 
@@ -598,46 +579,40 @@
         <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all mt-4" onclick="triggerToast('Opening Spotlight! 📖')">
           <div class="flex items-center space-x-3">
             <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white">
-              
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             </div>
             <div>
-              <div class="text-xs font-bold text-red-400 uppercase">PULSE Athlete Spotlight</div>
+              <div class="text-xs font-bold text-red-400 uppercase">Coca-Cola Athlete Spotlight</div>
               <div class="text-xs font-bold text-[var(--text-main)]">Athlete Hydration Tips</div>
             </div>
           </div>
-          
+          <span class="text-xs text-[var(--text-muted)]">→</span>
         </div>
-
       </section>
-
 
       <!-- ================================================================= -->
       <!-- TAB 4: GOLF LESSONS & GOLF FITNESS -->
       <!-- ================================================================= -->
       <section id="tab-lessons" class="tab-page hidden space-y-4">
-        
         <div class="bg-[var(--bg-surface)] p-1 rounded-2xl border border-[var(--border-subtle)] flex items-center space-x-1">
           <button id="subtab-btn-lessons" onclick="toggleLessonsSubtab('lessons')" class="flex-1 min-h-touch py-2.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 transition-all theme-accent-bg shadow-md">
-            
             <span>⛳ Golf Lessons</span>
           </button>
           <button id="subtab-btn-fitness" onclick="toggleLessonsSubtab('fitness')" class="flex-1 min-h-touch py-2.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 transition-all text-[var(--text-muted)] hover:text-[var(--text-main)]">
-            
             <span>💪 Golf Fitness</span>
           </button>
         </div>
 
         <!-- SUB-VIEW 1: GOLF LESSONS -->
         <div id="subcontent-lessons" class="space-y-4">
-          
           <div class="bg-gradient-to-r from-red-950/40 via-[var(--bg-surface)] to-red-950/30 p-3 rounded-2xl border border-red-500/30 flex items-center justify-between shadow-sm">
             <div class="flex items-center space-x-3">
               <svg class="h-4 w-auto" viewBox="0 0 100 24" fill="none">
                 <rect width="100" height="24" rx="12" fill="#F40009"/>
-                <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
+                <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
               </svg>
               <div>
-                <div class="text-sm font-extrabold text-red-400 uppercase tracking-wider">Presenting Sponsor</div>
+                <div class="text-xs font-extrabold text-red-400 uppercase tracking-wider">Presenting Sponsor</div>
                 <div class="text-xs font-bold text-[var(--text-main)]">Pro Coaching Master Biomechanics Clinic</div>
               </div>
             </div>
@@ -660,74 +635,71 @@
               <div class="absolute z-20 flex flex-col items-center text-center p-3">
                 <button id="quiz-play-btn" onclick="toggleVideoPlayback()" class="w-12 h-12 rounded-full theme-accent-bg flex items-center justify-center text-xs font-black shadow-lg hover:scale-110 transition-transform mb-2">PLAY</button>
                 <div class="text-xs font-bold text-white">ST-04 Lead Shoulder Plane Analysis</div>
-                <div class="text-sm text-slate-300">Tap to play the coaching demonstration</div>
+                <div class="text-xs text-slate-300">Tap to play the coaching demonstration</div>
               </div>
             </div>
 
             <div class="pt-2">
               <h4 class="text-xs font-bold text-[var(--text-main)] mb-1">Q: What is your primary miss under pressure?</h4>
-              <p class="text-sm text-[var(--text-muted)]">Select your typical ball flight so we can tailor your drill sequence.</p>
+              <p class="text-xs text-[var(--text-muted)]">Select your typical ball flight so we can tailor your drill sequence.</p>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <button onclick="selectQuizOption(this)" class="quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
                 <div>
                   <div class="text-xs font-bold text-[var(--text-main)] group-hover:theme-accent-text">A. High Push Fade</div>
-                  <div class="text-sm text-[var(--text-muted)]">Face slightly open to path</div>
+                  <div class="text-xs text-[var(--text-muted)]">Face slightly open to path</div>
                 </div>
                 <div class="quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
               </button>
               <button onclick="selectQuizOption(this)" class="quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
                 <div>
                   <div class="text-xs font-bold text-[var(--text-main)] group-hover:theme-accent-text">B. Low Hook / Pull</div>
-                  <div class="text-sm text-[var(--text-muted)]">Hands flipping through impact</div>
+                  <div class="text-xs text-[var(--text-muted)]">Hands flipping through impact</div>
                 </div>
                 <div class="quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
               </button>
               <button onclick="selectQuizOption(this)" class="quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
                 <div>
                   <div class="text-xs font-bold text-[var(--text-main)] group-hover:theme-accent-text">C. Heavy / Fat Iron</div>
-                  <div class="text-sm text-[var(--text-muted)]">Weight hanging on trail foot</div>
+                  <div class="text-xs text-[var(--text-muted)]">Weight hanging on trail foot</div>
                 </div>
                 <div class="quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
               </button>
               <button onclick="selectQuizOption(this)" class="quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
                 <div>
                   <div class="text-xs font-bold text-[var(--text-main)] group-hover:theme-accent-text">D. High Thin Block</div>
-                  <div class="text-sm text-[var(--text-muted)]">Spine angle lifting early</div>
+                  <div class="text-xs text-[var(--text-muted)]">Spine angle lifting early</div>
                 </div>
                 <div class="quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
               </button>
             </div>
           </div>
           
-          <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all mt-4" onclick="triggerToast('Loading Recovery Guide! 💓')">
+          <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all mt-4" onclick="triggerToast('Loading Recovery Guide! 💧')">
             <div class="flex items-center space-x-3">
               <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white flex-shrink-0">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,12 7,12 9,6 13,18 16,12 22,12"/></svg>
               </div>
               <div>
-                <div class="text-xs font-bold text-red-400 uppercase">PULSE</div>
+                <div class="text-xs font-bold text-red-400 uppercase">Coca-Cola Recovery Protocol</div>
                 <div class="text-xs font-bold text-[var(--text-main)]">Post-Drill Recovery Guide</div>
               </div>
             </div>
-            
+            <span class="text-xs text-[var(--text-muted)]">→</span>
           </div>
-
         </div>
 
         <!-- SUB-VIEW 2: GOLF FITNESS -->
         <div id="subcontent-fitness" class="space-y-4 hidden">
-          
-          <!-- STATIC COCA-COLA PRESENTING SPONSOR PLACEMENT -->
           <div class="bg-gradient-to-r from-red-950/40 via-[var(--bg-surface)] to-red-950/30 p-3 rounded-2xl border border-red-500/30 flex items-center justify-between shadow-sm">
             <div class="flex items-center space-x-3">
               <svg class="h-4 w-auto" viewBox="0 0 100 24" fill="none">
                 <rect width="100" height="24" rx="12" fill="#F40009"/>
-                <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
+                <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
               </svg>
               <div>
-                <div class="text-sm font-extrabold text-red-400 uppercase tracking-wider">Presenting Sponsor</div>
+                <div class="text-xs font-extrabold text-red-400 uppercase tracking-wider">Presenting Sponsor</div>
                 <div class="text-xs font-bold text-[var(--text-main)]">Pro Coaching Mobility Clinic</div>
               </div>
             </div>
@@ -750,70 +722,66 @@
               <div class="absolute z-20 flex flex-col items-center text-center p-3">
                 <button id="fitness-quiz-play-btn" onclick="toggleFitnessVideoPlayback()" class="w-12 h-12 rounded-full bg-violet-accent flex items-center justify-center text-xs font-black shadow-lg hover:scale-110 transition-transform mb-2">PLAY</button>
                 <div class="text-xs font-bold text-white">Trail Shoulder Mobility Screen</div>
-                <div class="text-sm text-slate-300">Tap to play the movement demonstration</div>
+                <div class="text-xs text-slate-300">Tap to play the movement demonstration</div>
               </div>
             </div>
 
             <div class="pt-2">
               <h4 class="text-xs font-bold text-[var(--text-main)] mb-1">Q: How far can you rotate your trail shoulder without discomfort?</h4>
-              <p class="text-sm text-[var(--text-muted)]">Select the option that matches your current range of motion.</p>
+              <p class="text-xs text-[var(--text-muted)]">Select the option that matches your current range of motion.</p>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <button onclick="selectFitnessQuizOption(this)" class="fitness-quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
                 <div>
                   <div class="text-xs font-bold text-[var(--text-main)] group-hover:text-violet-light">A. Full, Comfortable Range</div>
-                  <div class="text-sm text-[var(--text-muted)]">No restriction or discomfort</div>
+                  <div class="text-xs text-[var(--text-muted)]">No restriction or discomfort</div>
                 </div>
                 <div class="fitness-quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
               </button>
               <button onclick="selectFitnessQuizOption(this)" class="fitness-quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
                 <div>
                   <div class="text-xs font-bold text-[var(--text-main)] group-hover:text-violet-light">B. Mild Tightness</div>
-                  <div class="text-sm text-[var(--text-muted)]">Slight pull, no pain</div>
+                  <div class="text-xs text-[var(--text-muted)]">Slight pull, no pain</div>
                 </div>
                 <div class="fitness-quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
               </button>
               <button onclick="selectFitnessQuizOption(this)" class="fitness-quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
                 <div>
                   <div class="text-xs font-bold text-[var(--text-main)] group-hover:text-violet-light">C. Noticeably Limited</div>
-                  <div class="text-sm text-[var(--text-muted)]">Clear restriction, no pain</div>
+                  <div class="text-xs text-[var(--text-muted)]">Clear restriction, no pain</div>
                 </div>
                 <div class="fitness-quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
               </button>
               <button onclick="selectFitnessQuizOption(this)" class="fitness-quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
                 <div>
                   <div class="text-xs font-bold text-[var(--text-main)] group-hover:text-violet-light">D. Pain or Sharp Discomfort</div>
-                  <div class="text-sm text-[var(--text-muted)]">Stop and consult a professional</div>
+                  <div class="text-xs text-[var(--text-muted)]">Stop and consult a professional</div>
                 </div>
                 <div class="fitness-quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
               </button>
             </div>
           </div>
 
-          <!-- PULSE RECOVERY -->
-          <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all mt-4" onclick="triggerToast('Loading Mobility Recovery Guide! 💓')">
+          <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all mt-4" onclick="triggerToast('Loading Mobility Recovery Guide! 💧')">
             <div class="flex items-center space-x-3">
               <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white flex-shrink-0">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,12 7,12 9,6 13,18 16,12 22,12"/></svg>
               </div>
               <div>
-                <div class="text-xs font-bold text-red-400 uppercase">PULSE</div>
+                <div class="text-xs font-bold text-red-400 uppercase">Coca-Cola Recovery Protocol</div>
                 <div class="text-xs font-bold text-[var(--text-main)]">Post-Mobility Recovery Guide</div>
               </div>
             </div>
+            <span class="text-xs text-[var(--text-muted)]">→</span>
           </div>
-
         </div>
-
       </section>
-
 
       <!-- ================================================================= -->
       <!-- TAB 5: PRO VOICE STREAM -->
       <!-- ================================================================= -->
       <section id="tab-stream" class="tab-page hidden space-y-4 pb-16">
-        
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-lg font-extrabold text-[var(--text-main)] flex items-center gap-2">
@@ -824,26 +792,23 @@
           <div class="flex items-center gap-1 bg-red-950/40 border border-red-500/30 px-2 py-1 rounded-xl">
             <svg class="h-3 w-auto" viewBox="0 0 100 24" fill="none">
               <rect width="100" height="24" rx="12" fill="#F40009"/>
-              <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
+              <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
             </svg>
             <span class="text-xs font-bold text-red-300 uppercase">Supporter</span>
           </div>
         </div>
 
         <div id="stream-feed-list" class="space-y-4">
-          <p class="text-sm text-[var(--text-muted)] text-center py-6">Loading broadcasts...</p>
+          <p class="text-xs text-[var(--text-muted)] text-center py-6">Loading broadcasts...</p>
         </div>
 
         <button onclick="handleComposerButtonClick()" class="fixed bottom-24 right-6 md:absolute md:bottom-24 md:right-6 w-14 h-14 rounded-full bg-gradient-to-tr from-violet-accent to-purple-600 text-white shadow-2xl border-2 border-white/20 flex items-center justify-center text-xl hover:scale-110 active:scale-95 transition-all z-30 shadow-violet-500/30" title="Compose Broadcast">✎</button>
-
       </section>
-
 
       <!-- ================================================================= -->
       <!-- TAB 6: SHOWS & EQUIPMENT/TECH LAB -->
       <!-- ================================================================= -->
       <section id="tab-gear" class="tab-page hidden space-y-4">
-        
         <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
           <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
             <div>
@@ -862,7 +827,7 @@
               <div class="flex items-center space-x-2">
                 <svg class="h-3.5 w-auto" viewBox="0 0 100 24" fill="none">
                   <rect width="100" height="24" rx="12" fill="#F40009"/>
-                  <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
+                  <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
                 </svg>
                 <div>
                   <div class="text-xs font-extrabold text-red-400 uppercase tracking-wider">Official Show Partner</div>
@@ -871,51 +836,28 @@
               </div>
               <span class="text-xs font-bold text-slate-300 bg-red-900/60 px-1.5 py-0.5 rounded uppercase border border-red-500/30">SPONSORED</span>
             </div>
-            <button onclick="triggerToast('Loading Terry Rowles x PULSE Hydration Blueprint 🥤')" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-slate-200 text-xs font-bold py-2 rounded-lg border border-red-500/20 flex items-center justify-center gap-1.5 transition-all">
+            <button onclick="triggerToast('Loading Terry Rowles x Coca-Cola Hydration Blueprint 🥤')" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-slate-200 text-xs font-bold py-2 rounded-lg border border-red-500/20 flex items-center justify-center gap-1.5 transition-all">
               <span>View 4-Step Hydration & Electrolyte Timing</span>
-              
             </button>
           </div>
 
           <div>
-            <div class="text-sm font-bold text-[var(--text-main)] mb-2 mt-3">Episode Chapter Jumps:</div>
+            <div class="text-xs font-bold text-[var(--text-main)] mb-2 mt-3">Episode Chapter Jumps:</div>
             <div class="flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar">
               <button onclick="seekPodcast(0)" class="min-h-touch flex-shrink-0 px-3 py-1.5 bg-[var(--bg-card)] hover:theme-accent-bg text-[var(--text-main)] text-xs font-bold rounded-xl border border-[var(--border-subtle)] transition-all flex items-center gap-1">
-                
                 <span>0:00 Welcome & Meet the Coaches</span>
               </button>
               <button onclick="seekPodcast(255)" class="min-h-touch flex-shrink-0 px-3 py-1.5 bg-[var(--bg-card)] hover:theme-accent-bg text-[var(--text-main)] text-xs font-bold rounded-xl border border-[var(--border-subtle)] transition-all flex items-center gap-1">
-                
                 <span>4:15 Fixing the Push-Fade</span>
               </button>
               <button onclick="seekPodcast(860)" class="min-h-touch flex-shrink-0 px-3 py-1.5 bg-[var(--bg-card)] hover:theme-accent-bg text-[var(--text-main)] text-xs font-bold rounded-xl border border-[var(--border-subtle)] transition-all flex items-center gap-1">
-                
                 <span>14:20 Ground Force Secrets</span>
               </button>
-            </div>
-          </div>
-
-          <div class="pt-1">
-            <div class="text-sm font-bold text-[var(--text-muted)] mb-2">More Episodes</div>
-            <div class="flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar">
-              <div class="flex-shrink-0 w-24 cursor-pointer" onclick="triggerToast('Loading Episode 12: Mindset')">
-                <div class="aspect-video bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)] flex items-center justify-center"></div>
-                <div class="text-xs mt-1 text-[var(--text-muted)] truncate">Ep. 12 · Mindset</div>
-              </div>
-              <div class="flex-shrink-0 w-24 cursor-pointer" onclick="triggerToast('Loading Episode 11: Business')">
-                <div class="aspect-video bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)] flex items-center justify-center"></div>
-                <div class="text-xs mt-1 text-[var(--text-muted)] truncate">Ep. 11 · Business</div>
-              </div>
-              <div class="flex-shrink-0 w-24 cursor-pointer" onclick="triggerToast('Loading Episode 10: Life on Tour')">
-                <div class="aspect-video bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)] flex items-center justify-center"></div>
-                <div class="text-xs mt-1 text-[var(--text-muted)] truncate">Ep. 10 · Life on tour</div>
-              </div>
             </div>
           </div>
         </div>
 
         <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
-          
           <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
             <div>
               <span class="text-xs font-bold theme-accent-text uppercase tracking-wider theme-accent-subtle-bg px-2 py-0.5 rounded theme-accent-subtle-border border">Equipment & Fitting</span>
@@ -925,14 +867,13 @@
               <span class="text-xs font-mono text-[var(--text-muted)] block uppercase">TESTING SUPPORT</span>
               <svg class="h-3 w-auto inline-block" viewBox="0 0 100 24" fill="none">
                 <rect width="100" height="24" rx="12" fill="#F40009"/>
-                <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
+                <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
               </svg>
             </div>
           </div>
 
           <div class="space-y-2">
             <div class="text-xs font-bold text-[var(--text-main)] flex items-center gap-1.5">
-              
               <span>Gear Lab Video Review: ST-04 Clubhead & Shaft Fitting</span>
             </div>
             <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-black">
@@ -946,30 +887,28 @@
               <div class="flex items-center space-x-2">
                 <svg class="h-3.5 w-auto" viewBox="0 0 100 24" fill="none">
                   <rect width="100" height="24" rx="12" fill="#F40009"/>
-                  <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
+                  <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
                 </svg>
                 <div>
-                  <div class="text-xs font-extrabold text-red-400 uppercase tracking-wider">PULSE Studios Feature</div>
+                  <div class="text-xs font-extrabold text-red-400 uppercase tracking-wider">Coca-Cola Studios Feature</div>
                   <div class="text-xs font-bold text-[var(--text-main)]">Refresh Your Equipment Loadout</div>
                 </div>
               </div>
               <span class="text-xs font-bold text-slate-300 bg-red-900/60 px-1.5 py-0.5 rounded uppercase border border-red-500/30">SPONSORED</span>
             </div>
-            <button onclick="triggerToast('Added PULSE Tour Towel to Bag! 🛒')" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-slate-200 text-xs font-bold py-2 rounded-lg border border-red-500/20 flex items-center justify-center gap-1.5 transition-all">
-              <span>Claim Free PULSE Tour Towel with Fitting</span>
-              
+            <button onclick="triggerToast('Added Coca-Cola Tour Towel to Bag! 🛒')" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-slate-200 text-xs font-bold py-2 rounded-lg border border-red-500/20 flex items-center justify-center gap-1.5 transition-all">
+              <span>Claim Free Coca-Cola Tour Towel with Fitting</span>
             </button>
           </div>
 
           <div class="bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl flex items-center justify-between">
             <div class="flex items-center space-x-2">
-              
               <div>
                 <div class="text-xs font-bold text-amber-400">⭐ Recommended for your SwingType</div>
-                <div id="gear-recommendation-subtitle" class="text-sm text-[var(--text-muted)]">Not yet assessed</div>
+                <div id="gear-recommendation-subtitle" class="text-xs text-[var(--text-muted)]">Not yet assessed</div>
               </div>
             </div>
-            <button onclick="triggerToast('Filters updated')" class="min-h-touch text-sm text-[var(--text-muted)] underline">Reset</button>
+            <button onclick="triggerToast('Filters updated')" class="min-h-touch text-xs text-[var(--text-muted)] underline">Reset</button>
           </div>
 
           <div id="gear-match-cards" class="space-y-2 hidden">
@@ -980,12 +919,12 @@
                 </div>
                 <div>
                   <div class="text-xs font-bold text-[var(--text-main)]">Fujikura Ventus Blue TR 6X</div>
-                  <div class="text-sm text-[var(--text-muted)]">Official Shaft Partner: Tour Spec Stiff Tip</div>
+                  <div class="text-xs text-[var(--text-muted)]">Official Shaft Partner: Tour Spec Stiff Tip</div>
                 </div>
               </div>
               <div class="text-right">
                 <div class="text-xs font-black theme-accent-text">98% Match</div>
-                <div class="text-xs text-[var(--text-muted)]">Stiffness</div>
+                <div class="text-[10px] text-[var(--text-muted)]">Stiffness</div>
               </div>
             </div>
 
@@ -996,12 +935,12 @@
                 </div>
                 <div>
                   <div class="text-xs font-bold text-[var(--text-main)]">Titleist TSR3 9.0° Driver Head</div>
-                  <div class="text-sm text-[var(--text-muted)]">Hardware Fitting Partner: CG Heel Bias</div>
+                  <div class="text-xs text-[var(--text-muted)]">Hardware Fitting Partner: CG Heel Bias</div>
                 </div>
               </div>
               <div class="text-right">
                 <div class="text-xs font-black theme-accent-text">94% Match</div>
-                <div class="text-xs text-[var(--text-muted)]">Optimal Launch</div>
+                <div class="text-[10px] text-[var(--text-muted)]">Optimal Launch</div>
               </div>
             </div>
           </div>
@@ -1009,28 +948,8 @@
           <div id="gear-not-assessed-notice" class="bg-[var(--bg-app)] border border-dashed border-[var(--border-subtle)] p-4 rounded-xl text-center">
             <p class="text-xs text-[var(--text-muted)]">Personalized gear matches unlock once your SwingType assessment is complete.</p>
           </div>
-
-          <div class="pt-1">
-            <div class="text-sm font-bold text-[var(--text-muted)] mb-2">More Gear</div>
-            <div class="flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar">
-              <div class="flex-shrink-0 w-24 cursor-pointer" onclick="triggerToast('Loading: Putter Fitting Guide')">
-                <div class="aspect-video bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)] flex items-center justify-center"></div>
-                <div class="text-xs mt-1 text-[var(--text-muted)] truncate">Putter Fitting</div>
-              </div>
-              <div class="flex-shrink-0 w-24 cursor-pointer" onclick="triggerToast('Loading: Iron Set Reviews')">
-                <div class="aspect-video bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)] flex items-center justify-center"></div>
-                <div class="text-xs mt-1 text-[var(--text-muted)] truncate">Iron Sets</div>
-              </div>
-              <div class="flex-shrink-0 w-24 cursor-pointer" onclick="triggerToast('Loading: Golf Ball Comparison')">
-                <div class="aspect-video bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)] flex items-center justify-center"></div>
-                <div class="text-xs mt-1 text-[var(--text-muted)] truncate">Ball Comparison</div>
-              </div>
-            </div>
-          </div>
         </div>
-
       </section>
-
 
       <!-- ================================================================= -->
       <!-- TAB 7: EDUCATION HUB -->
@@ -1041,18 +960,17 @@
           <div class="flex items-center space-x-2.5">
             <svg class="h-4 w-auto" viewBox="0 0 100 24" fill="none">
               <rect width="100" height="24" rx="12" fill="#F40009"/>
-              <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
+              <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
             </svg>
-            <div class="text-sm font-bold text-white">Presenting Partner</div>
+            <div class="text-xs font-bold text-white">Presenting Partner</div>
           </div>
         </div>
 
         <!-- Featured Live Masterclass Card -->
         <div class="bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border-2 border-violet-accent/50 space-y-3 relative overflow-hidden shadow-xl">
-          
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold text-white bg-violet-accent px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow">LIVE MASTERCLASS</span>
-            <span class="text-sm text-amber-400 font-bold bg-amber-500/10 px-2.5 py-0.5 rounded border border-amber-500/20">Starts in 3 Hours</span>
+            <span class="text-xs text-amber-400 font-bold bg-amber-500/10 px-2.5 py-0.5 rounded border border-amber-500/20">Starts in 3 Hours</span>
           </div>
 
           <div>
@@ -1062,22 +980,18 @@
 
           <div class="bg-[var(--bg-app)] p-3 rounded-xl border border-[var(--border-subtle)] space-y-1.5 text-xs text-[var(--text-main)]">
             <div class="flex items-center gap-2">
-              
               <span>Live Force Plate Visualizers</span>
             </div>
             <div class="flex items-center gap-2">
-              
               <span>Interactive Q&A Session with the Coaches</span>
             </div>
             <div class="flex items-center gap-2">
-              
               <span>Lifetime Recording Access & Practice Drills</span>
             </div>
           </div>
 
           <div id="iap-container">
             <button id="iap-buy-btn" onclick="openStoreKitSheet()" class="w-full min-h-touch theme-accent-bg font-black text-sm py-3 px-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all hover:opacity-90">
-              
               <span>Unlock Masterclass — $49.00</span>
             </button>
           </div>
@@ -1093,14 +1007,13 @@
         <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all mt-4" onclick="triggerToast('Opening Grant Application! 🎓')">
           <div class="flex items-center space-x-3">
             <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white">
-              
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
             </div>
             <div>
-              <div class="text-xs font-bold text-red-400 uppercase">PULSE Community Initiative</div>
+              <div class="text-xs font-bold text-red-400 uppercase">Coca-Cola Community Initiative</div>
               <div class="text-xs font-bold text-[var(--text-main)]">Apply for Grassroots Grants</div>
             </div>
           </div>
-          
         </div>
 
         <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
@@ -1114,7 +1027,7 @@
             <div class="bg-[var(--bg-card)] p-3 rounded-xl border border-[var(--border-subtle)] flex items-center justify-between">
               <div>
                 <div class="text-xs font-bold text-[var(--text-main)]">Short Game Clinic with Master Instructors</div>
-                <div class="text-sm text-[var(--text-muted)]">Interactive Online Certification</div>
+                <div class="text-xs text-[var(--text-muted)]">Interactive Online Certification</div>
               </div>
               <button onclick="triggerToast('Workshop details sent to email! 📬')" class="min-h-touch px-3 py-1.5 bg-[var(--bg-app)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] text-xs font-bold rounded-lg border border-[var(--border-subtle)]">
                 $129
@@ -1124,7 +1037,7 @@
             <div class="bg-[var(--bg-card)] p-3 rounded-xl border border-[var(--border-subtle)] flex items-center justify-between">
               <div>
                 <div class="text-xs font-bold text-[var(--text-main)]">Junior Athlete Certification</div>
-                <div class="text-sm text-[var(--text-muted)]">Sponsored by Athlete Development</div>
+                <div class="text-xs text-[var(--text-muted)]">Sponsored by Athlete Development</div>
               </div>
               <button onclick="triggerToast('Workshop details sent to email! 📬')" class="min-h-touch px-3 py-1.5 bg-[var(--bg-app)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] text-xs font-bold rounded-lg border border-[var(--border-subtle)]">
                 $199
@@ -1132,11 +1045,9 @@
             </div>
           </div>
         </div>
-
       </section>
 
     </main>
-
 
     <!-- ================================================================= -->
     <!-- PROFILE & APP PREFERENCES MODAL -->
@@ -1151,7 +1062,7 @@
             </div>
             <div>
               <h3 id="profile-modal-title" class="text-sm font-extrabold text-[var(--text-main)]">Verified Pro Profile</h3>
-              <p class="text-sm text-[var(--text-muted)]">Edit credentials, professional title & display</p>
+              <p class="text-xs text-[var(--text-muted)]">Edit credentials, professional title & display</p>
             </div>
           </div>
           <button onclick="closeProfileModal()" class="w-8 h-8 rounded-full bg-[var(--bg-card)] text-[var(--text-muted)] flex items-center justify-center hover:text-[var(--text-main)] transition-colors" title="Close">✕</button>
@@ -1162,63 +1073,60 @@
             <div class="flex items-center space-x-2">
               <svg class="h-3.5 w-auto" viewBox="0 0 100 24" fill="none">
                 <rect width="100" height="24" rx="12" fill="#F40009"/>
-                <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
+                <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
               </svg>
               <span class="text-xs font-extrabold text-red-300 uppercase tracking-wider">Athlete VIP Club</span>
             </div>
           </div>
-          <p class="text-sm text-slate-200">
+          <p class="text-xs text-slate-200">
             Complimentary hydration credits linked to your profile.
           </p>
           <div class="flex items-center justify-between pt-1">
-            <span class="text-sm text-red-300 font-mono font-bold">Status: Active Member (ST-04)</span>
-            <button onclick="triggerToast('PULSE VIP Barcode Generated! 🥤')" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-lg shadow">
+            <span class="text-xs text-red-300 font-mono font-bold">Status: Active Member (ST-04)</span>
+            <button onclick="triggerToast('Coca-Cola VIP Barcode Generated! 🥤')" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg shadow">
               View Digital Card
             </button>
           </div>
         </div>
 
         <div class="bg-[var(--bg-app)] p-3.5 rounded-2xl border border-[var(--border-subtle)] space-y-3">
-          <div class="text-sm font-bold text-[var(--text-main)] uppercase tracking-wider flex items-center justify-between">
+          <div class="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider flex items-center justify-between">
             <span class="flex items-center gap-1.5">
-              
               <span>Display & Theme</span>
             </span>
-            <span class="text-xs theme-accent-text font-bold">LIVE SYNC</span>
+            <span class="text-[10px] theme-accent-text font-bold">LIVE SYNC</span>
           </div>
 
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block text-sm font-bold text-[var(--text-muted)] mb-1">Appearance</label>
+              <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">Appearance</label>
               <div class="grid grid-cols-2 gap-1 bg-[var(--bg-surface)] p-1 rounded-xl border border-[var(--border-subtle)]">
                 <button type="button" id="btn-mode-dark" onclick="setThemeMode('dark', true)" class="min-h-touch py-1.5 px-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow">
-                  
                   <span>Dark</span>
                 </button>
                 <button type="button" id="btn-mode-light" onclick="setThemeMode('light', true)" class="min-h-touch py-1.5 px-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5">
-                  
                   <span>Light</span>
                 </button>
               </div>
             </div>
 
             <div>
-              <label class="block text-sm font-bold text-[var(--text-muted)] mb-1">Color Palette</label>
+              <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">Color Palette</label>
               <div class="grid grid-cols-2 gap-1 bg-[var(--bg-surface)] p-1 rounded-xl border border-[var(--border-subtle)]">
                 <button type="button" id="btn-pal-emerald" onclick="setAccentPalette('emerald', true)" class="min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 text-emerald-400">
                   <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
-                  <span class="text-sm">Emerald</span>
+                  <span class="text-xs">Emerald</span>
                 </button>
                 <button type="button" id="btn-pal-rose" onclick="setAccentPalette('rose', true)" class="min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 text-pink-400">
                   <span class="w-3 h-3 rounded-full bg-pink-500 inline-block"></span>
-                  <span class="text-sm">Rose</span>
+                  <span class="text-xs">Rose</span>
                 </button>
               </div>
             </div>
           </div>
 
           <div>
-            <label class="block text-sm font-bold text-[var(--text-muted)] mb-1">Text Size</label>
+            <label class="block text-xs font-bold text-[var(--text-muted)] mb-1">Text Size</label>
             <div class="grid grid-cols-3 gap-1 bg-[var(--bg-surface)] p-1 rounded-xl border border-[var(--border-subtle)]">
               <button type="button" id="btn-font-sm" onclick="setFontScale(0.92, true)" class="min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all text-[var(--text-muted)]">Small</button>
               <button type="button" id="btn-font-md" onclick="setFontScale(1, true)" class="min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all shadow">Default</button>
@@ -1256,111 +1164,92 @@
         </div>
 
         <form id="profile-form" onsubmit="handleProfileSubmit(event)" class="space-y-3.5">
-
           <div id="signup-only-fields">
-          <div>
-            <label class="block text-sm font-bold text-[var(--text-main)] mb-1">Profile Photo <span class="text-xs text-[var(--text-muted)] font-medium">(optional)</span></label>
-            <div class="flex items-center gap-3">
-              <div class="w-14 h-14 rounded-full bg-[var(--bg-app)] border border-[var(--border-subtle)] overflow-hidden flex items-center justify-center flex-shrink-0">
-                <img id="form-photo-preview" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iIzMzNDE1NSIvPjx0ZXh0IHg9IjYwIiB5PSI3OCIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNTIiIGZvbnQtd2VpZ2h0PSI4MDAiIGZpbGw9IiM5NEEzQjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPj88L3RleHQ+PC9zdmc+" class="w-full h-full object-cover">
+            <div>
+              <label class="block text-xs font-bold text-[var(--text-main)] mb-1">Profile Photo <span class="text-[10px] text-[var(--text-muted)] font-medium">(optional)</span></label>
+              <div class="flex items-center gap-3">
+                <div class="w-14 h-14 rounded-full bg-[var(--bg-app)] border border-[var(--border-subtle)] overflow-hidden flex items-center justify-center flex-shrink-0">
+                  <img id="form-photo-preview" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iIzMzNDE1NSIvPjx0ZXh0IHg9IjYwIiB5PSI3OCIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNTIiIGZvbnQtd2VpZ2h0PSI4MDAiIGZpbGw9IiM5NEEzQjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPj88L3RleHQ+PC9zdmc+" class="w-full h-full object-cover">
+                </div>
+                <label class="min-h-touch px-3 flex items-center bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-xs font-bold rounded-xl border border-[var(--border-subtle)] cursor-pointer">
+                  Upload photo
+                  <input type="file" accept="image/*" class="hidden" onchange="handleProfilePhotoUpload(this)">
+                </label>
+                <button type="button" onclick="removeProfilePhoto()" class="min-h-touch px-3 flex items-center text-xs font-bold text-red-300 hover:text-red-200">
+                  Remove
+                </button>
               </div>
-              <label class="min-h-touch px-3 flex items-center bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-xs font-bold rounded-xl border border-[var(--border-subtle)] cursor-pointer">
-                Upload photo
-                <input type="file" accept="image/*" class="hidden" onchange="handleProfilePhotoUpload(this)">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-[var(--text-main)] mb-1 flex items-center justify-between">
+                <span>Full Name</span>
+                <span id="name-required-label" class="text-[10px] theme-accent-text font-bold">Required</span>
               </label>
-              <button type="button" onclick="removeProfilePhoto()" class="min-h-touch px-3 flex items-center text-xs font-bold text-red-300 hover:text-red-200">
-                Remove
+              <div class="relative">
+                <input type="text" id="input-name" placeholder="Your full name" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 px-3 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-main)] transition-all">
+              </div>
+            </div>
+
+            <div>
+              <button type="button" id="verification-toggle-btn" onclick="toggleVerificationRequest()" class="text-xs font-bold theme-accent-text underline min-h-touch">
+                Coach, professional athlete, or industry expert? Request verification
               </button>
-            </div>
-          </div>
 
-          <div>
-            <label class="block text-sm font-bold text-[var(--text-main)] mb-1 flex items-center justify-between">
-              <span>Full Name</span>
-              <span id="name-required-label" class="text-xs theme-accent-text font-bold">Required</span>
-            </label>
-            <div class="relative">
-              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-[var(--text-muted)] text-xs">
-                
-              </span>
-              <input type="text" id="input-name" placeholder="Your full name" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 pl-9 pr-3 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-main)] transition-all">
+              <div id="verification-fields" class="hidden mt-2 space-y-1">
+                <label class="block text-xs font-bold text-[var(--text-main)] mb-1">Which best describes you?</label>
+                <select id="input-title" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 px-3 text-xs text-[var(--text-main)] focus:outline-none focus:border-[var(--accent-main)] transition-all">
+                  <option value="">Select one</option>
+                  <option value="Professional Athlete">Professional Athlete</option>
+                  <option value="Coach">Coach</option>
+                  <option value="Industry Expert">Industry Expert</option>
+                  <option value="Athlete">Athlete</option>
+                </select>
+                <p class="text-[10px] text-[var(--text-muted)] mt-1">This submits a request for our team to review. An admin will add approval and the sport tag after review.</p>
+              </div>
             </div>
-          </div>
-
-          <div>
-            <button type="button" id="verification-toggle-btn" onclick="toggleVerificationRequest()" class="text-xs font-bold theme-accent-text underline min-h-touch">
-              Coach, professional athlete, or industry expert? Request verification
-            </button>
-
-            <div id="verification-fields" class="hidden mt-2 space-y-1">
-              <label class="block text-sm font-bold text-[var(--text-main)] mb-1">Which best describes you?</label>
-              <select id="input-title" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 px-3 text-xs text-[var(--text-main)] focus:outline-none focus:border-[var(--accent-main)] transition-all">
-                <option value="">Select one</option>
-                <option value="Professional Athlete">Professional Athlete</option>
-                <option value="Coach">Coach</option>
-                <option value="Industry Expert">Industry Expert</option>
-                <option value="Athlete">Athlete</option>
-              </select>
-              <p class="text-xs text-[var(--text-muted)] mt-1">This submits a request for our team to review. It does not grant a verified badge — approval, the checkmark, and your sport tag are added by an admin after review.</p>
-            </div>
-          </div>
           </div>
 
           <div id="email-field-wrapper">
-            <label class="block text-sm font-bold text-[var(--text-main)] mb-1 flex items-center justify-between">
+            <label class="block text-xs font-bold text-[var(--text-main)] mb-1 flex items-center justify-between">
               <span>Email Address</span>
-              <span class="text-xs theme-accent-text font-bold">Required</span>
+              <span class="text-[10px] theme-accent-text font-bold">Required</span>
             </label>
             <div class="relative">
-              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-[var(--text-muted)] text-xs">
-                
-              </span>
-              <input type="email" id="input-email" required placeholder="name@domain.com" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 pl-9 pr-3 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-main)] transition-all">
+              <input type="email" id="input-email" required placeholder="name@domain.com" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 px-3 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-main)] transition-all">
             </div>
           </div>
 
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label id="password-field-label" class="text-sm font-bold text-[var(--text-main)]">Preferred Password</label>
-              <button type="button" onclick="togglePasswordVisibility()" class="text-sm text-[var(--text-muted)] hover:theme-accent-text flex items-center gap-1">
-                
+              <label id="password-field-label" class="text-xs font-bold text-[var(--text-main)]">Preferred Password</label>
+              <button type="button" onclick="togglePasswordVisibility()" class="text-xs text-[var(--text-muted)] hover:theme-accent-text flex items-center gap-1">
                 <span id="pwd-eye-text">Show</span>
               </button>
             </div>
-            <p id="password-field-hint" class="hidden text-xs text-[var(--text-muted)] mb-1">Enter your current password to confirm this change.</p>
+            <p id="password-field-hint" class="hidden text-[10px] text-[var(--text-muted)] mb-1">Enter your current password to confirm this change.</p>
             <div class="relative">
-              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-[var(--text-muted)] text-xs">
-                
-              </span>
-              <input type="password" id="input-password" oninput="validatePasswordRules()" placeholder="Create secure password" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 pl-9 pr-10 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-main)] transition-all font-mono">
-              <span id="pwd-overall-icon" class="absolute inset-y-0 right-0 pr-3 flex items-center theme-accent-text text-xs">
-                
-              </span>
+              <input type="password" id="input-password" oninput="validatePasswordRules()" placeholder="Create secure password" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 px-3 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-main)] transition-all font-mono">
             </div>
 
             <div id="password-requirements-box" class="mt-2.5 p-3 bg-[var(--bg-app)] rounded-xl border border-[var(--border-subtle)] space-y-1.5">
-              <div class="text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Password Requirements:</div>
-              <div id="rule-upper" class="flex items-center space-x-2 text-sm theme-accent-text font-medium transition-colors">
-                
+              <div class="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Password Requirements:</div>
+              <div id="rule-upper" class="flex items-center space-x-2 text-xs theme-accent-text font-medium transition-colors">
                 <span>At least 1 uppercase letter (A-Z)</span>
               </div>
-              <div id="rule-lower" class="flex items-center space-x-2 text-sm theme-accent-text font-medium transition-colors">
-                
+              <div id="rule-lower" class="flex items-center space-x-2 text-xs theme-accent-text font-medium transition-colors">
                 <span>At least 1 lowercase letter (a-z)</span>
               </div>
-              <div id="rule-special" class="flex items-center space-x-2 text-sm theme-accent-text font-medium transition-colors">
-                
+              <div id="rule-special" class="flex items-center space-x-2 text-xs theme-accent-text font-medium transition-colors">
                 <span>At least 1 special character (!@#$%^&*...)</span>
               </div>
-              <div id="rule-length" class="flex items-center space-x-2 text-sm theme-accent-text font-medium transition-colors">
-                
+              <div id="rule-length" class="flex items-center space-x-2 text-xs theme-accent-text font-medium transition-colors">
                 <span>Minimum 8 characters</span>
               </div>
             </div>
           </div>
 
           <button type="submit" id="profile-submit-btn" class="w-full min-h-touch theme-accent-bg font-extrabold text-xs py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all mt-2 hover:opacity-90">
-            
             <span id="profile-submit-text">Create Account</span>
           </button>
         </form>
@@ -1368,28 +1257,26 @@
         <div id="profile-overview-view" class="space-y-3 hidden">
           <div class="bg-[var(--bg-app)] p-3.5 rounded-xl border border-[var(--border-subtle)] space-y-2">
             <div class="flex items-center justify-between">
-              <span class="text-sm text-[var(--text-muted)]">Full Name</span>
+              <span class="text-xs text-[var(--text-muted)]">Full Name</span>
               <span id="overview-user-name" class="text-xs font-bold text-white">Guest</span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-sm text-[var(--text-muted)]">Verified Title</span>
+              <span class="text-xs text-[var(--text-muted)]">Verified Title</span>
               <span id="overview-user-title" class="text-xs font-black text-amber-400"></span>
             </div>
             <div class="flex items-center justify-between">
-              <span id="overview-assessment-label" class="text-sm text-[var(--text-muted)]">SwingType</span>
+              <span id="overview-assessment-label" class="text-xs text-[var(--text-muted)]">SwingType</span>
               <span id="overview-assessment-value" class="text-xs font-black text-[var(--text-muted)]">Not yet assessed</span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-sm text-[var(--text-muted)]">Wallet</span>
+              <span class="text-xs text-[var(--text-muted)]">Wallet</span>
               <span id="wallet-credits" class="text-xs font-black theme-accent-text flex items-center gap-1.5">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,12 7,12 9,6 13,18 16,12 22,12"/></svg>
                 <span id="wallet-points-display">0 points</span>
               </span>
             </div>
           </div>
 
           <button onclick="setProfileMode('signup')" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] font-bold text-xs py-2.5 rounded-xl border border-[var(--border-subtle)] flex items-center justify-center gap-2 transition-all">
-            
             <span>Edit Credentials / Title</span>
           </button>
 
@@ -1408,23 +1295,17 @@
           </div>
         </div>
 
-        <!-- Persistent - visible regardless of which tab (Edit/Current) is
-             active, so signing out is always easy to find, matching the
-             common pattern of a bottom-anchored, always-reachable sign-out. -->
         <button id="persistent-logout-btn" onclick="handleLogOut()" class="hidden w-full min-h-touch bg-red-950/40 hover:bg-red-950/60 text-red-300 font-bold text-xs py-2.5 rounded-xl border border-red-500/30 items-center justify-center gap-2 transition-all">
           <span>Log Out</span>
         </button>
-
       </div>
     </div>
 
-
-    <!-- PRO COMPOSER MODAL -->
     <!-- REPORT MODAL -->
     <div id="report-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden transition-all">
       <div class="bg-[var(--bg-surface)] rounded-2xl p-5 w-full max-w-sm space-y-3 border border-[var(--border-subtle)]">
         <h3 class="text-sm font-bold text-[var(--text-main)]">Report this post</h3>
-        <p class="text-sm text-[var(--text-muted)]">What's the issue? Our team will review it.</p>
+        <p class="text-xs text-[var(--text-muted)]">What's the issue? Our team will review it.</p>
         <div class="space-y-2">
           <button onclick="submitReport('spam')" class="w-full min-h-touch text-left px-3 py-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] rounded-xl text-xs text-[var(--text-main)]">Spam</button>
           <button onclick="submitReport('inappropriate')" class="w-full min-h-touch text-left px-3 py-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] rounded-xl text-xs text-[var(--text-main)]">Inappropriate content</button>
@@ -1436,6 +1317,7 @@
       </div>
     </div>
 
+    <!-- PRO COMPOSER MODAL (NATIVE CAMERA RECORDING) -->
     <div id="composer-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all">
       <div class="w-full max-w-md bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-t-3xl sm:rounded-3xl p-5 space-y-4 shadow-2xl relative animate-slide-up">
         
@@ -1452,29 +1334,24 @@
         </div>
 
         <div class="space-y-3">
-
           <div class="space-y-1">
-            <label class="text-sm text-slate-400 font-medium">Post to which sport?</label>
+            <label class="text-xs text-slate-400 font-medium">Post to which sport?</label>
             <select id="composer-sport-select" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] focus:outline-none focus:border-violet-accent"></select>
           </div>
 
           <div class="space-y-1">
-            <label class="text-sm text-slate-400 font-medium">Select Media Format</label>
+            <label class="text-xs text-slate-400 font-medium">Select Media Format</label>
             <div class="grid grid-cols-4 gap-1.5">
-              <button id="fmt-btn-Text" onclick="setMediaFormat('Text')" class="media-fmt-btn min-h-touch py-2 bg-violet-accent/20 border border-violet-accent text-violet-light text-sm font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all">
-                
+              <button id="fmt-btn-Text" onclick="setMediaFormat('Text')" class="media-fmt-btn min-h-touch py-2 bg-violet-accent/20 border border-violet-accent text-violet-light text-xs font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all">
                 <span>Text</span>
               </button>
-              <button id="fmt-btn-Photo" onclick="setMediaFormat('Photo')" class="media-fmt-btn min-h-touch py-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-white text-sm font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all">
-                
+              <button id="fmt-btn-Photo" onclick="setMediaFormat('Photo')" class="media-fmt-btn min-h-touch py-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-white text-xs font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all">
                 <span>Photo</span>
               </button>
-              <button id="fmt-btn-Video" onclick="setMediaFormat('Video')" class="media-fmt-btn min-h-touch py-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-white text-sm font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all">
-                
+              <button id="fmt-btn-Video" onclick="setMediaFormat('Video')" class="media-fmt-btn min-h-touch py-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-white text-xs font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all">
                 <span>Video</span>
               </button>
-              <button id="fmt-btn-Voice" onclick="setMediaFormat('Voice')" class="media-fmt-btn min-h-touch py-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-white text-sm font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all">
-                
+              <button id="fmt-btn-Voice" onclick="setMediaFormat('Voice')" class="media-fmt-btn min-h-touch py-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-white text-xs font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all">
                 <span>Voice</span>
               </button>
             </div>
@@ -1482,7 +1359,7 @@
 
           <!-- TEXT PANE -->
           <div id="composer-pane-Text" class="composer-pane space-y-1">
-            <div class="flex items-center justify-between text-sm">
+            <div class="flex items-center justify-between text-xs">
               <span class="text-slate-400 font-medium">Broadcast Note (300 Char Max)</span>
               <span id="composer-char-count" class="font-mono text-emerald-light font-bold">0 / 300</span>
             </div>
@@ -1492,41 +1369,48 @@
           <!-- PHOTO PANE -->
           <div id="composer-pane-Photo" class="composer-pane space-y-2 hidden">
             <div id="photo-dropzone" onclick="document.getElementById('composer-photo-input').click()" class="border-2 border-dashed border-[var(--border-subtle)] rounded-xl aspect-video flex flex-col items-center justify-center gap-2 cursor-pointer">
-              
-              <span class="text-sm text-[var(--text-muted)]">Tap to add a photo</span>
+              <span class="text-xs text-[var(--text-muted)]">Tap to add a photo</span>
             </div>
             <img id="photo-preview-img" class="hidden w-full aspect-video object-cover rounded-xl">
             <input type="file" id="composer-photo-input" accept="image/*" class="hidden" onchange="handleComposerPhoto(this)">
           </div>
 
-          <!-- VIDEO PANE -->
-          <div id="composer-pane-Video" class="composer-pane space-y-2 hidden">
-            <p class="text-xs text-[var(--text-muted)]">Up to 25 seconds. Disappears after 30 hours, same as every other post.</p>
-            <div class="relative rounded-xl overflow-hidden bg-black aspect-[9/16] max-h-72 mx-auto">
-              <video id="video-live-preview" autoplay muted playsinline class="w-full h-full object-cover"></video>
-              <video id="video-playback-preview" controls playsinline class="hidden w-full h-full object-cover"></video>
-              <div id="video-rec-timer" class="hidden absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">0:00</div>
-            </div>
-            <div class="flex flex-col items-center gap-2">
-              <button id="video-rec-btn" onclick="toggleVideoRecording()" class="w-16 h-16 rounded-full theme-accent-bg flex items-center justify-center text-xs font-black">REC</button>
-              <div id="video-rec-status" class="text-sm text-[var(--text-muted)]">Tap to start recording</div>
-              <button id="video-rerecord-btn" onclick="reRecordVideo()" class="hidden w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-muted)] text-sm font-bold py-2 rounded-xl border border-[var(--border-subtle)]">
-                Re-record
+          <!-- VIDEO PANE (Native Camera & Library File Upload) -->
+          <div id="composer-pane-Video" class="composer-pane space-y-3 hidden">
+            <p class="text-xs text-[var(--text-muted)]">Record up to 25 seconds using your phone camera.</p>
+
+            <input type="file" id="composer-video-native-input" accept="video/mp4,video/quicktime,video/*" capture="user" class="hidden" onchange="handleNativeVideoSelect(this)">
+            <input type="file" id="composer-video-library-input" accept="video/mp4,video/quicktime,video/*" class="hidden" onchange="handleNativeVideoSelect(this)">
+
+            <div id="video-placeholder-box" class="border-2 border-dashed border-[var(--border-subtle)] rounded-xl aspect-[9/16] max-h-72 mx-auto flex flex-col items-center justify-center gap-3 p-4">
+              <button type="button" onclick="document.getElementById('composer-video-native-input').click()" class="w-full min-h-touch theme-accent-bg font-extrabold text-xs py-3 rounded-xl shadow flex items-center justify-center gap-2">
+                <span>🎥 Record with Phone Camera</span>
+              </button>
+              <button type="button" onclick="document.getElementById('composer-video-library-input').click()" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-xs font-bold text-[var(--text-main)] py-2.5 rounded-xl border border-[var(--border-subtle)]">
+                Choose from Video Library
               </button>
             </div>
+
+            <div id="video-preview-container" class="hidden relative rounded-xl overflow-hidden bg-black aspect-[9/16] max-h-72 mx-auto">
+              <video id="native-video-player" controls playsinline webkit-playsinline class="w-full h-full object-cover"></video>
+            </div>
+
+            <button type="button" id="native-video-reset-btn" onclick="resetNativeVideo()" class="hidden w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-muted)] text-xs font-bold py-2 rounded-xl border border-[var(--border-subtle)]">
+              Retake Video
+            </button>
           </div>
 
           <!-- VOICE PANE -->
           <div id="composer-pane-Voice" class="composer-pane space-y-2 hidden">
-            <input type="text" id="voice-subject-input" maxlength="60" placeholder="Subject, e.g. Ground Pressure Tip: Trail Heel Load" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
+            <input type="text" id="voice-subject-input" maxlength="60" placeholder="Subject, e.g. Trail Heel Pressure Key" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
             <div class="flex flex-col items-center gap-3 py-3">
               <button id="voice-rec-btn" onclick="toggleVoiceRecording()" class="w-16 h-16 rounded-full theme-accent-bg flex items-center justify-center text-xs font-black">REC</button>
-              <div id="voice-rec-timer" class="text-sm font-mono text-[var(--text-muted)]">Tap to record — 30s max</div>
+              <div id="voice-rec-timer" class="text-xs font-mono text-[var(--text-muted)]">Tap to record — 30s max</div>
               <div class="flex items-end space-x-1 h-5" id="voice-rec-bars"></div>
 
               <div id="voice-replay-controls" class="hidden w-full space-y-2">
                 <audio id="voice-preview-player" controls class="w-full"></audio>
-                <button type="button" onclick="reRecordVoice()" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-muted)] text-sm font-bold py-2 rounded-xl border border-[var(--border-subtle)]">
+                <button type="button" onclick="reRecordVoice()" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-muted)] text-xs font-bold py-2 rounded-xl border border-[var(--border-subtle)]">
                   Re-record
                 </button>
               </div>
@@ -1536,29 +1420,26 @@
           <div class="flex items-center justify-between bg-[var(--bg-app)] p-2.5 rounded-xl border border-[var(--border-subtle)]">
             <span class="text-xs text-[var(--text-main)] font-semibold">Broadcast Audience</span>
             <div class="flex items-center space-x-1 bg-[var(--bg-surface)] p-1 rounded-lg border border-[var(--border-subtle)]">
-              <button id="vis-public" onclick="setAudience('Public')" class="px-2.5 py-1 text-sm font-bold rounded theme-accent-bg transition-all">Public</button>
-              <button id="vis-inner" onclick="setAudience('Inner Circle')" class="px-2.5 py-1 text-sm font-bold rounded text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all">Inner Circle</button>
+              <button id="vis-public" onclick="setAudience('Public')" class="px-2.5 py-1 text-xs font-bold rounded theme-accent-bg transition-all">Public</button>
+              <button id="vis-inner" onclick="setAudience('Inner Circle')" class="px-2.5 py-1 text-xs font-bold rounded text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all">Inner Circle</button>
             </div>
           </div>
         </div>
 
         <button onclick="publishProPost()" class="w-full min-h-touch bg-gradient-to-r from-violet-accent to-purple-700 hover:from-purple-600 hover:to-violet-accent text-white font-extrabold text-xs py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all">
-          
           <span>Publish (visible 30 hours)</span>
         </button>
       </div>
     </div>
-
 
     <!-- STOREKIT IAP SIMULATOR SHEET -->
     <div id="storekit-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all">
       <div class="w-full max-w-md bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-t-3xl sm:rounded-3xl p-5 space-y-4 shadow-2xl relative">
         <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
           <div class="flex items-center space-x-2">
-            
             <div>
               <h3 class="text-xs font-bold text-[var(--text-main)]">App Store In-App Purchase</h3>
-              <p class="text-sm text-[var(--text-muted)]">StoreKit Sandbox Confirmation</p>
+              <p class="text-xs text-[var(--text-muted)]">StoreKit Sandbox Confirmation</p>
             </div>
           </div>
           <button onclick="closeStoreKitSheet()" class="w-8 h-8 rounded-full bg-[var(--bg-card)] text-[var(--text-muted)] flex items-center justify-center hover:text-[var(--text-main)]" title="Close">✕</button>
@@ -1567,27 +1448,25 @@
         <div class="bg-[var(--bg-app)] p-3 rounded-xl border border-[var(--border-subtle)] flex items-center justify-between">
           <div>
             <div class="text-xs font-bold text-[var(--text-main)]">Mastering Ground Forces Live Pass</div>
-            <div id="storekit-user-email" class="text-sm theme-accent-text">All-Sport Account: jordan.blake@allsportnetwork.com</div>
+            <div id="storekit-user-email" class="text-xs theme-accent-text">All-Sport Account: guest@allsportnetwork.com</div>
             <div class="text-xs text-red-400 font-bold mt-1 flex items-center gap-1">
               <svg class="h-2 w-auto inline-block" viewBox="0 0 100 24" fill="none">
                 <rect width="100" height="24" rx="12" fill="#F40009"/>
-                <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
+                <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
               </svg>
-              <span>Includes PULSE Tournament Care Pack</span>
+              <span>Includes Coca-Cola Tournament Care Pack</span>
             </div>
           </div>
           <div class="text-base font-black text-[var(--text-main)]">$49.00</div>
         </div>
 
-        <p class="text-sm text-[var(--text-muted)] text-center">Double click side button or press Confirm below to complete transaction.</p>
+        <p class="text-xs text-[var(--text-muted)] text-center">Double click side button or press Confirm below to complete transaction.</p>
 
-        <button onclick="confirmStoreKitPurchase()" class="w-full min-h-touch theme-accent-bg font-extrabold text-sm py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all hover:opacity-90">
-          
+        <button onclick="confirmStoreKitPurchase()" class="w-full min-h-touch theme-accent-bg font-extrabold text-xs py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all hover:opacity-90">
           <span>Confirm $49.00 Purchase</span>
         </button>
       </div>
     </div>
-
 
     <!-- TOAST NOTIFICATION CONTAINER -->
     <div id="toast-container" class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none w-11/12 max-w-xs transition-all duration-300 opacity-0 translate-y-[-10px]">
@@ -1598,16 +1477,13 @@
 
   </div>
 
-
   <script>
     // ============================================================
-    // EPIC 0.2 / 0.5: REAL SUPABASE AUTH + SPORT SWITCHER
-    // Fill in these two values from Supabase Dashboard > Settings > API
+    // REAL SUPABASE CLIENT INITIALIZATION
     // ============================================================
     const SUPABASE_URL = "https://ommgauajjxsswemokuhc.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tbWdhdWFqanhzc3dlbW9rdWhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwNDYzMzQsImV4cCI6MjEwMzYyMjMzNH0.mPTkAHUpPh9sZQEk9YRomiPGkZj15vLD0SDKaO5VD6Y";
-    // Explicit (not just relying on defaults) so a session only ever ends
-    // when signOutUser() is called directly - never silently on its own.
+
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
     });
@@ -1645,12 +1521,9 @@
 
     async function signOutUser() {
       await supabaseClient.auth.signOut();
-      location.reload(); // simplest way to fully reset the in-memory mock state
+      location.reload();
     }
 
-    // ============================================================
-    // FORGOT PASSWORD
-    // ============================================================
     async function requestPasswordReset() {
       const email = document.getElementById('input-email').value.trim();
       if (!email) {
@@ -1667,9 +1540,6 @@
       triggerToast('Check your email for a password reset link! 📧');
     }
 
-    // Supabase redirects the user back here with a special recovery session
-    // after they click the email link — this listener catches that moment
-    // and swaps in the "set a new password" form automatically.
     supabaseClient.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') {
         openProfileModal();
@@ -1713,7 +1583,7 @@
     }
 
     // ============================================================
-    // EPIC 0.5: SPORT SWITCHER
+    // SPORT SWITCHER
     // ============================================================
     let currentSportId = null;
     window.activeSportEntitlements = { lessons: null, fitness: null };
@@ -1753,10 +1623,6 @@
       }).join('');
     }
 
-    // Browsing a sport is session-only - it changes what you're looking at
-    // right now, but does NOT overwrite your saved home sport. This is the
-    // distinction the whole point-fairness and "no accidental switching"
-    // design depends on.
     async function selectBrowseSport(sportId, displayName) {
       currentSportId = sportId;
       document.getElementById('sport-switcher-panel').classList.add('hidden');
@@ -1768,11 +1634,9 @@
       refreshWalletPointsDisplay();
     }
 
-    // Explicit action only - a user must deliberately choose to change
-    // their permanent home sport, never automatically from just browsing.
     async function makeThisMyHomeSport(sportId, displayName) {
       if (!confirm(`Make ${displayName} your main sport? Your daily check-in point will go toward ${displayName} from now on.`)) return;
-      await setActiveSport(sportId); // already persists + refreshes everything
+      await setActiveSport(sportId);
       document.getElementById('sport-switcher-panel').classList.add('hidden');
       renderSportSwitcherLabel(displayName);
       triggerToast(`${displayName} is now your main sport! 🏠`);
@@ -1797,13 +1661,6 @@
       await supabaseClient.from("users").update({ active_sport_id: sportId }).eq("user_id", session.user.id);
       currentSportId = sportId;
 
-      // Durable record that this user has ever entered this sport — separate
-      // from active_sport_id (which only tracks what they're CURRENTLY
-      // viewing and gets overwritten every time they switch). This is what
-      // future features (sport-specific badges, "which sports have I played",
-      // per-sport history) should query against, since active_sport_id alone
-      // can't answer "has this user ever played Tennis" once they switch
-      // back to Golf. on conflict do nothing keeps re-entering harmless.
       await supabaseClient.from('user_sport_profiles').upsert(
         { user_id: session.user.id, sport_id: sportId },
         { onConflict: 'user_id,sport_id', ignoreDuplicates: true }
@@ -1814,9 +1671,6 @@
         checkEntitlement(sportId, "fitness"),
       ]);
       window.activeSportEntitlements = { lessons, fitness };
-      // Segments 1 & 2 screens don't exist yet, so there's no paywall UI to
-      // show/hide here yet. Once built, read window.activeSportEntitlements
-      // before rendering those screens to gate access.
       loadActivePoll();
       loadProFeed();
       loadHomeProVoicePreview();
@@ -1842,7 +1696,7 @@
     }
 
     // ============================================================
-    // COMMUNITY POLLS: admin creates the question, users vote once.
+    // COMMUNITY POLLS
     // ============================================================
     async function loadActivePoll() {
       const pollContent = document.getElementById('poll-content');
@@ -1850,7 +1704,7 @@
 
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session || !currentSportId) {
-        pollContent.innerHTML = '<p class="text-sm text-[var(--text-muted)]">Log in and select a sport to vote in polls.</p>';
+        pollContent.innerHTML = '<p class="text-xs text-[var(--text-muted)]">Log in and select a sport to vote in polls.</p>';
         return;
       }
 
@@ -1864,7 +1718,7 @@
         .maybeSingle();
 
       if (error || !poll) {
-        pollContent.innerHTML = '<p class="text-sm text-[var(--text-muted)]">No active poll right now — check back soon.</p>';
+        pollContent.innerHTML = '<p class="text-xs text-[var(--text-muted)]">No active poll right now — check back soon.</p>';
         return;
       }
 
@@ -1884,7 +1738,7 @@
         const total = Object.values(countMap).reduce((a, b) => a + Number(b), 0) || 1;
 
         pollContent.innerHTML = `
-          <p class="text-sm font-bold text-[var(--text-main)]">${poll.question}</p>
+          <p class="text-xs font-bold text-[var(--text-main)]">${poll.question}</p>
           ${sortedOptions.map(o => {
             const count = Number(countMap[o.option_id] || 0);
             const pct = Math.round((count / total) * 100);
@@ -1899,11 +1753,11 @@
               </div>
             </div>`;
           }).join('')}
-          <p class="text-xs text-[var(--text-muted)] mt-1">${total} vote${total === 1 ? '' : 's'} total</p>
+          <p class="text-[10px] text-[var(--text-muted)] mt-1">${total} vote${total === 1 ? '' : 's'} total</p>
         `;
       } else {
         pollContent.innerHTML = `
-          <p class="text-sm font-bold text-[var(--text-main)]">${poll.question}</p>
+          <p class="text-xs font-bold text-[var(--text-main)]">${poll.question}</p>
           ${sortedOptions.map(o => `
             <button onclick="voteInPoll('${poll.poll_id}', '${o.option_id}')" class="w-full min-h-touch text-left p-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-xs font-bold text-[var(--text-main)] transition-all">
               ${o.label}
@@ -1926,11 +1780,6 @@
         return;
       }
 
-      // 1 point per poll vote — naturally capped at once per poll, since a
-      // second vote insert on the same poll is already rejected above by
-      // the database's own primary key (poll_id, user_id). Awarded to
-      // whichever sport this poll actually belongs to, not necessarily
-      // the voter's home sport - matches per-sport prize fairness.
       const { data: pointResult } = await supabaseClient.rpc('increment_wallet_points', { p_sport_id: currentSportId, p_amount: 1 });
       if (pointResult?.success) refreshWalletPointsDisplay();
 
@@ -1958,8 +1807,6 @@
       passwordValid: true
     };
 
-    // Generates a neutral initials-based avatar (no stock/fake photos) for
-    // whenever a user has no uploaded photo_url set.
     function initialsAvatarDataUri(name) {
       const initials = (name || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase() || '?';
       let hash = 0;
@@ -1982,7 +1829,7 @@
       if (!container) return;
 
       if (!currentSportId) {
-        container.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-4">Select a sport to see its news.</p>';
+        container.innerHTML = '<p class="text-xs text-[var(--text-muted)] text-center py-4">Select a sport to see its news.</p>';
         return;
       }
 
@@ -1994,11 +1841,11 @@
         .limit(20);
 
       if (error) {
-        container.innerHTML = `<p class="text-sm text-[var(--text-muted)] text-center py-4">Could not load news: ${error.message}</p>`;
+        container.innerHTML = `<p class="text-xs text-[var(--text-muted)] text-center py-4">Could not load news: ${error.message}</p>`;
         return;
       }
       if (!briefs || !briefs.length) {
-        container.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-4">No news briefs yet.</p>';
+        container.innerHTML = '<p class="text-xs text-[var(--text-muted)] text-center py-4">No news briefs yet.</p>';
         return;
       }
 
@@ -2011,7 +1858,7 @@
             <span class="w-1.5 h-1.5 rounded-full theme-accent-bg"></span>
             <span>${brief.title}</span>
           </div>
-          <p class="text-sm text-[var(--text-muted)] mt-1 pl-3">${brief.body}</p>
+          <p class="text-xs text-[var(--text-muted)] mt-1 pl-3">${brief.body}</p>
         `;
         container.appendChild(item);
       });
@@ -2158,7 +2005,6 @@
       if (tabId === 'tab-home') loadHomeProVoicePreview();
     }
 
-
     function incrementDrillProgress() {
       if (drillProgress < 100) {
         drillProgress += 15;
@@ -2302,7 +2148,6 @@
       forgotLink.classList.toggle('hidden', !isLoginMode);
 
       if (isLoginMode) {
-        // Logging in: only email + password, nothing else.
         fieldsBlock.classList.add('hidden');
         pwdReqBox.classList.add('hidden');
         emailWrapper.classList.remove('hidden');
@@ -2312,8 +2157,6 @@
         submitText.innerText = 'Log In';
         linkBtn.innerText = "New here? Create an Account instead";
       } else if (isLoggedIn) {
-        // Editing an existing profile: name/photo/title yes, email no,
-        // password required as re-confirmation (not a new password).
         fieldsBlock.classList.remove('hidden');
         pwdReqBox.classList.add('hidden');
         emailWrapper.classList.add('hidden');
@@ -2321,9 +2164,8 @@
         pwdHint.classList.remove('hidden');
         pwdInput.value = '';
         submitText.innerText = 'Save Changes';
-        linkBtn.innerText = "Already have an account? Log In"; // stays hidden via auth-mode-toggle anyway
+        linkBtn.innerText = "Already have an account? Log In";
       } else {
-        // Creating a brand new account: everything required.
         fieldsBlock.classList.remove('hidden');
         pwdReqBox.classList.remove('hidden');
         emailWrapper.classList.remove('hidden');
@@ -2360,7 +2202,7 @@
 
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000); // don't hang forever
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
 
         const res = await fetch(`${SUPABASE_URL}/functions/v1/delete-account`, {
           method: 'POST',
@@ -2375,8 +2217,6 @@
           throw new Error(result.error || `Server returned status ${res.status}`);
         }
 
-        // Deletion is permanent, so use a blocking alert (not a toast that
-        // could be missed) as the actual confirmation before reloading.
         alert('Your account has been permanently deleted.');
         await supabaseClient.auth.signOut();
         location.reload();
@@ -2448,13 +2288,13 @@
     function updateRuleUI(elementId, isValid) {
       const el = document.getElementById(elementId);
       if (isValid) {
-        el.className = 'flex items-center space-x-2 text-sm theme-accent-text font-semibold transition-colors';
+        el.className = 'flex items-center space-x-2 text-xs theme-accent-text font-semibold transition-colors';
       } else {
-        el.className = 'flex items-center space-x-2 text-sm text-[var(--text-muted)] transition-colors';
+        el.className = 'flex items-center space-x-2 text-xs text-[var(--text-muted)] transition-colors';
       }
     }
 
-    let pendingPhotoFile = null; // holds the picked file during signup, before a session exists
+    let pendingPhotoFile = null;
 
     async function handleProfilePhotoUpload(input) {
       if (!input.files || !input.files[0]) return;
@@ -2462,9 +2302,6 @@
 
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) {
-        // No account yet (mid-signup) — just preview it locally and hold
-        // onto the file. It gets uploaded for real right after the account
-        // is created, in handleProfileSubmit.
         pendingPhotoFile = file;
         const reader = new FileReader();
         reader.onload = e => setAllAvatars(e.target.result);
@@ -2476,8 +2313,6 @@
       if (uploadedUrl) triggerToast('Profile photo updated! 📸');
     }
 
-    // Actually uploads to Supabase Storage and saves the URL — called either
-    // right after signup completes, or immediately when already logged in.
     async function uploadPendingPhoto(userId, fileOverride) {
       const file = fileOverride || pendingPhotoFile;
       if (!file) return null;
@@ -2496,7 +2331,7 @@
         }
 
         const { data: urlData } = supabaseClient.storage.from('avatars').getPublicUrl(filePath);
-        const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`; // cache-bust so the new photo shows immediately
+        const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
 
         await supabaseClient.from('users').update({ photo_url: publicUrl }).eq('user_id', userId);
 
@@ -2505,9 +2340,6 @@
         setAllAvatars(publicUrl);
         return publicUrl;
       } catch (err) {
-        // Any unexpected failure (network error, missing bucket, etc.) must
-        // never block the rest of signup/login from completing — the account
-        // itself is already real by this point, only the photo is at risk.
         triggerToast(`Photo upload failed: ${err.message}`);
         return null;
       }
@@ -2528,7 +2360,6 @@
       event.preventDefault();
       const pwdVal = document.getElementById('input-password').value;
 
-      // ---- LOG IN ----
       if (isLoginMode) {
         const emailVal = document.getElementById('input-email').value.trim();
         if (!emailVal || !pwdVal) {
@@ -2536,7 +2367,7 @@
           return;
         }
         const user = await signInUser(emailVal, pwdVal);
-        if (!user) return; // signInUser already showed the error toast
+        if (!user) return;
         currentUser.email = emailVal;
         await applyLoggedInState(user.id);
         if (!isLoggedIn) {
@@ -2556,7 +2387,6 @@
         return;
       }
 
-      // ---- SAVE CHANGES WHILE ALREADY LOGGED IN (password re-confirms identity) ----
       if (isLoggedIn) {
         if (!pwdVal) {
           triggerToast('Enter your password to confirm this change.');
@@ -2585,7 +2415,6 @@
         return;
       }
 
-      // ---- CREATE ACCOUNT ----
       const emailVal = document.getElementById('input-email').value.trim();
       if (!emailVal) {
         triggerToast('Email and password are required.');
@@ -2600,15 +2429,13 @@
       }
 
       const authedUser = await signUpUser(emailVal, pwdVal, nameVal, titleVal);
-      if (!authedUser) return; // signUpUser already showed the error toast
+      if (!authedUser) return;
       isLoggedIn = true;
       currentUser.email = emailVal;
 
-      // The photo picked during signup couldn't upload earlier (no session
-      // existed yet) — do it now that the account is real.
       if (pendingPhotoFile) await uploadPendingPhoto(authedUser.id);
 
-      await applyLoggedInState(authedUser.id); // reflects real saved state + awards the daily point + loads the poll
+      await applyLoggedInState(authedUser.id);
       document.getElementById('storekit-user-email').innerText = `All-Sport Account: ${emailVal}`;
 
       closeProfileModal();
@@ -2616,14 +2443,9 @@
       triggerToast(`Welcome, ${nameVal}! 🎉 Your account is ready.`);
     }
 
-    // Pulls the real profile data from the database and reflects the
-    // logged-in state across the UI, instead of leaving the stale mock
-    // placeholder showing after a session restores.
     async function applyLoggedInState(userId) {
       const { data: { user: authUser } } = await supabaseClient.auth.getUser();
 
-      // Core profile fields only - no joined/embedded resource here, so
-      // nothing about sport_verticals can ever break the ability to log in.
       const { data: profile, error: profileErr } = await supabaseClient
         .from('users')
         .select('display_name, title, role, photo_url, active_sport_id, wallet_points')
@@ -2647,18 +2469,11 @@
       currentUser.name = displayName;
       currentUser.photo = profile?.photo_url || null;
 
-      // Sport info fetched separately and defensively - if this fails for
-      // any reason, the person is still fully logged in, they just won't
-      // see a sport name/label until this resolves.
       let sportName = null;
       let assessmentLabel = 'SwingType';
       let effectiveSportId = profile?.active_sport_id;
 
       if (!effectiveSportId) {
-        // No sport chosen yet (brand new account, or one that never tapped
-        // "Enter Golf"). Since Golf is the only sport live right now, there's
-        // no reason to force a manual selection - auto-assign it once, and
-        // persist it so this only ever happens the first time for this account.
         try {
           const { data: golfSport } = await supabaseClient
             .from('sport_verticals').select('sport_id').eq('slug', 'golf').single();
@@ -2708,9 +2523,6 @@
       const avatarUrl = currentUser.photo || initialsAvatarDataUri(displayName);
       setAllAvatars(avatarUrl);
 
-      // Sport/title shown together only for admin-verified accounts -
-      // no checkmark symbol anymore, per request. A self-chosen title
-      // alone never implies verification.
       const isVerified = profile?.role === 'verified_pro';
       currentUser.role = profile?.role || 'fan';
       const badgeText = isVerified
@@ -2722,30 +2534,19 @@
       const overviewTitleEl = document.getElementById('overview-user-title');
       if (overviewTitleEl) overviewTitleEl.innerText = badgeText;
 
-      // SwingType (or whatever the active sport calls its assessment) —
-      // no fake result shown until Segment 1/2 actually produces one.
       const labelEl = document.getElementById('overview-assessment-label');
       if (labelEl) labelEl.innerText = assessmentLabel;
 
-      // Daily login point always goes to the user's HOME sport specifically
-      // (server-side decides this - see award_daily_login_point()), keeping
-      // the "one point per day" rule simple and unambiguous for prizes.
       const { data: pointResult } = await supabaseClient.rpc('award_daily_login_point');
       if (pointResult?.awarded) triggerToast('+1 point for today\'s check-in! 🎯');
 
-      // The points shown on screen reflect whichever sport is currently
-      // being browsed (set above), not necessarily the home sport - if
-      // someone is looking at Tennis, they see their Tennis points.
       await refreshWalletPointsDisplay();
 
-      setAuthMode('signup');       // reset the toggle link back to default wording
-      setProfileMode('view');      // show their real "Current Profile" tab by default
+      setAuthMode('signup');
+      setProfileMode('view');
       document.getElementById('auth-mode-toggle').classList.add('hidden');
     }
 
-    // Points are per-sport now, not one combined number - this always
-    // reflects whichever sport is currently being browsed (currentSportId),
-    // so it visually matches whatever news/feed/polls are also showing.
     async function refreshWalletPointsDisplay() {
       const walletEl = document.getElementById('wallet-points-display');
       if (!walletEl || !currentSportId) return;
@@ -2792,11 +2593,6 @@
     async function openComposerModal() {
       document.getElementById('composer-modal').classList.remove('hidden');
 
-      // Verified/admin authors can choose which sport a post appears in -
-      // it doesn't have to match whatever sport they're currently browsing.
-      // This is what lets a coach known across multiple sports stay
-      // identifiable (name/title/sport shown together) no matter which
-      // sport's feed they're posting into.
       const select = document.getElementById('composer-sport-select');
       const { data: sports } = await supabaseClient
         .from('sport_verticals').select('sport_id, display_name').eq('is_active', true);
@@ -2804,19 +2600,60 @@
         `<option value="${s.sport_id}" ${s.sport_id === currentSportId ? 'selected' : ''}>${s.display_name}</option>`
       ).join('');
     }
+
     function closeComposerModal() {
       document.getElementById('composer-modal').classList.add('hidden');
       if (typeof stopVoiceRecording === 'function') stopVoiceRecording(true);
-      stopCameraPreview();
+      resetNativeVideo();
     }
 
-    const POST_EXPIRY_SECONDS = 30 * 3600; // strict 30-hour expiry, every format, no exceptions
-    const MAX_VIDEO_SECONDS = 25; // short clips only - keeps file size (and cost) down, matches Stories-style conventions
+    const POST_EXPIRY_SECONDS = 30 * 3600;
     let pendingPhotoDataUrl = null;
     let voiceRecording = false, voiceSeconds = 0, voiceTimerHandle = null;
     let mediaRecorder = null, recordedChunks = [], recordedAudioDataUrl = null, micStream = null;
-    let videoRecorder = null, videoChunks = [], recordedVideoBlob = null, videoStream = null;
-    let videoRecording = false, videoSeconds = 0, videoTimerHandle = null;
+
+    // NATIVE VIDEO STATE
+    let nativeVideoFile = null;
+
+    function handleNativeVideoSelect(input) {
+      if (!input.files || !input.files[0]) return;
+      const file = input.files[0];
+
+      if (file.size > 35 * 1024 * 1024) {
+        triggerToast('Video is too large! Please keep it under 25 seconds.');
+        input.value = '';
+        return;
+      }
+
+      nativeVideoFile = file;
+      const videoUrl = URL.createObjectURL(file);
+      const player = document.getElementById('native-video-player');
+      player.src = videoUrl;
+
+      document.getElementById('video-placeholder-box').classList.add('hidden');
+      document.getElementById('video-preview-container').classList.remove('hidden');
+      document.getElementById('native-video-reset-btn').classList.remove('hidden');
+      triggerToast('Video ready to broadcast! 🎬');
+    }
+
+    function resetNativeVideo() {
+      nativeVideoFile = null;
+      const player = document.getElementById('native-video-player');
+      if (player) {
+        player.pause();
+        player.src = '';
+      }
+      const nativeInput = document.getElementById('composer-video-native-input');
+      if (nativeInput) nativeInput.value = '';
+      const libraryInput = document.getElementById('composer-video-library-input');
+      if (libraryInput) libraryInput.value = '';
+      const previewContainer = document.getElementById('video-preview-container');
+      if (previewContainer) previewContainer.classList.add('hidden');
+      const resetBtn = document.getElementById('native-video-reset-btn');
+      if (resetBtn) resetBtn.classList.add('hidden');
+      const placeholderBox = document.getElementById('video-placeholder-box');
+      if (placeholderBox) placeholderBox.classList.remove('hidden');
+    }
 
     async function toggleVoiceRecording() {
       if (voiceRecording) { stopVoiceRecording(false); return; }
@@ -2833,10 +2670,6 @@
       mediaRecorder = new MediaRecorder(stream);
       mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
       mediaRecorder.onstop = async () => {
-        // Using the recorder's OWN reported mimeType (e.g. 'audio/webm;codecs=opus')
-        // is required here - a generic hardcoded 'audio/webm' label is missing
-        // the codec info and causes playback to silently fail/hang forever,
-        // which is exactly what was happening before this fix.
         const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
         recordedAudioDataUrl = await new Promise(resolve => {
           const reader = new FileReader();
@@ -2845,7 +2678,7 @@
         });
         document.getElementById('voice-preview-player').src = recordedAudioDataUrl;
         document.getElementById('voice-replay-controls').classList.remove('hidden');
-        micStream.getTracks().forEach(t => t.stop()); // release the mic once done
+        micStream.getTracks().forEach(t => t.stop());
       };
       mediaRecorder.start();
 
@@ -2898,24 +2731,14 @@
         const btn = document.getElementById('fmt-btn-' + f);
         const pane = document.getElementById('composer-pane-' + f);
         if (f === fmt) {
-          btn.className = 'media-fmt-btn min-h-touch py-2 bg-violet-accent/20 border border-violet-accent text-violet-light text-sm font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all';
+          btn.className = 'media-fmt-btn min-h-touch py-2 bg-violet-accent/20 border border-violet-accent text-violet-light text-xs font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all';
           pane.classList.remove('hidden');
         } else {
-          btn.className = 'media-fmt-btn min-h-touch py-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-white text-sm font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all';
+          btn.className = 'media-fmt-btn min-h-touch py-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-white text-xs font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all';
           pane.classList.add('hidden');
         }
       });
       playSfx("E5", "32n");
-
-      // The camera should only ever be active while the Video pane is
-      // actually showing - switching away releases it immediately, both
-      // for battery life and because a lit camera indicator when you're
-      // not using it is a real privacy concern.
-      if (fmt === 'Video') {
-        startCameraPreview();
-      } else {
-        stopCameraPreview();
-      }
     }
 
     function handleComposerPhoto(input) {
@@ -2930,136 +2753,16 @@
       reader.readAsDataURL(input.files[0]);
     }
 
-    // ============================================================
-    // VIDEO RECORDING (Pro Voice) - short clips only, uploaded to
-    // Cloudflare Stream (see publishProPost) - Stream fully reprocesses
-    // every uploaded video into a correctly-structured, universally-
-    // compatible format automatically, which is what actually fixes
-    // cross-device playback (this isn't a labeling problem - it's the
-    // raw MediaRecorder output itself needing real processing).
-    // ============================================================
-
-    async function startCameraPreview() {
-      if (videoStream) return; // already running
-      try {
-        videoStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 1280 } }, // portrait, modest resolution - keeps files small
-          audio: true,
-        });
-        document.getElementById('video-live-preview').srcObject = videoStream;
-      } catch (err) {
-        triggerToast('Camera access denied or unavailable.');
-      }
-    }
-
-    function stopCameraPreview() {
-      if (videoRecording) stopVideoRecording(true);
-      if (videoStream) {
-        videoStream.getTracks().forEach(t => t.stop());
-        videoStream = null;
-      }
-    }
-
-    function toggleVideoRecording() {
-      if (videoRecording) { stopVideoRecording(false); return; }
-      if (!videoStream) { triggerToast('Camera not ready yet - try again in a moment.'); return; }
-
-      videoChunks = [];
-      // Prefer MP4 when the browser can record it - this is the one format
-      // almost every device can actually PLAY BACK, including iPhones.
-      // A browser only guarantees it can play back what it itself
-      // recorded, not what a different browser/device recorded - Chrome
-      // defaults to WebM, but Safari on iPhone can't play WebM at all in
-      // most versions. Forcing MP4 wherever possible fixes that gap for
-      // the vast majority of real devices, without needing to transcode
-      // anything server-side.
-      const preferredMimeType = MediaRecorder.isTypeSupported('video/mp4')
-        ? 'video/mp4'
-        : undefined; // let the browser pick its own default (typically webm) if mp4 recording isn't supported here
-
-      // Explicit bitrate cap - without this, file size varies unpredictably
-      // by device. This keeps every recording close to the same size,
-      // which is what makes the cost projection below airtight rather
-      // than "roughly."
-      videoRecorder = new MediaRecorder(videoStream, {
-        ...(preferredMimeType ? { mimeType: preferredMimeType } : {}),
-        videoBitsPerSecond: 1_500_000, // 1.5 Mbps - plenty for a short mobile clip, small file
-        audioBitsPerSecond: 64_000,    // 64 kbps - fine for spoken audio
-      });
-      videoRecorder.ondataavailable = e => { if (e.data.size > 0) videoChunks.push(e.data); };
-      videoRecorder.onstop = () => {
-        // Same lesson learned from the voice memo bug: use the recorder's
-        // OWN reported mimeType, not a hardcoded generic one, or the local
-        // preview can fail. The uploaded file itself gets fully
-        // reprocessed by Cloudflare Stream regardless of its exact source
-        // format, which is what actually guarantees it plays back
-        // correctly on every device.
-        recordedVideoBlob = new Blob(videoChunks, { type: videoRecorder.mimeType || 'video/webm' });
-        const playbackUrl = URL.createObjectURL(recordedVideoBlob);
-        const liveEl = document.getElementById('video-live-preview');
-        const playbackEl = document.getElementById('video-playback-preview');
-        liveEl.classList.add('hidden');
-        playbackEl.src = playbackUrl;
-        playbackEl.classList.remove('hidden');
-        document.getElementById('video-rerecord-btn').classList.remove('hidden');
-        document.getElementById('video-rec-btn').classList.add('hidden');
-      };
-      videoRecorder.start();
-
-      videoRecording = true; videoSeconds = 0;
-      const btn = document.getElementById('video-rec-btn');
-      btn.className = 'w-16 h-16 rounded-full bg-red-600 flex items-center justify-center text-xs font-black text-white animate-pulse';
-      btn.innerText = 'STOP';
-      document.getElementById('video-rec-status').innerText = 'Recording...';
-      const timerEl = document.getElementById('video-rec-timer');
-      timerEl.classList.remove('hidden');
-      timerEl.innerText = '0:00';
-
-      videoTimerHandle = setInterval(() => {
-        videoSeconds++;
-        const m = Math.floor(videoSeconds / 60), s = videoSeconds % 60;
-        timerEl.innerText = `${m}:${s.toString().padStart(2, '0')}`;
-        if (videoSeconds >= MAX_VIDEO_SECONDS) stopVideoRecording(false);
-      }, 1000);
-    }
-
-    function stopVideoRecording(silent) {
-      clearInterval(videoTimerHandle); videoTimerHandle = null;
-      if (videoRecorder && videoRecorder.state !== 'inactive') videoRecorder.stop();
-      videoRecording = false;
-      document.getElementById('video-rec-timer').classList.add('hidden');
-      if (silent) {
-        document.getElementById('video-rec-btn').className = 'w-16 h-16 rounded-full theme-accent-bg flex items-center justify-center text-xs font-black';
-        document.getElementById('video-rec-btn').innerText = 'REC';
-        document.getElementById('video-rec-status').innerText = 'Tap to start recording';
-      } else {
-        document.getElementById('video-rec-status').innerText = `Recorded ${videoSeconds}s - watch it below before posting`;
-      }
-    }
-
-    function reRecordVideo() {
-      recordedVideoBlob = null;
-      document.getElementById('video-playback-preview').classList.add('hidden');
-      document.getElementById('video-playback-preview').src = '';
-      document.getElementById('video-live-preview').classList.remove('hidden');
-      document.getElementById('video-rerecord-btn').classList.add('hidden');
-      document.getElementById('video-rec-btn').classList.remove('hidden');
-      document.getElementById('video-rec-btn').className = 'w-16 h-16 rounded-full theme-accent-bg flex items-center justify-center text-xs font-black';
-      document.getElementById('video-rec-btn').innerText = 'REC';
-      document.getElementById('video-rec-status').innerText = 'Tap to start recording';
-      if (!videoStream) startCameraPreview(); // camera may have been released - restart it for the retake
-    }
-
     function setAudience(aud) {
       currentAudience = aud;
       const pubBtn = document.getElementById('vis-public');
       const innerBtn = document.getElementById('vis-inner');
       if (aud === 'Public') {
-        pubBtn.className = 'px-2.5 py-1 text-sm font-bold rounded theme-accent-bg transition-all';
-        innerBtn.className = 'px-2.5 py-1 text-sm font-bold rounded text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all';
+        pubBtn.className = 'px-2.5 py-1 text-xs font-bold rounded theme-accent-bg transition-all';
+        innerBtn.className = 'px-2.5 py-1 text-xs font-bold rounded text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all';
       } else {
-        innerBtn.className = 'px-2.5 py-1 text-sm font-bold rounded bg-violet-accent text-white transition-all';
-        pubBtn.className = 'px-2.5 py-1 text-sm font-bold rounded text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all';
+        innerBtn.className = 'px-2.5 py-1 text-xs font-bold rounded bg-violet-accent text-white transition-all';
+        pubBtn.className = 'px-2.5 py-1 text-xs font-bold rounded text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all';
       }
     }
 
@@ -3075,8 +2778,7 @@
       stopVoiceRecording(true);
       reRecordVoice();
       document.getElementById('voice-subject-input').value = '';
-      reRecordVideo();
-      stopCameraPreview();
+      resetNativeVideo();
     }
 
     async function publishProPost() {
@@ -3093,47 +2795,33 @@
       if (currentMediaFormat === 'Photo') mediaUrl = pendingPhotoDataUrl || null;
 
       if (currentMediaFormat === 'Video') {
-        if (!recordedVideoBlob) {
-          triggerToast('Record a video first, then watch it before posting.');
+        if (!nativeVideoFile) {
+          triggerToast('Please record or choose a video first.');
           return;
         }
         triggerToast('Uploading video...');
         try {
-          // Use the ACTUAL recorded format, not an assumed one - different
-          // phones produce different real formats (iPhones commonly record
-          // MP4, Android/Chrome commonly records WebM). Also strip down to
-          // just the base type ("video/mp4"), dropping any ";codecs=..."
-          // detail the browser may report.
-          //
-          // NOTE (known limitation): this R2-based path is confirmed to
-          // work when viewed on a computer, but does NOT reliably play
-          // back on iPhone - this is a known, unresolved issue with this
-          // specific approach (raw object storage does no processing on
-          // the video, and iOS Safari is strict about the internal
-          // structure of browser-recorded video). Kept in place at the
-          // user's request to avoid Cloudflare Stream's usage-based cost
-          // for now - see the Cloudflare Stream version for the fix.
-          const realVideoType = (recordedVideoBlob.type || 'video/webm').split(';')[0];
+          const fileType = nativeVideoFile.type || 'video/mp4';
           const { data: uploadInfo, error: uploadUrlErr } = await supabaseClient.functions.invoke('get-r2-upload-url', {
             method: 'POST',
-            body: { contentType: realVideoType },
+            body: { contentType: fileType },
           });
           if (uploadUrlErr || !uploadInfo?.uploadUrl) {
-            triggerToast(`Could not prepare upload: ${uploadUrlErr?.message || 'unknown error'}`);
+            triggerToast(`Upload error: ${uploadUrlErr?.message || 'Could not prepare upload'}`);
             return;
           }
           const putRes = await fetch(uploadInfo.uploadUrl, {
             method: 'PUT',
-            headers: { 'Content-Type': realVideoType },
-            body: recordedVideoBlob,
+            headers: { 'Content-Type': fileType },
+            body: nativeVideoFile,
           });
           if (!putRes.ok) {
-            triggerToast('Video upload failed - please try again.');
+            triggerToast('Video upload failed. Please try again.');
             return;
           }
           mediaUrl = uploadInfo.publicUrl;
         } catch (err) {
-          triggerToast(`Video upload failed: ${err.message}`);
+          triggerToast(`Upload failed: ${err.message}`);
           return;
         }
       }
@@ -3162,9 +2850,6 @@
       });
 
       if (error) {
-        // This is also where the server-side rule shows up for real: if
-        // someone's role isn't verified_pro/admin, RLS rejects the insert
-        // here even if they somehow reached this function.
         triggerToast(`Could not publish: ${error.message}`);
         return;
       }
@@ -3178,13 +2863,8 @@
       loadHomeProVoicePreview();
     }
 
-    // ============================================================
-    // PRO VOICE FEED: real posts, 5-emoji one-pick reactions.
-    // ============================================================
     const REACTION_EMOJIS = ['🙏', '❤️', '😂', '😔'];
 
-    // Reusable voice memo player - same play button + subject + animated
-    // bars structure everywhere a voice memo appears (feed, Command Center).
     function buildVoiceMemoHtml(subject, audioUrl, playerId) {
       return `
         <div class="bg-[var(--bg-app)] p-3 rounded-xl border border-[var(--border-subtle)] flex items-center justify-between">
@@ -3192,7 +2872,7 @@
             <button onclick="event.stopPropagation(); toggleMemoPlayback('${playerId}')" id="${playerId}-btn" class="w-8 h-8 rounded-full bg-violet-accent text-white flex items-center justify-center text-xs hover:scale-105 transition-all flex-shrink-0">▶</button>
             <div>
               <div class="text-xs font-semibold text-[var(--text-main)]">${subject}</div>
-              <div class="text-sm text-[var(--text-muted)]">Voice memo</div>
+              <div class="text-xs text-[var(--text-muted)]">Voice memo</div>
             </div>
           </div>
           <div class="flex items-end space-x-1 h-6 flex-shrink-0">
@@ -3225,16 +2905,11 @@
       if (btn) btn.innerText = '▶';
     }
 
-    // Command Center shows just the 3 most recent posts - same card
-    // renderer as the full feed, just capped and with a different
-    // id prefix so voice memo player IDs never collide with the full feed.
     async function loadHomeProVoicePreview() {
       const container = document.getElementById('home-pro-voice-preview');
       if (!container) return;
       if (!currentSportId) {
-        // Should be rare now that a sport is always set on load, but shown
-        // just in case rather than a silent blank area.
-        container.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-4">Use the sport switcher at the top to get started.</p>';
+        container.innerHTML = '<p class="text-xs text-[var(--text-muted)] text-center py-4">Use the sport switcher at the top to get started.</p>';
         return;
       }
 
@@ -3251,7 +2926,7 @@
         .limit(3);
 
       if (error || !posts || !posts.length) {
-        container.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-4">No Pro Voice posts yet.</p>';
+        container.innerHTML = '<p class="text-xs text-[var(--text-muted)] text-center py-4">No Pro Voice posts yet.</p>';
         return;
       }
 
@@ -3274,13 +2949,11 @@
       if (fetchErr) { triggerToast(`Could not load post: ${fetchErr.message}`); return; }
 
       const newText = prompt('Edit your post:', post?.body_text || '');
-      if (newText === null) return; // user cancelled
+      if (newText === null) return;
       if (!newText.trim()) { triggerToast('Text cannot be empty.'); return; }
 
       const { error } = await supabaseClient.from('pro_posts').update({ body_text: newText.trim() }).eq('post_id', postId);
       if (error) {
-        // If this fails for a non-admin editing someone else's post, that's
-        // the RLS policy doing its job, not a bug.
         triggerToast(`Could not update post: ${error.message}`);
         return;
       }
@@ -3326,8 +2999,6 @@
 
       closeReportModal();
       if (error) {
-        // Most likely cause: they already reported this exact post before -
-        // the database's own unique constraint prevents duplicate reports.
         triggerToast(error.message.includes('duplicate') ? 'You already reported this post.' : `Could not submit report: ${error.message}`);
         return;
       }
@@ -3338,15 +3009,12 @@
       const feed = document.getElementById('stream-feed-list');
       if (!feed) return;
       if (!currentSportId) {
-        feed.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-6">Use the sport switcher at the top to get started.</p>';
+        feed.innerHTML = '<p class="text-xs text-[var(--text-muted)] text-center py-6">Use the sport switcher at the top to get started.</p>';
         return;
       }
 
       const { data: { session } } = await supabaseClient.auth.getSession();
 
-      // Current sport's display name, fetched once - every post in this
-      // feed is already for this one sport (filtered below), so this one
-      // lookup covers every card without needing a per-post join.
       const { data: sport } = await supabaseClient
         .from('sport_verticals').select('display_name').eq('sport_id', currentSportId).single();
       const currentSportName = sport?.display_name || '';
@@ -3358,17 +3026,14 @@
         .order('posted_at', { ascending: false });
 
       if (error) {
-        feed.innerHTML = `<p class="text-sm text-[var(--text-muted)] text-center py-6">Could not load feed: ${error.message}</p>`;
+        feed.innerHTML = `<p class="text-xs text-[var(--text-muted)] text-center py-6">Could not load feed: ${error.message}</p>`;
         return;
       }
       if (!posts || !posts.length) {
-        feed.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-6">No broadcasts yet.</p>';
+        feed.innerHTML = '<p class="text-xs text-[var(--text-muted)] text-center py-6">No broadcasts yet.</p>';
         return;
       }
 
-      // Fetch every distinct author's info in one simple query (no join),
-      // then look each one up client-side per card - this sidesteps the
-      // embedding ambiguity entirely instead of working around it.
       const authorIds = [...new Set(posts.map(p => p.author_id))];
       const { data: authors } = await supabaseClient
         .from('users').select('user_id, display_name, title, photo_url, role')
@@ -3405,11 +3070,7 @@
       } else if (post.media_type === 'Photo' && post.media_url) {
         mediaHtml = `<img src="${post.media_url}" class="w-full aspect-video object-cover rounded-xl">`;
       } else if (post.media_type === 'Video' && post.media_url) {
-        // post.media_url stores the direct R2 public URL. Known limitation:
-        // confirmed to work on computer browsers, but does not reliably
-        // play back on iPhone - kept this way at the user's request to
-        // avoid Cloudflare Stream's usage-based cost for now.
-        mediaHtml = `<video controls playsinline class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${post.media_url}"></video>`;
+        mediaHtml = `<video controls playsinline webkit-playsinline preload="metadata" crossorigin="anonymous" class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${post.media_url}"></video>`;
       } else if (post.media_type === 'Voice' && post.media_url) {
         mediaHtml = buildVoiceMemoHtml(post.body_text || 'Voice memo', post.media_url, `${idPrefix}-voice-${post.post_id}`);
       }
@@ -3422,11 +3083,8 @@
         </button>`;
       }).join('');
 
-      // Sport shown before title, matching the requested Photo/Name/Sport/Title order.
       const sportLabel = sportName ? `${sportName} · ` : '';
 
-      // Only the post's own author, or an admin, sees these - enforced
-      // for real by the RLS policies too, this is just the matching UI.
       const canManage = (myUserId && myUserId === post.author_id) || currentUser.role === 'admin';
       const canEditText = canManage && (post.media_type === 'Text' || post.media_type === 'Voice');
       const manageButtons = canManage ? `
@@ -3436,9 +3094,6 @@
         </div>
       ` : '';
 
-      // Reporting your own post doesn't make sense - only shown for other
-      // people's posts. Baseline expectation for apps with user-generated
-      // content, on both app stores.
       const reportButton = (myUserId && myUserId !== post.author_id) ? `
         <button onclick="openReportModal('${post.post_id}')" class="text-xs text-[var(--text-muted)] hover:text-red-400 underline min-h-touch">Report</button>
       ` : '';
@@ -3452,10 +3107,10 @@
               </div>
               <div>
                 <h4 class="text-xs font-bold text-[var(--text-main)]">${authorName}</h4>
-                <p class="text-sm text-[var(--text-muted)]">${sportLabel}${author?.title || 'Verified Pro'} · ${post.audience === 'public' ? '🌐 Public' : '🔒 Inner Circle'}</p>
+                <p class="text-xs text-[var(--text-muted)]">${sportLabel}${author?.title || 'Verified Pro'} · ${post.audience === 'public' ? '🌐 Public' : '🔒 Inner Circle'}</p>
               </div>
             </div>
-            <div class="bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded-full text-sm font-mono font-bold">
+            <div class="bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded-full text-xs font-mono font-bold">
               <span class="stream-timer" data-seconds="${secondsLeft}">${formatCountdown(secondsLeft)}</span>
             </div>
           </div>
@@ -3471,10 +3126,6 @@
       `;
     }
 
-    // Enforces: one pick only, click same = undo, click different = switch.
-    // The actual guarantee against picking 2+ reactions comes from the
-    // database's own primary key (post_id, user_id) - this function just
-    // decides whether to insert, update, or delete based on current state.
     async function toggleReaction(postId, emoji) {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) { triggerToast('Please log in first.'); return; }
@@ -3511,11 +3162,11 @@
           <div class="text-xs font-black theme-accent-text flex items-center justify-center gap-1.5">
              TICKET CONFIRMED
           </div>
-          <div class="text-sm text-[var(--text-muted)]">Account: ${currentUser.email}</div>
-          <div class="text-sm text-red-400 font-bold flex items-center justify-center gap-1">
+          <div class="text-xs text-[var(--text-muted)]">Account: ${currentUser.email}</div>
+          <div class="text-xs text-red-400 font-bold flex items-center justify-center gap-1">
             <svg class="h-2.5 w-auto" viewBox="0 0 100 24" fill="none">
               <rect width="100" height="24" rx="12" fill="#F40009"/>
-              <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
+              <text x="50" y="15" text-anchor="middle" font-family="'Georgia', serif" font-weight="900" font-style="italic" font-size="11" fill="white">Coca-Cola</text>
             </svg>
             <span>VIP Care Pack Activated</span>
           </div>
@@ -3524,7 +3175,7 @@
           </button>
         </div>
       `;
-      triggerToast('🎉 Masterclass Ticket + PULSE VIP Pack Unlocked!');
+      triggerToast('🎉 Masterclass Ticket + Coca-Cola VIP Pack Unlocked!');
       myTickets.push({ title: 'Mastering Ground Forces & Speed', date: 'Live masterclass', price: '$49.00' });
       renderMyTickets();
     }
@@ -3539,7 +3190,7 @@
       list.innerHTML = myTickets.map(t => `
         <div class="bg-[var(--bg-card)] p-3 rounded-xl border border-[var(--border-subtle)] flex items-center justify-between">
           <div><div class="text-xs font-bold text-[var(--text-main)]">${t.title}</div><div class="text-xs text-[var(--text-muted)]">${t.date}</div></div>
-          <span class="text-sm font-black theme-accent-text">${t.price}</span>
+          <span class="text-xs font-black theme-accent-text">${t.price}</span>
         </div>`).join('');
     }
 
@@ -3697,35 +3348,24 @@
 
       const existingUser = await restoreSession();
       if (existingUser) {
-        await applyLoggedInState(existingUser.id); // sets currentSportId to their home sport
+        await applyLoggedInState(existingUser.id);
         if (isLoggedIn) triggerToast(`Welcome, ${currentUser.name}! 👋`);
       } else {
-        // Guest with no account yet - default to Golf so the whole app has
-        // a sport context immediately, exactly like a logged-in user gets.
-        // Removes the need for any "select a sport" prompt anywhere.
         try {
           const { data: golfSport } = await supabaseClient
             .from('sport_verticals').select('sport_id').eq('slug', 'golf').single();
           if (golfSport) currentSportId = golfSport.sport_id;
         } catch (e) {
-          console.error('Could not default guest to Golf (non-fatal):', e);
+          console.error('Could not default guest to Golf:', e);
         }
       }
 
-      // Now that a sport is guaranteed to be set either way, load everything
-      // that depends on it. Harmless if applyLoggedInState already loaded
-      // some of these above - a second quick refresh isn't noticeable.
       loadNewsBriefs();
       loadProFeed();
       loadHomeProVoicePreview();
       loadActivePoll();
       renderSportSwitcherLabel();
 
-      // Register the service worker - makes the app installable and gives
-      // it offline resilience (see service-worker.js for what this covers).
-      // Wrapped defensively since file:// testing and some environments
-      // don't support service workers at all - this must never block
-      // anything else from working.
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/service-worker.js').catch((err) => {
           console.error('Service worker registration failed (non-fatal):', err);
