@@ -48,6 +48,19 @@ Deno.serve(async (req: Request) => {
     return json({ error: "not_verified" }, 401);
   }
 
+  // Use the browser's ACTUAL recorded format - different phones produce
+  // different real formats (iPhones commonly record MP4, Android/Chrome
+  // commonly records WebM). Always assuming webm regardless of what was
+  // really recorded causes uploads to succeed but fail to play back.
+  let contentType = "video/webm"; // sensible fallback if the client didn't specify
+  try {
+    const body = await req.json();
+    if (body?.contentType) contentType = body.contentType;
+  } catch {
+    // No body provided - fall back to the default above, not a hard error
+  }
+  const extension = contentType.includes("mp4") ? "mp4" : "webm";
+
   const accountId = Deno.env.get("R2_ACCOUNT_ID")!;
   const bucket = Deno.env.get("R2_BUCKET_NAME")!;
   const publicBaseUrl = Deno.env.get("R2_PUBLIC_URL")!; // e.g. https://videos.yourdomain.com or the r2.dev URL
@@ -64,9 +77,9 @@ Deno.serve(async (req: Request) => {
   // Unique key per upload - includes the user's id for easy identification
   // if manual cleanup is ever needed, and a random component so nobody can
   // guess/collide with another upload.
-  const key = `pro-voice/${userData.user.id}/${crypto.randomUUID()}.webm`;
+  const key = `pro-voice/${userData.user.id}/${crypto.randomUUID()}.${extension}`;
 
-  const command = new PutObjectCommand({ Bucket: bucket, Key: key, ContentType: "video/webm" });
+  const command = new PutObjectCommand({ Bucket: bucket, Key: key, ContentType: contentType });
   const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 300 }); // 5 minutes to complete the upload
 
   return json({

@@ -2960,11 +2960,24 @@
       if (!videoStream) { triggerToast('Camera not ready yet - try again in a moment.'); return; }
 
       videoChunks = [];
+      // Prefer MP4 when the browser can record it - this is the one format
+      // almost every device can actually PLAY BACK, including iPhones.
+      // A browser only guarantees it can play back what it itself
+      // recorded, not what a different browser/device recorded - Chrome
+      // defaults to WebM, but Safari on iPhone can't play WebM at all in
+      // most versions. Forcing MP4 wherever possible fixes that gap for
+      // the vast majority of real devices, without needing to transcode
+      // anything server-side.
+      const preferredMimeType = MediaRecorder.isTypeSupported('video/mp4')
+        ? 'video/mp4'
+        : undefined; // let the browser pick its own default (typically webm) if mp4 recording isn't supported here
+
       // Explicit bitrate cap - without this, file size varies unpredictably
       // by device. This keeps every recording close to the same size,
       // which is what makes the cost projection below airtight rather
       // than "roughly."
       videoRecorder = new MediaRecorder(videoStream, {
+        ...(preferredMimeType ? { mimeType: preferredMimeType } : {}),
         videoBitsPerSecond: 1_500_000, // 1.5 Mbps - plenty for a short mobile clip, small file
         audioBitsPerSecond: 64_000,    // 64 kbps - fine for spoken audio
       });
@@ -3078,14 +3091,23 @@
         }
         triggerToast('Uploading video...');
         try {
-          const { data: uploadInfo, error: uploadUrlErr } = await supabaseClient.functions.invoke('get-r2-upload-url', { method: 'POST' });
+          // Use the ACTUAL recorded format, not an assumed one - different
+          // phones produce different real formats (iPhones commonly record
+          // MP4, Android/Chrome commonly records WebM). Always claiming
+          // "webm" regardless of what was really recorded caused videos to
+          // upload successfully but fail to play back.
+          const realVideoType = recordedVideoBlob.type || 'video/webm';
+          const { data: uploadInfo, error: uploadUrlErr } = await supabaseClient.functions.invoke('get-r2-upload-url', {
+            method: 'POST',
+            body: { contentType: realVideoType },
+          });
           if (uploadUrlErr || !uploadInfo?.uploadUrl) {
             triggerToast(`Could not prepare upload: ${uploadUrlErr?.message || 'unknown error'}`);
             return;
           }
           const putRes = await fetch(uploadInfo.uploadUrl, {
             method: 'PUT',
-            headers: { 'Content-Type': 'video/webm' },
+            headers: { 'Content-Type': realVideoType },
             body: recordedVideoBlob,
           });
           if (!putRes.ok) {
