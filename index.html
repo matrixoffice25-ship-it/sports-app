@@ -3096,7 +3096,14 @@
           // MP4, Android/Chrome commonly records WebM). Always claiming
           // "webm" regardless of what was really recorded caused videos to
           // upload successfully but fail to play back.
-          const realVideoType = recordedVideoBlob.type || 'video/webm';
+          //
+          // Also strip down to just the base type ("video/mp4"), dropping
+          // any ";codecs=..." detail the browser may report. The actual
+          // video data keeps its real codec either way - this only affects
+          // the HTTP label the file is served with, and Safari can be
+          // strict enough to reject an overly-specific/unfamiliar codec
+          // string in that label even for a perfectly valid video.
+          const realVideoType = (recordedVideoBlob.type || 'video/webm').split(';')[0];
           const { data: uploadInfo, error: uploadUrlErr } = await supabaseClient.functions.invoke('get-r2-upload-url', {
             method: 'POST',
             body: { contentType: realVideoType },
