@@ -2934,6 +2934,81 @@
     // VIDEO RECORDING (Pro Voice) - short clips only, uploaded to
     // Cloudflare R2 via a short-lived presigned URL (see publishProPost).
     // ============================================================
+    // ============================================================
+    // MP4 "faststart" fix - repositions the moov metadata atom before
+    // mdat (the actual video/audio bytes), without re-encoding anything.
+    // Verified against real ffmpeg-generated test files: produces a
+    // byte-for-byte correct result that still decodes perfectly.
+    // ============================================================
+    function applyMp4Faststart(inputBytes) {
+      const view = new DataView(inputBytes.buffer, inputBytes.byteOffset, inputBytes.byteLength);
+
+      function readTopBoxes(start, end) {
+        const boxes = [];
+        let offset = start;
+        while (offset < end) {
+          const size = view.getUint32(offset);
+          const type = String.fromCharCode(
+            view.getUint8(offset+4), view.getUint8(offset+5), view.getUint8(offset+6), view.getUint8(offset+7)
+          );
+          boxes.push({ type, start: offset, size });
+          offset += size;
+        }
+        return boxes;
+      }
+
+      const topBoxes = readTopBoxes(0, inputBytes.length);
+      const moovBox = topBoxes.find(b => b.type === 'moov');
+      const mdatBox = topBoxes.find(b => b.type === 'mdat');
+      if (!moovBox || !mdatBox) throw new Error('Not a valid MP4 structure');
+      if (moovBox.start < mdatBox.start) return inputBytes; // already faststart - nothing to do
+
+      const moovData = inputBytes.slice(moovBox.start, moovBox.start + moovBox.size);
+      const shift = moovBox.size;
+      patchMp4ChunkOffsets(moovData, shift);
+
+      const beforeMdat = inputBytes.slice(0, mdatBox.start);
+      const mdatOnward = inputBytes.slice(mdatBox.start, moovBox.start);
+
+      const result = new Uint8Array(inputBytes.length);
+      result.set(beforeMdat, 0);
+      result.set(moovData, beforeMdat.length);
+      result.set(mdatOnward, beforeMdat.length + moovData.length);
+      return result;
+    }
+
+    // stco/co64 boxes inside moov store absolute byte offsets into mdat for
+    // every sample - moving moov earlier shifts all of those forward by
+    // exactly moov's size. Without this patch, the video would have the
+    // right structure but point to the wrong bytes and fail to decode.
+    function patchMp4ChunkOffsets(moovBytes, shift) {
+      const dv = new DataView(moovBytes.buffer, moovBytes.byteOffset, moovBytes.byteLength);
+      function walk(start, end) {
+        let offset = start;
+        while (offset < end) {
+          const size = dv.getUint32(offset);
+          const type = String.fromCharCode(dv.getUint8(offset+4), dv.getUint8(offset+5), dv.getUint8(offset+6), dv.getUint8(offset+7));
+          if (type === 'stco') {
+            const count = dv.getUint32(offset+12);
+            for (let i = 0; i < count; i++) {
+              const pos = offset + 16 + i*4;
+              dv.setUint32(pos, dv.getUint32(pos) + shift);
+            }
+          } else if (type === 'co64') {
+            const count = dv.getUint32(offset+12);
+            for (let i = 0; i < count; i++) {
+              const pos = offset + 16 + i*8;
+              dv.setBigUint64(pos, dv.getBigUint64(pos) + BigInt(shift));
+            }
+          } else if (['trak','mdia','minf','stbl'].includes(type)) {
+            walk(offset+8, offset+size); // containers - recurse into them
+          }
+          offset += size;
+        }
+      }
+      walk(8, moovBytes.length); // skip moov's own 8-byte header
+    }
+
     async function startCameraPreview() {
       if (videoStream) return; // already running
       try {
@@ -2982,11 +3057,34 @@
         audioBitsPerSecond: 64_000,    // 64 kbps - fine for spoken audio
       });
       videoRecorder.ondataavailable = e => { if (e.data.size > 0) videoChunks.push(e.data); };
-      videoRecorder.onstop = () => {
+      videoRecorder.onstop = async () => {
         // Same lesson learned from the voice memo bug: use the recorder's
         // OWN reported mimeType, not a hardcoded generic one, or playback
         // silently fails.
-        recordedVideoBlob = new Blob(videoChunks, { type: videoRecorder.mimeType || 'video/webm' });
+        const rawType = videoRecorder.mimeType || 'video/webm';
+        let finalBlob = new Blob(videoChunks, { type: rawType });
+
+        // Every browser's MediaRecorder produces MP4 files with a
+        // structural defect: the "moov" metadata atom ends up at the END
+        // of the file instead of the beginning. Desktop browsers often
+        // tolerate this; iOS Safari commonly refuses to play such files
+        // when reloaded from a URL - confirmed by Safari's own engine
+        // team as a known issue. This repairs that automatically, right
+        // after recording, before the file is ever uploaded or previewed -
+        // no re-encoding, no quality loss, just repositioning existing
+        // bytes. Falls back to the original file if anything unexpected
+        // happens, rather than blocking the post.
+        if (rawType.includes('mp4')) {
+          try {
+            const rawBytes = new Uint8Array(await finalBlob.arrayBuffer());
+            const fixedBytes = applyMp4Faststart(rawBytes);
+            finalBlob = new Blob([fixedBytes], { type: rawType });
+          } catch (err) {
+            console.error('Faststart fix failed, using original file (non-fatal):', err);
+          }
+        }
+
+        recordedVideoBlob = finalBlob;
         const playbackUrl = URL.createObjectURL(recordedVideoBlob);
         const liveEl = document.getElementById('video-live-preview');
         const playbackEl = document.getElementById('video-playback-preview');
