@@ -1469,9 +1469,9 @@
                 
                 <span>Photo</span>
               </button>
-              <button id="fmt-btn-GIF" onclick="setMediaFormat('GIF')" class="media-fmt-btn min-h-touch py-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-white text-sm font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all">
+              <button id="fmt-btn-Video" onclick="setMediaFormat('Video')" class="media-fmt-btn min-h-touch py-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-white text-sm font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all">
                 
-                <span>GIF</span>
+                <span>Video</span>
               </button>
               <button id="fmt-btn-Voice" onclick="setMediaFormat('Voice')" class="media-fmt-btn min-h-touch py-2 bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-white text-sm font-bold rounded-xl flex flex-col items-center justify-center gap-1 transition-all">
                 
@@ -1499,14 +1499,20 @@
             <input type="file" id="composer-photo-input" accept="image/*" class="hidden" onchange="handleComposerPhoto(this)">
           </div>
 
-          <!-- GIF PANE -->
-          <div id="composer-pane-GIF" class="composer-pane space-y-2 hidden">
-            <label class="text-sm text-slate-400 font-medium">Pick a GIF</label>
-            <div class="grid grid-cols-4 gap-1.5">
-              <button onclick="selectGif(this,'🏌️')" class="gif-pick min-h-touch aspect-square bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl text-xl flex items-center justify-center">🏌️</button>
-              <button onclick="selectGif(this,'⛳')" class="gif-pick min-h-touch aspect-square bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl text-xl flex items-center justify-center">⛳</button>
-              <button onclick="selectGif(this,'🔥')" class="gif-pick min-h-touch aspect-square bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl text-xl flex items-center justify-center">🔥</button>
-              <button onclick="selectGif(this,'🏆')" class="gif-pick min-h-touch aspect-square bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl text-xl flex items-center justify-center">🏆</button>
+          <!-- VIDEO PANE -->
+          <div id="composer-pane-Video" class="composer-pane space-y-2 hidden">
+            <p class="text-xs text-[var(--text-muted)]">Up to 25 seconds. Disappears after 30 hours, same as every other post.</p>
+            <div class="relative rounded-xl overflow-hidden bg-black aspect-[9/16] max-h-72 mx-auto">
+              <video id="video-live-preview" autoplay muted playsinline class="w-full h-full object-cover"></video>
+              <video id="video-playback-preview" controls playsinline class="hidden w-full h-full object-cover"></video>
+              <div id="video-rec-timer" class="hidden absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">0:00</div>
+            </div>
+            <div class="flex flex-col items-center gap-2">
+              <button id="video-rec-btn" onclick="toggleVideoRecording()" class="w-16 h-16 rounded-full theme-accent-bg flex items-center justify-center text-xs font-black">REC</button>
+              <div id="video-rec-status" class="text-sm text-[var(--text-muted)]">Tap to start recording</div>
+              <button id="video-rerecord-btn" onclick="reRecordVideo()" class="hidden w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-muted)] text-sm font-bold py-2 rounded-xl border border-[var(--border-subtle)]">
+                Re-record
+              </button>
             </div>
           </div>
 
@@ -2801,13 +2807,16 @@
     function closeComposerModal() {
       document.getElementById('composer-modal').classList.add('hidden');
       if (typeof stopVoiceRecording === 'function') stopVoiceRecording(true);
+      stopCameraPreview();
     }
 
     const POST_EXPIRY_SECONDS = 30 * 3600; // strict 30-hour expiry, every format, no exceptions
+    const MAX_VIDEO_SECONDS = 25; // short clips only - keeps file size (and cost) down, matches Stories-style conventions
     let pendingPhotoDataUrl = null;
-    let selectedGifEmoji = null;
     let voiceRecording = false, voiceSeconds = 0, voiceTimerHandle = null;
     let mediaRecorder = null, recordedChunks = [], recordedAudioDataUrl = null, micStream = null;
+    let videoRecorder = null, videoChunks = [], recordedVideoBlob = null, videoStream = null;
+    let videoRecording = false, videoSeconds = 0, videoTimerHandle = null;
 
     async function toggleVoiceRecording() {
       if (voiceRecording) { stopVoiceRecording(false); return; }
@@ -2885,7 +2894,7 @@
 
     function setMediaFormat(fmt) {
       currentMediaFormat = fmt;
-      ['Text','Photo','GIF','Voice'].forEach(f => {
+      ['Text','Photo','Video','Voice'].forEach(f => {
         const btn = document.getElementById('fmt-btn-' + f);
         const pane = document.getElementById('composer-pane-' + f);
         if (f === fmt) {
@@ -2897,6 +2906,16 @@
         }
       });
       playSfx("E5", "32n");
+
+      // The camera should only ever be active while the Video pane is
+      // actually showing - switching away releases it immediately, both
+      // for battery life and because a lit camera indicator when you're
+      // not using it is a real privacy concern.
+      if (fmt === 'Video') {
+        startCameraPreview();
+      } else {
+        stopCameraPreview();
+      }
     }
 
     function handleComposerPhoto(input) {
@@ -2911,11 +2930,103 @@
       reader.readAsDataURL(input.files[0]);
     }
 
-    function selectGif(el, emoji) {
-      document.querySelectorAll('.gif-pick').forEach(g => g.classList.remove('theme-accent-subtle-bg', 'theme-accent-subtle-border', 'border-2'));
-      el.classList.add('theme-accent-subtle-bg', 'theme-accent-subtle-border', 'border-2');
-      selectedGifEmoji = emoji;
-      playSfx("A5", "32n");
+    // ============================================================
+    // VIDEO RECORDING (Pro Voice) - short clips only, uploaded to
+    // Cloudflare R2 via a short-lived presigned URL (see publishProPost).
+    // ============================================================
+    async function startCameraPreview() {
+      if (videoStream) return; // already running
+      try {
+        videoStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 1280 } }, // portrait, modest resolution - keeps files small
+          audio: true,
+        });
+        document.getElementById('video-live-preview').srcObject = videoStream;
+      } catch (err) {
+        triggerToast('Camera access denied or unavailable.');
+      }
+    }
+
+    function stopCameraPreview() {
+      if (videoRecording) stopVideoRecording(true);
+      if (videoStream) {
+        videoStream.getTracks().forEach(t => t.stop());
+        videoStream = null;
+      }
+    }
+
+    function toggleVideoRecording() {
+      if (videoRecording) { stopVideoRecording(false); return; }
+      if (!videoStream) { triggerToast('Camera not ready yet - try again in a moment.'); return; }
+
+      videoChunks = [];
+      // Explicit bitrate cap - without this, file size varies unpredictably
+      // by device. This keeps every recording close to the same size,
+      // which is what makes the cost projection below airtight rather
+      // than "roughly."
+      videoRecorder = new MediaRecorder(videoStream, {
+        videoBitsPerSecond: 1_500_000, // 1.5 Mbps - plenty for a short mobile clip, small file
+        audioBitsPerSecond: 64_000,    // 64 kbps - fine for spoken audio
+      });
+      videoRecorder.ondataavailable = e => { if (e.data.size > 0) videoChunks.push(e.data); };
+      videoRecorder.onstop = () => {
+        // Same lesson learned from the voice memo bug: use the recorder's
+        // OWN reported mimeType, not a hardcoded generic one, or playback
+        // silently fails.
+        recordedVideoBlob = new Blob(videoChunks, { type: videoRecorder.mimeType || 'video/webm' });
+        const playbackUrl = URL.createObjectURL(recordedVideoBlob);
+        const liveEl = document.getElementById('video-live-preview');
+        const playbackEl = document.getElementById('video-playback-preview');
+        liveEl.classList.add('hidden');
+        playbackEl.src = playbackUrl;
+        playbackEl.classList.remove('hidden');
+        document.getElementById('video-rerecord-btn').classList.remove('hidden');
+        document.getElementById('video-rec-btn').classList.add('hidden');
+      };
+      videoRecorder.start();
+
+      videoRecording = true; videoSeconds = 0;
+      const btn = document.getElementById('video-rec-btn');
+      btn.className = 'w-16 h-16 rounded-full bg-red-600 flex items-center justify-center text-xs font-black text-white animate-pulse';
+      btn.innerText = 'STOP';
+      document.getElementById('video-rec-status').innerText = 'Recording...';
+      const timerEl = document.getElementById('video-rec-timer');
+      timerEl.classList.remove('hidden');
+      timerEl.innerText = '0:00';
+
+      videoTimerHandle = setInterval(() => {
+        videoSeconds++;
+        const m = Math.floor(videoSeconds / 60), s = videoSeconds % 60;
+        timerEl.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+        if (videoSeconds >= MAX_VIDEO_SECONDS) stopVideoRecording(false);
+      }, 1000);
+    }
+
+    function stopVideoRecording(silent) {
+      clearInterval(videoTimerHandle); videoTimerHandle = null;
+      if (videoRecorder && videoRecorder.state !== 'inactive') videoRecorder.stop();
+      videoRecording = false;
+      document.getElementById('video-rec-timer').classList.add('hidden');
+      if (silent) {
+        document.getElementById('video-rec-btn').className = 'w-16 h-16 rounded-full theme-accent-bg flex items-center justify-center text-xs font-black';
+        document.getElementById('video-rec-btn').innerText = 'REC';
+        document.getElementById('video-rec-status').innerText = 'Tap to start recording';
+      } else {
+        document.getElementById('video-rec-status').innerText = `Recorded ${videoSeconds}s - watch it below before posting`;
+      }
+    }
+
+    function reRecordVideo() {
+      recordedVideoBlob = null;
+      document.getElementById('video-playback-preview').classList.add('hidden');
+      document.getElementById('video-playback-preview').src = '';
+      document.getElementById('video-live-preview').classList.remove('hidden');
+      document.getElementById('video-rerecord-btn').classList.add('hidden');
+      document.getElementById('video-rec-btn').classList.remove('hidden');
+      document.getElementById('video-rec-btn').className = 'w-16 h-16 rounded-full theme-accent-bg flex items-center justify-center text-xs font-black';
+      document.getElementById('video-rec-btn').innerText = 'REC';
+      document.getElementById('video-rec-status').innerText = 'Tap to start recording';
+      if (!videoStream) startCameraPreview(); // camera may have been released - restart it for the retake
     }
 
     function setAudience(aud) {
@@ -2937,13 +3048,14 @@
     }
 
     function resetComposerPanes() {
-      pendingPhotoDataUrl = null; selectedGifEmoji = null;
+      pendingPhotoDataUrl = null;
       document.getElementById('photo-preview-img').classList.add('hidden');
       document.getElementById('photo-dropzone').classList.remove('hidden');
-      document.querySelectorAll('.gif-pick').forEach(g => g.classList.remove('theme-accent-subtle-bg', 'theme-accent-subtle-border', 'border-2'));
       stopVoiceRecording(true);
       reRecordVoice();
       document.getElementById('voice-subject-input').value = '';
+      reRecordVideo();
+      stopCameraPreview();
     }
 
     async function publishProPost() {
@@ -2958,7 +3070,35 @@
       let bodyText = currentMediaFormat === 'Text' ? (text || null) : null;
 
       if (currentMediaFormat === 'Photo') mediaUrl = pendingPhotoDataUrl || null;
-      if (currentMediaFormat === 'GIF') mediaUrl = selectedGifEmoji || null;
+
+      if (currentMediaFormat === 'Video') {
+        if (!recordedVideoBlob) {
+          triggerToast('Record a video first, then watch it before posting.');
+          return;
+        }
+        triggerToast('Uploading video...');
+        try {
+          const { data: uploadInfo, error: uploadUrlErr } = await supabaseClient.functions.invoke('get-r2-upload-url', { method: 'POST' });
+          if (uploadUrlErr || !uploadInfo?.uploadUrl) {
+            triggerToast(`Could not prepare upload: ${uploadUrlErr?.message || 'unknown error'}`);
+            return;
+          }
+          const putRes = await fetch(uploadInfo.uploadUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'video/webm' },
+            body: recordedVideoBlob,
+          });
+          if (!putRes.ok) {
+            triggerToast('Video upload failed - please try again.');
+            return;
+          }
+          mediaUrl = uploadInfo.publicUrl;
+        } catch (err) {
+          triggerToast(`Video upload failed: ${err.message}`);
+          return;
+        }
+      }
+
       if (currentMediaFormat === 'Voice') {
         if (!recordedAudioDataUrl) {
           triggerToast('Record a voice memo first, then listen to it before posting.');
@@ -3225,8 +3365,8 @@
         mediaHtml = `<p class="text-xs text-[var(--text-main)] leading-relaxed">"${post.body_text}"</p>`;
       } else if (post.media_type === 'Photo' && post.media_url) {
         mediaHtml = `<img src="${post.media_url}" class="w-full aspect-video object-cover rounded-xl">`;
-      } else if (post.media_type === 'GIF' && post.media_url) {
-        mediaHtml = `<div class="w-full aspect-video bg-[var(--bg-card)] rounded-xl flex items-center justify-center text-5xl">${post.media_url}</div>`;
+      } else if (post.media_type === 'Video' && post.media_url) {
+        mediaHtml = `<video controls playsinline class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${post.media_url}"></video>`;
       } else if (post.media_type === 'Voice' && post.media_url) {
         mediaHtml = buildVoiceMemoHtml(post.body_text || 'Voice memo', post.media_url, `${idPrefix}-voice-${post.post_id}`);
       }
