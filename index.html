@@ -2999,6 +2999,15 @@
         // thumbnail rather than leaving the user stuck waiting.
         const timeoutId = setTimeout(() => resolve(null), 4000);
 
+        const wasMuted = videoEl.muted; // restore whatever it was before, afterward
+
+        const cleanupAndResolve = (result) => {
+          videoEl.pause();
+          videoEl.muted = wasMuted;
+          clearTimeout(timeoutId);
+          resolve(result);
+        };
+
         try {
           const onSeeked = () => {
             try {
@@ -3014,20 +3023,33 @@
               canvas.toBlob((blob) => {
                 capturedVideoThumbnail = blob;
                 videoEl.removeEventListener('seeked', onSeeked);
-                clearTimeout(timeoutId);
-                resolve(capturedVideoThumbnail);
+                cleanupAndResolve(capturedVideoThumbnail);
               }, 'image/jpeg', 0.7);
               return; // resolve happens inside the toBlob callback above
             } catch (err) {
               console.error('Thumbnail capture failed (non-fatal, post still works fine):', err);
             }
             videoEl.removeEventListener('seeked', onSeeked);
-            clearTimeout(timeoutId);
-            resolve(capturedVideoThumbnail);
+            cleanupAndResolve(capturedVideoThumbnail);
           };
-          const onLoadedData = () => {
+          const seekAndCapture = () => {
             videoEl.currentTime = Math.min(0.1, (videoEl.duration || 1) / 2); // a fraction of a second in, not a black opening frame
             videoEl.addEventListener('seeked', onSeeked, { once: true });
+          };
+          const onLoadedData = () => {
+            // Safari commonly won't fully decode a video's frame data -
+            // and drawImage()/seeking can silently fail as a result -
+            // until the video has actually started playing at least
+            // briefly, even if nobody sees it happen. Muting first makes
+            // this play() call allowed without needing a real tap from
+            // the user, satisfying the browser's autoplay rules.
+            videoEl.muted = true;
+            const playPromise = videoEl.play();
+            if (playPromise && typeof playPromise.then === 'function') {
+              playPromise.then(seekAndCapture).catch(seekAndCapture); // proceed either way - some browsers reject play() for reasons unrelated to whether a frame can still be grabbed
+            } else {
+              seekAndCapture();
+            }
             videoEl.removeEventListener('loadeddata', onLoadedData);
           };
           // If the video's metadata is already loaded by the time we get
@@ -3041,8 +3063,7 @@
           }
         } catch (err) {
           console.error('Thumbnail capture setup failed (non-fatal, post still works fine):', err);
-          clearTimeout(timeoutId);
-          resolve(null);
+          cleanupAndResolve(null);
         }
       });
     }
