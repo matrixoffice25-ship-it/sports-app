@@ -1614,8 +1614,8 @@
     // EPIC 0.2 / 0.5: REAL SUPABASE AUTH + SPORT SWITCHER
     // Fill in these two values from Supabase Dashboard > Settings > API
     // ============================================================
-    const SUPABASE_URL = "https://ommgauajjxsswemokuhc.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tbWdhdWFqanhzc3dlbW9rdWhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwNDYzMzQsImV4cCI6MjEwMzYyMjMzNH0.mPTkAHUpPh9sZQEk9YRomiPGkZj15vLD0SDKaO5VD6Y";
+    const SUPABASE_URL = "httpseyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tbWdhdWFqanhzc3dlbW9rdWhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwNDYzMzQsImV4cCI6MjEwMzYyMjMzNH0.mPTkAHUpPh9sZQEk9YRomiPGkZj15vLD0SDKaO5VD6Y://ommgauajjxsswemokuhc.supabase.co";
+    const SUPABASE_ANON_KEY = "";
     // Explicit (not just relying on defaults) so a session only ever ends
     // when signOutUser() is called directly - never silently on its own.
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -3163,6 +3163,7 @@
           // Detailed diagnostic info is captured either way, since the
           // last attempt at this silently failed for an unknown reason.
           window.__lastThumbnailDebug = { hadBlob: !!capturedVideoThumbnail, blobSize: capturedVideoThumbnail?.size, step: 'not started', error: null };
+          console.log('THUMBNAIL SECTION REACHED. hadBlob:', !!capturedVideoThumbnail);
           if (capturedVideoThumbnail) {
             try {
               window.__lastThumbnailDebug.step = 'requesting upload URL';
@@ -3200,7 +3201,7 @@
           if (window.__lastThumbnailDebug.step !== 'success') {
             // Surfaced directly as a toast (not just console) so this is
             // visible on a phone too, without needing DevTools at all.
-            triggerToast(`Thumbnail debug: ${window.__lastThumbnailDebug.step}${window.__lastThumbnailDebug.error ? ' - ' + window.__lastThumbnailDebug.error : ''}${window.__lastThumbnailDebug.putStatus ? ' (status ' + window.__lastThumbnailDebug.putStatus + ')' : ''}`);
+            alert(`Thumbnail debug: ${window.__lastThumbnailDebug.step}${window.__lastThumbnailDebug.error ? ' - ' + window.__lastThumbnailDebug.error : ''}${window.__lastThumbnailDebug.putStatus ? ' (status ' + window.__lastThumbnailDebug.putStatus + ')' : ''}`);
           }
         } catch (err) {
           triggerToast(`Video upload failed: ${err.message}`);
