@@ -3212,14 +3212,49 @@
       loadHomeProVoicePreview();
     }
 
+    // Temporary diagnostic helper - lets a video's direct address be
+    // copied and tested straight in Safari, without needing to dig
+    // through page source to find it.
+    async function copyVideoLinkForTesting(url) {
+      try {
+        await navigator.clipboard.writeText(url);
+        triggerToast('Video link copied! Paste it into Safari\'s address bar.');
+      } catch (err) {
+        // Clipboard access can be blocked in some contexts - show the link
+        // directly so it can still be copied manually either way.
+        prompt('Copy this link manually (Ctrl+C or long-press to copy):', url);
+      }
+    }
+
     async function deleteProPost(postId) {
       if (!confirm('Delete this post permanently? This cannot be undone.')) return;
+
+      // Check what kind of post this is BEFORE deleting it - once the row
+      // is gone, there's no way to know which video file needs cleaning up.
+      const { data: postInfo } = await supabaseClient
+        .from('pro_posts').select('media_type, media_url').eq('post_id', postId).single();
 
       const { error } = await supabaseClient.from('pro_posts').delete().eq('post_id', postId);
       if (error) {
         triggerToast(`Could not delete post: ${error.message}`);
         return;
       }
+
+      // Also delete the actual video file from storage - otherwise it sits
+      // there wasting space forever, since the automatic cleanup only
+      // catches videos that reach their normal 30-hour expiry, not ones
+      // deleted early by hand.
+      if (postInfo?.media_type === 'Video' && postInfo?.media_url) {
+        try {
+          await supabaseClient.functions.invoke('delete-video-from-r2', {
+            method: 'POST',
+            body: { mediaUrl: postInfo.media_url },
+          });
+        } catch (err) {
+          console.error('Could not delete video file from storage (post itself is still removed):', err);
+        }
+      }
+
       triggerToast('Post deleted.');
       loadProFeed();
       loadHomeProVoicePreview();
@@ -3334,7 +3369,11 @@
         // native camera output doesn't carry MediaRecorder's structural
         // defects. preload="metadata" avoids downloading the full video
         // just to show the player.
-        mediaHtml = `<video controls playsinline webkit-playsinline preload="metadata" class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${post.media_url}"></video>`;
+        const adminDebugLink = (currentUser?.role === 'admin')
+          ? `<button onclick="copyVideoLinkForTesting('${post.media_url}')" class="text-xs text-[var(--text-muted)] underline mt-1">Copy video link (for testing)</button>`
+          : '';
+        mediaHtml = `<video controls playsinline webkit-playsinline preload="metadata" class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${post.media_url}"></video>
+        ${adminDebugLink}`;
       } else if (post.media_type === 'Voice' && post.media_url) {
         mediaHtml = buildVoiceMemoHtml(post.body_text || 'Voice memo', post.media_url, `${idPrefix}-voice-${post.post_id}`);
       }
