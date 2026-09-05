@@ -3006,7 +3006,18 @@
               canvas.width = videoEl.videoWidth || 360;
               canvas.height = videoEl.videoHeight || 640;
               canvas.getContext('2d').drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-              capturedVideoThumbnail = canvas.toDataURL('image/jpeg', 0.7);
+              // A real image file (Blob), not an embedded data string -
+              // this gets uploaded through the same storage already
+              // proven reliable on iPhone for the video itself, rather
+              // than relying on a different code path (data URIs) that
+              // has its own history of inconsistent behavior on Safari.
+              canvas.toBlob((blob) => {
+                capturedVideoThumbnail = blob;
+                videoEl.removeEventListener('seeked', onSeeked);
+                clearTimeout(timeoutId);
+                resolve(capturedVideoThumbnail);
+              }, 'image/jpeg', 0.7);
+              return; // resolve happens inside the toBlob callback above
             } catch (err) {
               console.error('Thumbnail capture failed (non-fatal, post still works fine):', err);
             }
@@ -3092,6 +3103,7 @@
 
       let mediaUrl = null;
       let bodyText = currentMediaFormat === 'Text' ? (text || null) : null;
+      let thumbnailUrl = null;
 
       if (currentMediaFormat === 'Photo') {
         mediaUrl = pendingPhotoDataUrl || null;
@@ -3143,6 +3155,29 @@
           if (thumbnailCapturePromise) {
             await thumbnailCapturePromise;
           }
+
+          // Upload the thumbnail through the SAME storage pipeline
+          // already proven reliable on iPhone for the video itself,
+          // rather than embedding it as inline data - if this fails for
+          // any reason, the post still goes through fine without one.
+          if (capturedVideoThumbnail) {
+            try {
+              const { data: thumbUploadInfo } = await supabaseClient.functions.invoke('get-r2-upload-url', {
+                method: 'POST',
+                body: { contentType: 'image/jpeg', extension: 'jpg' },
+              });
+              if (thumbUploadInfo?.uploadUrl) {
+                const thumbPutRes = await fetch(thumbUploadInfo.uploadUrl, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'image/jpeg' },
+                  body: capturedVideoThumbnail,
+                });
+                if (thumbPutRes.ok) thumbnailUrl = thumbUploadInfo.publicUrl;
+              }
+            } catch (err) {
+              console.error('Thumbnail upload failed (non-fatal, video post still works fine):', err);
+            }
+          }
         } catch (err) {
           triggerToast(`Video upload failed: ${err.message}`);
           return;
@@ -3166,7 +3201,7 @@
         media_type: currentMediaFormat,
         media_url: mediaUrl,
         audience: currentAudience === 'Public' ? 'public' : 'inner_circle',
-        thumbnail_url: currentMediaFormat === 'Video' ? capturedVideoThumbnail : null,
+        thumbnail_url: thumbnailUrl,
       });
 
       if (error) {
