@@ -1517,7 +1517,7 @@
             </div>
 
             <div id="video-preview-container" class="hidden relative rounded-xl overflow-hidden bg-black aspect-[9/16] max-h-72 mx-auto">
-              <video id="native-video-player" controls playsinline webkit-playsinline class="w-full h-full object-cover"></video>
+              <video id="native-video-player" controls playsinline webkit-playsinline preload="auto" class="w-full h-full object-cover"></video>
             </div>
 
             <button type="button" id="native-video-reset-btn" onclick="resetNativeVideo()" class="hidden w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-muted)] text-sm font-bold py-2 rounded-xl border border-[var(--border-subtle)]">
@@ -1539,6 +1539,21 @@
                 <button type="button" onclick="reRecordVoice()" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-muted)] text-sm font-bold py-2 rounded-xl border border-[var(--border-subtle)]">
                   Re-record
                 </button>
+              </div>
+            </div>
+
+            <!-- Optional cover thumbnail - purely a still image shown next
+                 to the play button in the feed. Never rendered as a raw
+                 link/URL anywhere; only ever used as an <img src>. -->
+            <div class="space-y-1">
+              <span class="text-sm text-slate-400 font-medium">Cover Thumbnail (optional)</span>
+              <div class="flex items-center gap-3">
+                <div id="voice-thumb-dropzone" onclick="document.getElementById('composer-voice-thumb-input').click()" class="w-14 h-14 flex-shrink-0 rounded-xl border-2 border-dashed border-[var(--border-subtle)] flex items-center justify-center cursor-pointer overflow-hidden">
+                  <span class="text-sm text-[var(--text-muted)]">＋</span>
+                </div>
+                <img id="voice-thumb-preview-img" class="hidden w-14 h-14 flex-shrink-0 rounded-xl object-cover border border-[var(--border-subtle)]">
+                <input type="file" id="composer-voice-thumb-input" accept="image/*" class="hidden" onchange="handleComposerVoiceThumbnail(this)">
+                <button type="button" id="voice-thumb-remove-btn" onclick="clearComposerVoiceThumbnail()" class="hidden text-sm text-[var(--text-muted)] hover:text-red-400 underline min-h-touch">Remove</button>
               </div>
             </div>
           </div>
@@ -2935,6 +2950,32 @@
       reader.readAsDataURL(input.files[0]);
     }
 
+    // Optional cover image for a Voice post. Kept as a File (not a data
+    // URL) so it goes through the same R2 upload pipeline as the video
+    // thumbnail - the resulting hosted image URL is only ever used as an
+    // <img src>/poster attribute, never printed as visible text.
+    let pendingVoiceThumbnailFile = null;
+    function handleComposerVoiceThumbnail(input) {
+      if (!input.files || !input.files[0]) return;
+      pendingVoiceThumbnailFile = input.files[0];
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = document.getElementById('voice-thumb-preview-img');
+        img.src = e.target.result;
+        img.classList.remove('hidden');
+        document.getElementById('voice-thumb-dropzone').classList.add('hidden');
+        document.getElementById('voice-thumb-remove-btn').classList.remove('hidden');
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+    function clearComposerVoiceThumbnail() {
+      pendingVoiceThumbnailFile = null;
+      document.getElementById('composer-voice-thumb-input').value = '';
+      document.getElementById('voice-thumb-preview-img').classList.add('hidden');
+      document.getElementById('voice-thumb-dropzone').classList.remove('hidden');
+      document.getElementById('voice-thumb-remove-btn').classList.add('hidden');
+    }
+
     // ============================================================
     // VIDEO RECORDING (Pro Voice) - uses the phone's NATIVE camera app
     // via the file input "capture" attribute, instead of the browser's
@@ -2956,7 +2997,9 @@
     let nativeVideoFile = null;
     let capturedVideoThumbnail = null; // a small preview image, generated locally - never touches the actual video file or how it's uploaded/served
     let thumbnailCapturePromise = null; // lets publishProPost actually wait for capture to finish, instead of hoping it's done in time
+    let pendingVideoObjectUrl = null; // tracked so it can be revoked instead of leaking memory across selections
     const MAX_VIDEO_FILE_MB = 150; // generous enough for a 25s clip even at 4K
+    const MAX_VIDEO_SECONDS = 25; // matches the "Up to 25 seconds" copy shown in the composer
 
     function handleNativeVideoSelect(input) {
       if (!input.files || !input.files[0]) return;
@@ -2968,11 +3011,30 @@
         return;
       }
 
+      if (pendingVideoObjectUrl) URL.revokeObjectURL(pendingVideoObjectUrl);
       nativeVideoFile = file;
       capturedVideoThumbnail = null;
       const videoUrl = URL.createObjectURL(file);
+      pendingVideoObjectUrl = videoUrl;
       const player = document.getElementById('native-video-player');
+
+      // Muted + preload="auto" is what actually gets mobile Safari to
+      // decode a real frame at all - with only the default preload
+      // ("metadata"), 'loadeddata' never reliably fires and thumbnail
+      // capture silently produces nothing. Unmuted once capture is done
+      // so the user still hears audio if they tap play to preview it.
+      player.muted = true;
+      player.preload = 'auto';
       player.src = videoUrl;
+      player.load();
+
+      const onMeta = () => {
+        if (player.duration && isFinite(player.duration) && player.duration > MAX_VIDEO_SECONDS + 1) {
+          triggerToast(`That video is ${Math.round(player.duration)}s long — please keep clips to ${MAX_VIDEO_SECONDS}s or under.`);
+          resetNativeVideo();
+        }
+      };
+      player.addEventListener('loadedmetadata', onMeta, { once: true });
 
       // Grab a single still frame to use as a preview image later, so
       // viewers see a real scene instead of a black screen before
@@ -2984,7 +3046,10 @@
       // finish, rather than hoping it completes in time - phones are
       // often slower at this than desktops, and posting immediately
       // after selecting a video was outrunning the capture entirely.
-      thumbnailCapturePromise = captureVideoThumbnail(player);
+      thumbnailCapturePromise = captureVideoThumbnail(player).then((blob) => {
+        player.muted = false; // restore normal playback audio for preview
+        return blob;
+      });
 
       document.getElementById('video-placeholder-box').classList.add('hidden');
       document.getElementById('video-preview-container').classList.remove('hidden');
@@ -2994,55 +3059,73 @@
 
     function captureVideoThumbnail(videoEl) {
       return new Promise((resolve) => {
-        // Never let a slow or failed capture block posting - after 4
-        // seconds, give up and let the post go through without a
-        // thumbnail rather than leaving the user stuck waiting.
-        const timeoutId = setTimeout(() => resolve(null), 4000);
+        let settled = false;
+        const timeoutId = setTimeout(() => finish(null), 4000);
 
-        try {
-          const onSeeked = () => {
-            try {
-              const canvas = document.createElement('canvas');
-              canvas.width = videoEl.videoWidth || 360;
-              canvas.height = videoEl.videoHeight || 640;
-              canvas.getContext('2d').drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-              // A real image file (Blob), not an embedded data string -
-              // this gets uploaded through the same storage already
-              // proven reliable on iPhone for the video itself, rather
-              // than relying on a different code path (data URIs) that
-              // has its own history of inconsistent behavior on Safari.
-              canvas.toBlob((blob) => {
-                capturedVideoThumbnail = blob;
-                videoEl.removeEventListener('seeked', onSeeked);
-                clearTimeout(timeoutId);
-                resolve(capturedVideoThumbnail);
-              }, 'image/jpeg', 0.7);
-              return; // resolve happens inside the toBlob callback above
-            } catch (err) {
-              console.error('Thumbnail capture failed (non-fatal, post still works fine):', err);
-            }
-            videoEl.removeEventListener('seeked', onSeeked);
-            clearTimeout(timeoutId);
-            resolve(capturedVideoThumbnail);
-          };
-          const onLoadedData = () => {
+        function cleanup() {
+          clearTimeout(timeoutId);
+          videoEl.removeEventListener('loadeddata', onReady);
+          videoEl.removeEventListener('canplay', onReady);
+          videoEl.removeEventListener('seeked', onSeeked);
+        }
+        function finish(blob) {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          capturedVideoThumbnail = blob || null;
+          resolve(capturedVideoThumbnail);
+        }
+        function grabFrame() {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = videoEl.videoWidth || 360;
+            canvas.height = videoEl.videoHeight || 640;
+            if (!canvas.width || !canvas.height) { finish(null); return; }
+            canvas.getContext('2d').drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+            // A real image file (Blob), not an embedded data string -
+            // this gets uploaded through the same storage already
+            // proven reliable on iPhone for the video itself, rather
+            // than relying on a different code path (data URIs) that
+            // has its own history of inconsistent behavior on Safari.
+            canvas.toBlob((blob) => finish(blob), 'image/jpeg', 0.7);
+          } catch (err) {
+            console.error('Thumbnail capture failed (non-fatal, post still works fine):', err);
+            finish(null);
+          }
+        }
+        function onSeeked() {
+          grabFrame();
+        }
+        function onReady() {
+          videoEl.removeEventListener('loadeddata', onReady);
+          videoEl.removeEventListener('canplay', onReady);
+          try {
             videoEl.currentTime = Math.min(0.1, (videoEl.duration || 1) / 2); // a fraction of a second in, not a black opening frame
             videoEl.addEventListener('seeked', onSeeked, { once: true });
-            videoEl.removeEventListener('loadeddata', onLoadedData);
-          };
-          // If the video's metadata is already loaded by the time we get
+            // Some browsers don't reliably fire 'seeked' for such a tiny
+            // offset - rather than end up with no thumbnail at all, grab
+            // whatever frame is already decoded if 'seeked' hasn't fired
+            // shortly after.
+            setTimeout(() => { if (!settled) grabFrame(); }, 1200);
+          } catch (err) {
+            grabFrame();
+          }
+        }
+
+        try {
+          // If the video's data is already loaded by the time we get
           // here (can happen on fast connections/devices), 'loadeddata'
           // may never fire again - check readyState directly too rather
           // than relying on the event alone.
           if (videoEl.readyState >= 2) {
-            onLoadedData();
+            onReady();
           } else {
-            videoEl.addEventListener('loadeddata', onLoadedData, { once: true });
+            videoEl.addEventListener('loadeddata', onReady, { once: true });
+            videoEl.addEventListener('canplay', onReady, { once: true });
           }
         } catch (err) {
           console.error('Thumbnail capture setup failed (non-fatal, post still works fine):', err);
-          clearTimeout(timeoutId);
-          resolve(null);
+          finish(null);
         }
       });
     }
@@ -3054,7 +3137,12 @@
       const player = document.getElementById('native-video-player');
       if (player) {
         player.pause();
-        player.src = '';
+        player.removeAttribute('src');
+        player.load();
+      }
+      if (pendingVideoObjectUrl) {
+        URL.revokeObjectURL(pendingVideoObjectUrl);
+        pendingVideoObjectUrl = null;
       }
       document.getElementById('composer-video-native-input').value = '';
       document.getElementById('composer-video-library-input').value = '';
@@ -3089,6 +3177,7 @@
       stopVoiceRecording(true);
       reRecordVoice();
       document.getElementById('voice-subject-input').value = '';
+      clearComposerVoiceThumbnail();
       resetNativeVideo();
       document.getElementById('video-subject-input').value = '';
     }
@@ -3198,11 +3287,10 @@
             window.__lastThumbnailDebug.step = 'no thumbnail was captured at all';
           }
           console.log('THUMBNAIL DEBUG:', JSON.stringify(window.__lastThumbnailDebug));
-          if (window.__lastThumbnailDebug.step !== 'success') {
-            // Surfaced directly as a toast (not just console) so this is
-            // visible on a phone too, without needing DevTools at all.
-            alert(`Thumbnail debug: ${window.__lastThumbnailDebug.step}${window.__lastThumbnailDebug.error ? ' - ' + window.__lastThumbnailDebug.error : ''}${window.__lastThumbnailDebug.putStatus ? ' (status ' + window.__lastThumbnailDebug.putStatus + ')' : ''}`);
-          }
+          // No alert() here on purpose - a missing thumbnail is cosmetic
+          // and must never interrupt a successful post with a blocking
+          // dialog. window.__lastThumbnailDebug + the console log above
+          // is enough to diagnose it if it ever happens again.
         } catch (err) {
           triggerToast(`Video upload failed: ${err.message}`);
           return;
@@ -3217,6 +3305,30 @@
         const subject = document.getElementById('voice-subject-input').value.trim();
         mediaUrl = recordedAudioDataUrl;
         if (subject) bodyText = subject; // optional - only set if the user actually typed one
+
+        // Cover thumbnail is optional and purely cosmetic - a failed
+        // upload here must never block the voice memo itself from
+        // posting, so every failure path just leaves thumbnailUrl null.
+        if (pendingVoiceThumbnailFile) {
+          try {
+            const uploadContentType = pendingVoiceThumbnailFile.type || 'image/jpeg';
+            const fileExt = uploadContentType.includes('png') ? 'png' : 'jpg';
+            const { data: thumbUploadInfo, error: thumbUrlErr } = await supabaseClient.functions.invoke('get-r2-upload-url', {
+              method: 'POST',
+              body: { contentType: uploadContentType, extension: fileExt },
+            });
+            if (!thumbUrlErr && thumbUploadInfo?.uploadUrl) {
+              const thumbPutRes = await fetch(thumbUploadInfo.uploadUrl, {
+                method: 'PUT',
+                headers: { 'Content-Type': uploadContentType },
+                body: pendingVoiceThumbnailFile,
+              });
+              if (thumbPutRes.ok) thumbnailUrl = thumbUploadInfo.publicUrl;
+            }
+          } catch (err) {
+            console.error('Voice thumbnail upload failed (non-fatal, voice post still works fine):', err);
+          }
+        }
       }
 
       const { error } = await supabaseClient.from('pro_posts').insert({
@@ -3253,10 +3365,17 @@
 
     // Reusable voice memo player - same play button + subject + animated
     // bars structure everywhere a voice memo appears (feed, Command Center).
-    function buildVoiceMemoHtml(subject, audioUrl, playerId) {
+    function buildVoiceMemoHtml(subject, audioUrl, playerId, thumbnailUrl) {
+      // Thumbnail is rendered strictly as an <img src="...">. If it's
+      // missing or fails to load, the element is just hidden - the raw
+      // URL string is never dropped into the DOM as visible text.
+      const thumbHtml = thumbnailUrl
+        ? `<img src="${thumbnailUrl}" alt="" onerror="this.style.display='none'" class="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-[var(--border-subtle)]">`
+        : '';
       return `
         <div class="bg-[var(--bg-app)] p-3 rounded-xl border border-[var(--border-subtle)] flex items-center justify-between">
           <div class="flex items-center space-x-3">
+            ${thumbHtml}
             <button onclick="event.stopPropagation(); toggleMemoPlayback('${playerId}')" id="${playerId}-btn" class="w-8 h-8 rounded-full bg-violet-accent text-white flex items-center justify-center text-xs hover:scale-105 transition-all flex-shrink-0">▶</button>
             <div>
               <div class="text-xs font-semibold text-[var(--text-main)]">${subject}</div>
@@ -3507,7 +3626,7 @@
         const posterAttr = post.thumbnail_url ? `poster="${post.thumbnail_url}"` : '';
         mediaHtml = `${videoCaption}<video controls playsinline webkit-playsinline preload="metadata" ${posterAttr} class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${post.media_url}"></video>`;
       } else if (post.media_type === 'Voice' && post.media_url) {
-        mediaHtml = buildVoiceMemoHtml(post.body_text || 'Voice memo', post.media_url, `${idPrefix}-voice-${post.post_id}`);
+        mediaHtml = buildVoiceMemoHtml(post.body_text || 'Voice memo', post.media_url, `${idPrefix}-voice-${post.post_id}`, post.thumbnail_url);
       }
 
       const reactionButtons = REACTION_EMOJIS.map(emoji => {
