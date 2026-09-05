@@ -2954,6 +2954,7 @@
     // ============================================================
 
     let nativeVideoFile = null;
+    let capturedVideoThumbnail = null; // a small preview image, generated locally - never touches the actual video file or how it's uploaded/served
     const MAX_VIDEO_FILE_MB = 150; // generous enough for a 25s clip even at 4K
 
     function handleNativeVideoSelect(input) {
@@ -2967,9 +2968,18 @@
       }
 
       nativeVideoFile = file;
+      capturedVideoThumbnail = null;
       const videoUrl = URL.createObjectURL(file);
       const player = document.getElementById('native-video-player');
       player.src = videoUrl;
+
+      // Grab a single still frame to use as a preview image later, so
+      // viewers see a real scene instead of a black screen before
+      // tapping play. This never touches the actual video file, its
+      // upload, or its playback - if anything here fails for any
+      // reason, it's caught silently and the post still goes through
+      // exactly as it did before, just without a preview thumbnail.
+      captureVideoThumbnail(player);
 
       document.getElementById('video-placeholder-box').classList.add('hidden');
       document.getElementById('video-preview-container').classList.remove('hidden');
@@ -2977,8 +2987,34 @@
       triggerToast('Video loaded! Ready to broadcast 🎬');
     }
 
+    function captureVideoThumbnail(videoEl) {
+      try {
+        const onSeeked = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = videoEl.videoWidth || 360;
+            canvas.height = videoEl.videoHeight || 640;
+            canvas.getContext('2d').drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+            capturedVideoThumbnail = canvas.toDataURL('image/jpeg', 0.7);
+          } catch (err) {
+            console.error('Thumbnail capture failed (non-fatal, post still works fine):', err);
+          }
+          videoEl.removeEventListener('seeked', onSeeked);
+        };
+        const onLoadedData = () => {
+          videoEl.currentTime = Math.min(0.1, (videoEl.duration || 1) / 2); // a fraction of a second in, not a black opening frame
+          videoEl.addEventListener('seeked', onSeeked, { once: true });
+          videoEl.removeEventListener('loadeddata', onLoadedData);
+        };
+        videoEl.addEventListener('loadeddata', onLoadedData, { once: true });
+      } catch (err) {
+        console.error('Thumbnail capture setup failed (non-fatal, post still works fine):', err);
+      }
+    }
+
     function resetNativeVideo() {
       nativeVideoFile = null;
+      capturedVideoThumbnail = null;
       const player = document.getElementById('native-video-player');
       if (player) {
         player.pause();
@@ -3097,6 +3133,7 @@
         media_type: currentMediaFormat,
         media_url: mediaUrl,
         audience: currentAudience === 'Public' ? 'public' : 'inner_circle',
+        thumbnail_url: currentMediaFormat === 'Video' ? capturedVideoThumbnail : null,
       });
 
       if (error) {
@@ -3183,7 +3220,7 @@
 
       const { data: posts, error } = await supabaseClient
         .from('pro_posts')
-        .select('post_id, author_id, body_text, media_type, media_url, audience, posted_at, expires_at')
+        .select('post_id, author_id, body_text, media_type, media_url, thumbnail_url, audience, posted_at, expires_at')
         .eq('sport_id', currentSportId)
         .order('posted_at', { ascending: false })
         .limit(3);
@@ -3312,7 +3349,7 @@
 
       const { data: posts, error } = await supabaseClient
         .from('pro_posts')
-        .select('post_id, author_id, body_text, media_type, media_url, audience, posted_at, expires_at')
+        .select('post_id, author_id, body_text, media_type, media_url, thumbnail_url, audience, posted_at, expires_at')
         .eq('sport_id', currentSportId)
         .order('posted_at', { ascending: false });
 
@@ -3370,7 +3407,8 @@
         // request support, which iOS specifically requires to play video
         // at all. Video comes from the phone's native camera app.
         const videoCaption = post.body_text ? `<p class="text-xs font-bold text-[var(--text-main)] mb-2">${post.body_text}</p>` : '';
-        mediaHtml = `${videoCaption}<video controls playsinline webkit-playsinline preload="metadata" class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${post.media_url}"></video>`;
+        const posterAttr = post.thumbnail_url ? `poster="${post.thumbnail_url}"` : '';
+        mediaHtml = `${videoCaption}<video controls playsinline webkit-playsinline preload="metadata" ${posterAttr} class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${post.media_url}"></video>`;
       } else if (post.media_type === 'Voice' && post.media_url) {
         mediaHtml = buildVoiceMemoHtml(post.body_text || 'Voice memo', post.media_url, `${idPrefix}-voice-${post.post_id}`);
       }
