@@ -3362,13 +3362,15 @@
       if (post.media_type === 'Text' && post.body_text) {
         mediaHtml = `<p class="text-xs text-[var(--text-main)] leading-relaxed">"${post.body_text}"</p>`;
       } else if (post.media_type === 'Photo' && post.media_url) {
-        mediaHtml = `<img src="${post.media_url}" class="w-full aspect-video object-cover rounded-xl">`;
+        const photoCaption = post.body_text ? `<p class="text-xs font-bold text-[var(--text-main)] mb-2">${post.body_text}</p>` : '';
+        mediaHtml = `${photoCaption}<img src="${post.media_url}" class="w-full aspect-video object-cover rounded-xl">`;
       } else if (post.media_type === 'Video' && post.media_url) {
         // post.media_url stores the direct R2 public URL, served through
         // a Cloudflare Worker (not the raw R2 URL) for proper Range
         // request support, which iOS specifically requires to play video
         // at all. Video comes from the phone's native camera app.
-        mediaHtml = `<video controls playsinline webkit-playsinline preload="metadata" class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${post.media_url}"></video>`;
+        const videoCaption = post.body_text ? `<p class="text-xs font-bold text-[var(--text-main)] mb-2">${post.body_text}</p>` : '';
+        mediaHtml = `${videoCaption}<video controls playsinline webkit-playsinline preload="metadata" class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${post.media_url}"></video>`;
       } else if (post.media_type === 'Voice' && post.media_url) {
         mediaHtml = buildVoiceMemoHtml(post.body_text || 'Voice memo', post.media_url, `${idPrefix}-voice-${post.post_id}`);
       }
