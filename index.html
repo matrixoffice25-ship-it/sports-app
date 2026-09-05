@@ -834,7 +834,7 @@
           <p class="text-sm text-[var(--text-muted)] text-center py-6">Loading broadcasts...</p>
         </div>
 
-        <button onclick="handleComposerButtonClick()" class="fixed bottom-24 right-6 md:absolute md:bottom-24 md:right-6 w-14 h-14 rounded-full bg-gradient-to-tr from-violet-accent to-purple-600 text-white shadow-2xl border-2 border-white/20 flex items-center justify-center text-xl hover:scale-110 active:scale-95 transition-all z-30 shadow-violet-500/30" title="Compose Broadcast">✎</button>
+        <button onclick="handleComposerButtonClick()" class="fixed top-1/2 -translate-y-1/2 right-4 w-14 h-14 rounded-full bg-gradient-to-tr from-violet-accent to-purple-600 text-white shadow-2xl border-2 border-white/20 flex items-center justify-center text-xl hover:scale-110 active:scale-95 transition-all z-30 shadow-violet-500/30" title="Compose Broadcast">✎</button>
 
       </section>
 
@@ -1497,6 +1497,7 @@
             </div>
             <img id="photo-preview-img" class="hidden w-full aspect-video object-cover rounded-xl">
             <input type="file" id="composer-photo-input" accept="image/*" class="hidden" onchange="handleComposerPhoto(this)">
+            <input type="text" id="photo-subject-input" maxlength="60" placeholder="Subject (optional)" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
           </div>
 
           <!-- VIDEO PANE -->
@@ -1522,11 +1523,12 @@
             <button type="button" id="native-video-reset-btn" onclick="resetNativeVideo()" class="hidden w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-muted)] text-sm font-bold py-2 rounded-xl border border-[var(--border-subtle)]">
               Retake Video
             </button>
+            <input type="text" id="video-subject-input" maxlength="60" placeholder="Subject (optional)" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
           </div>
 
           <!-- VOICE PANE -->
           <div id="composer-pane-Voice" class="composer-pane space-y-2 hidden">
-            <input type="text" id="voice-subject-input" maxlength="60" placeholder="Subject, e.g. Ground Pressure Tip: Trail Heel Load" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
+            <input type="text" id="voice-subject-input" maxlength="60" placeholder="Subject (optional)" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
             <div class="flex flex-col items-center gap-3 py-3">
               <button id="voice-rec-btn" onclick="toggleVoiceRecording()" class="w-16 h-16 rounded-full theme-accent-bg flex items-center justify-center text-xs font-black">REC</button>
               <div id="voice-rec-timer" class="text-sm font-mono text-[var(--text-muted)]">Tap to record — 30s max</div>
@@ -3011,10 +3013,12 @@
       pendingPhotoDataUrl = null;
       document.getElementById('photo-preview-img').classList.add('hidden');
       document.getElementById('photo-dropzone').classList.remove('hidden');
+      document.getElementById('photo-subject-input').value = '';
       stopVoiceRecording(true);
       reRecordVoice();
       document.getElementById('voice-subject-input').value = '';
       resetNativeVideo();
+      document.getElementById('video-subject-input').value = '';
     }
 
     async function publishProPost() {
@@ -3028,7 +3032,11 @@
       let mediaUrl = null;
       let bodyText = currentMediaFormat === 'Text' ? (text || null) : null;
 
-      if (currentMediaFormat === 'Photo') mediaUrl = pendingPhotoDataUrl || null;
+      if (currentMediaFormat === 'Photo') {
+        mediaUrl = pendingPhotoDataUrl || null;
+        const photoSubject = document.getElementById('photo-subject-input').value.trim();
+        if (photoSubject) bodyText = photoSubject; // optional - only set if the user actually typed one
+      }
 
       if (currentMediaFormat === 'Video') {
         if (!nativeVideoFile) {
@@ -3064,6 +3072,8 @@
             return;
           }
           mediaUrl = uploadInfo.publicUrl;
+          const videoSubject = document.getElementById('video-subject-input').value.trim();
+          if (videoSubject) bodyText = videoSubject; // optional - only set if the user actually typed one
         } catch (err) {
           triggerToast(`Video upload failed: ${err.message}`);
           return;
@@ -3076,12 +3086,8 @@
           return;
         }
         const subject = document.getElementById('voice-subject-input').value.trim();
-        if (!subject) {
-          triggerToast('Add a subject for your voice memo before posting.');
-          return;
-        }
         mediaUrl = recordedAudioDataUrl;
-        bodyText = subject;
+        if (subject) bodyText = subject; // optional - only set if the user actually typed one
       }
 
       const { error } = await supabaseClient.from('pro_posts').insert({
