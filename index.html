@@ -3160,23 +3160,47 @@
           // already proven reliable on iPhone for the video itself,
           // rather than embedding it as inline data - if this fails for
           // any reason, the post still goes through fine without one.
+          // Detailed diagnostic info is captured either way, since the
+          // last attempt at this silently failed for an unknown reason.
+          window.__lastThumbnailDebug = { hadBlob: !!capturedVideoThumbnail, blobSize: capturedVideoThumbnail?.size, step: 'not started', error: null };
           if (capturedVideoThumbnail) {
             try {
-              const { data: thumbUploadInfo } = await supabaseClient.functions.invoke('get-r2-upload-url', {
+              window.__lastThumbnailDebug.step = 'requesting upload URL';
+              const { data: thumbUploadInfo, error: thumbUrlErr } = await supabaseClient.functions.invoke('get-r2-upload-url', {
                 method: 'POST',
                 body: { contentType: 'image/jpeg', extension: 'jpg' },
               });
+              window.__lastThumbnailDebug.uploadUrlError = thumbUrlErr?.message || null;
               if (thumbUploadInfo?.uploadUrl) {
+                window.__lastThumbnailDebug.step = 'uploading to R2';
                 const thumbPutRes = await fetch(thumbUploadInfo.uploadUrl, {
                   method: 'PUT',
                   headers: { 'Content-Type': 'image/jpeg' },
                   body: capturedVideoThumbnail,
                 });
-                if (thumbPutRes.ok) thumbnailUrl = thumbUploadInfo.publicUrl;
+                window.__lastThumbnailDebug.putStatus = thumbPutRes.status;
+                if (thumbPutRes.ok) {
+                  thumbnailUrl = thumbUploadInfo.publicUrl;
+                  window.__lastThumbnailDebug.step = 'success';
+                } else {
+                  window.__lastThumbnailDebug.step = 'PUT failed';
+                }
+              } else {
+                window.__lastThumbnailDebug.step = 'no uploadUrl returned';
               }
             } catch (err) {
+              window.__lastThumbnailDebug.step = 'exception';
+              window.__lastThumbnailDebug.error = err.message;
               console.error('Thumbnail upload failed (non-fatal, video post still works fine):', err);
             }
+          } else {
+            window.__lastThumbnailDebug.step = 'no thumbnail was captured at all';
+          }
+          console.log('THUMBNAIL DEBUG:', JSON.stringify(window.__lastThumbnailDebug));
+          if (window.__lastThumbnailDebug.step !== 'success') {
+            // Surfaced directly as a toast (not just console) so this is
+            // visible on a phone too, without needing DevTools at all.
+            triggerToast(`Thumbnail debug: ${window.__lastThumbnailDebug.step}${window.__lastThumbnailDebug.error ? ' - ' + window.__lastThumbnailDebug.error : ''}${window.__lastThumbnailDebug.putStatus ? ' (status ' + window.__lastThumbnailDebug.putStatus + ')' : ''}`);
           }
         } catch (err) {
           triggerToast(`Video upload failed: ${err.message}`);
