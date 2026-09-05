@@ -2955,6 +2955,7 @@
 
     let nativeVideoFile = null;
     let capturedVideoThumbnail = null; // a small preview image, generated locally - never touches the actual video file or how it's uploaded/served
+    let thumbnailCapturePromise = null; // lets publishProPost actually wait for capture to finish, instead of hoping it's done in time
     const MAX_VIDEO_FILE_MB = 150; // generous enough for a 25s clip even at 4K
 
     function handleNativeVideoSelect(input) {
@@ -2979,7 +2980,11 @@
       // upload, or its playback - if anything here fails for any
       // reason, it's caught silently and the post still goes through
       // exactly as it did before, just without a preview thumbnail.
-      captureVideoThumbnail(player);
+      // Stored as a promise so publishing can actually wait for this to
+      // finish, rather than hoping it completes in time - phones are
+      // often slower at this than desktops, and posting immediately
+      // after selecting a video was outrunning the capture entirely.
+      thumbnailCapturePromise = captureVideoThumbnail(player);
 
       document.getElementById('video-placeholder-box').classList.add('hidden');
       document.getElementById('video-preview-container').classList.remove('hidden');
@@ -2988,33 +2993,53 @@
     }
 
     function captureVideoThumbnail(videoEl) {
-      try {
-        const onSeeked = () => {
-          try {
-            const canvas = document.createElement('canvas');
-            canvas.width = videoEl.videoWidth || 360;
-            canvas.height = videoEl.videoHeight || 640;
-            canvas.getContext('2d').drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-            capturedVideoThumbnail = canvas.toDataURL('image/jpeg', 0.7);
-          } catch (err) {
-            console.error('Thumbnail capture failed (non-fatal, post still works fine):', err);
+      return new Promise((resolve) => {
+        // Never let a slow or failed capture block posting - after 4
+        // seconds, give up and let the post go through without a
+        // thumbnail rather than leaving the user stuck waiting.
+        const timeoutId = setTimeout(() => resolve(null), 4000);
+
+        try {
+          const onSeeked = () => {
+            try {
+              const canvas = document.createElement('canvas');
+              canvas.width = videoEl.videoWidth || 360;
+              canvas.height = videoEl.videoHeight || 640;
+              canvas.getContext('2d').drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+              capturedVideoThumbnail = canvas.toDataURL('image/jpeg', 0.7);
+            } catch (err) {
+              console.error('Thumbnail capture failed (non-fatal, post still works fine):', err);
+            }
+            videoEl.removeEventListener('seeked', onSeeked);
+            clearTimeout(timeoutId);
+            resolve(capturedVideoThumbnail);
+          };
+          const onLoadedData = () => {
+            videoEl.currentTime = Math.min(0.1, (videoEl.duration || 1) / 2); // a fraction of a second in, not a black opening frame
+            videoEl.addEventListener('seeked', onSeeked, { once: true });
+            videoEl.removeEventListener('loadeddata', onLoadedData);
+          };
+          // If the video's metadata is already loaded by the time we get
+          // here (can happen on fast connections/devices), 'loadeddata'
+          // may never fire again - check readyState directly too rather
+          // than relying on the event alone.
+          if (videoEl.readyState >= 2) {
+            onLoadedData();
+          } else {
+            videoEl.addEventListener('loadeddata', onLoadedData, { once: true });
           }
-          videoEl.removeEventListener('seeked', onSeeked);
-        };
-        const onLoadedData = () => {
-          videoEl.currentTime = Math.min(0.1, (videoEl.duration || 1) / 2); // a fraction of a second in, not a black opening frame
-          videoEl.addEventListener('seeked', onSeeked, { once: true });
-          videoEl.removeEventListener('loadeddata', onLoadedData);
-        };
-        videoEl.addEventListener('loadeddata', onLoadedData, { once: true });
-      } catch (err) {
-        console.error('Thumbnail capture setup failed (non-fatal, post still works fine):', err);
-      }
+        } catch (err) {
+          console.error('Thumbnail capture setup failed (non-fatal, post still works fine):', err);
+          clearTimeout(timeoutId);
+          resolve(null);
+        }
+      });
     }
 
     function resetNativeVideo() {
       nativeVideoFile = null;
       capturedVideoThumbnail = null;
+      thumbnailCapturePromise = null;
       const player = document.getElementById('native-video-player');
       if (player) {
         player.pause();
@@ -3110,6 +3135,14 @@
           mediaUrl = uploadInfo.publicUrl;
           const videoSubject = document.getElementById('video-subject-input').value.trim();
           if (videoSubject) bodyText = videoSubject; // optional - only set if the user actually typed one
+
+          // Actually wait for the thumbnail to finish capturing (bounded
+          // to 4 seconds max) rather than reading whatever happens to be
+          // there yet - phones are often slower at this than desktops,
+          // which is why the thumbnail worked on one but not the other.
+          if (thumbnailCapturePromise) {
+            await thumbnailCapturePromise;
+          }
         } catch (err) {
           triggerToast(`Video upload failed: ${err.message}`);
           return;
