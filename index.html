@@ -1857,8 +1857,8 @@
       if (!pollContent) return;
 
       const { data: { session } } = await supabaseClient.auth.getSession();
-      if (!session || !currentSportId) {
-        pollContent.innerHTML = '<p class="text-sm text-[var(--text-muted)]">Log in and select a sport to vote in polls.</p>';
+      if (!currentSportId) {
+        pollContent.innerHTML = '<p class="text-sm text-[var(--text-muted)]">Select a sport to see its poll.</p>';
         return;
       }
 
@@ -1876,12 +1876,17 @@
         return;
       }
 
-      const { data: myVote } = await supabaseClient
-        .from('poll_votes')
-        .select('option_id')
-        .eq('poll_id', poll.poll_id)
-        .eq('user_id', session.user.id)
-        .maybeSingle();
+      // Guests browsing without an account have no vote to look up -
+      // skip straight to showing votable options, without erroring on a
+      // missing session.
+      const myVote = session
+        ? (await supabaseClient
+            .from('poll_votes')
+            .select('option_id')
+            .eq('poll_id', poll.poll_id)
+            .eq('user_id', session.user.id)
+            .maybeSingle()).data
+        : null;
 
       const sortedOptions = (poll.poll_options || []).slice().sort((a, b) => a.sort_order - b.sort_order);
 
@@ -1910,6 +1915,9 @@
           <p class="text-xs text-[var(--text-muted)] mt-1">${total} vote${total === 1 ? '' : 's'} total</p>
         `;
       } else {
+        // Logged-out guests see the same question and options as everyone
+        // else - tapping one prompts them to log in, rather than the poll
+        // being hidden from them entirely beforehand.
         pollContent.innerHTML = `
           <p class="text-sm font-bold text-[var(--text-main)]">${poll.question}</p>
           ${sortedOptions.map(o => `
@@ -1917,13 +1925,14 @@
               ${o.label}
             </button>
           `).join('')}
+          ${!session ? '<p class="text-xs text-[var(--text-muted)] mt-1">Log in to vote</p>' : ''}
         `;
       }
     }
 
     async function voteInPoll(pollId, optionId) {
       const { data: { session } } = await supabaseClient.auth.getSession();
-      if (!session) return;
+      if (!session) { triggerToast('Please log in to vote.'); return; }
 
       const { error } = await supabaseClient.from('poll_votes').insert({
         poll_id: pollId, option_id: optionId, user_id: session.user.id,
@@ -3212,20 +3221,6 @@
       loadHomeProVoicePreview();
     }
 
-    // Temporary diagnostic helper - lets a video's direct address be
-    // copied and tested straight in Safari, without needing to dig
-    // through page source to find it.
-    async function copyVideoLinkForTesting(url) {
-      try {
-        await navigator.clipboard.writeText(url);
-        triggerToast('Video link copied! Paste it into Safari\'s address bar.');
-      } catch (err) {
-        // Clipboard access can be blocked in some contexts - show the link
-        // directly so it can still be copied manually either way.
-        prompt('Copy this link manually (Ctrl+C or long-press to copy):', url);
-      }
-    }
-
     async function deleteProPost(postId) {
       if (!confirm('Delete this post permanently? This cannot be undone.')) return;
 
@@ -3363,17 +3358,11 @@
       } else if (post.media_type === 'Photo' && post.media_url) {
         mediaHtml = `<img src="${post.media_url}" class="w-full aspect-video object-cover rounded-xl">`;
       } else if (post.media_type === 'Video' && post.media_url) {
-        // post.media_url stores the direct R2 public URL. Video now comes
-        // from the phone's native camera app (not the browser's
-        // MediaRecorder), which is what actually addresses iOS playback -
-        // native camera output doesn't carry MediaRecorder's structural
-        // defects. preload="metadata" avoids downloading the full video
-        // just to show the player.
-        const adminDebugLink = (currentUser?.role === 'admin')
-          ? `<button onclick="copyVideoLinkForTesting('${post.media_url}')" class="text-xs text-[var(--text-muted)] underline mt-1">Copy video link (for testing)</button>`
-          : '';
-        mediaHtml = `<video controls playsinline webkit-playsinline preload="metadata" class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${post.media_url}"></video>
-        ${adminDebugLink}`;
+        // post.media_url stores the direct R2 public URL, served through
+        // a Cloudflare Worker (not the raw R2 URL) for proper Range
+        // request support, which iOS specifically requires to play video
+        // at all. Video comes from the phone's native camera app.
+        mediaHtml = `<video controls playsinline webkit-playsinline preload="metadata" class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${post.media_url}"></video>`;
       } else if (post.media_type === 'Voice' && post.media_url) {
         mediaHtml = buildVoiceMemoHtml(post.body_text || 'Voice memo', post.media_url, `${idPrefix}-voice-${post.post_id}`);
       }
@@ -3458,7 +3447,11 @@
 
       if (error) { triggerToast(`Reaction failed: ${error.message}`); return; }
       playSfx("A4", "16n");
+      // Refresh BOTH places a post can appear - reacting from the Command
+      // Center preview was silently succeeding in the database but never
+      // visibly updating, since only the full feed was being refreshed.
       loadProFeed();
+      loadHomeProVoicePreview();
     }
 
     function openStoreKitSheet() {
