@@ -3474,16 +3474,13 @@
         // a Cloudflare Worker (not the raw R2 URL) for proper Range
         // request support, which iOS specifically requires to play video
         // at all. Video comes from the phone's native camera app.
+        // Thumbnail is a real hosted image (also served through the
+        // Worker), which correctly derives its Content-Type from the
+        // file extension - confirmed fixed after the Worker previously
+        // defaulted unrecognized files to video/mp4, mislabeling images.
         const videoCaption = post.body_text ? `<p class="text-xs font-bold text-[var(--text-main)] mb-2">${post.body_text}</p>` : '';
         const posterAttr = post.thumbnail_url ? `poster="${post.thumbnail_url}"` : '';
-        // TEMPORARY debug helper (admin-only) - shows the exact thumbnail
-        // address as plain, selectable text, since right-clicking a
-        // video's poster doesn't give you its address the way right-
-        // clicking a normal image does.
-        const thumbnailDebugText = (currentUser?.role === 'admin')
-          ? `<p class="text-xs text-[var(--text-muted)] mt-1 break-all select-all">Thumbnail URL: ${post.thumbnail_url || '(none set)'}</p>`
-          : '';
-        mediaHtml = `${videoCaption}<video controls playsinline webkit-playsinline preload="metadata" ${posterAttr} class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${post.media_url}"></video>${thumbnailDebugText}`;
+        mediaHtml = `${videoCaption}<video controls playsinline webkit-playsinline preload="metadata" ${posterAttr} class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${post.media_url}"></video>`;
       } else if (post.media_type === 'Voice' && post.media_url) {
         mediaHtml = buildVoiceMemoHtml(post.body_text || 'Voice memo', post.media_url, `${idPrefix}-voice-${post.post_id}`);
       }
