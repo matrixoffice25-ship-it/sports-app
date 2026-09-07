@@ -512,6 +512,8 @@
                has is_cover_story = true for the current sport -->
         </div>
 
+        <div id="sponsor-banner-news-inline"></div>
+
         <div class="space-y-2">
           <h3 class="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider">All News Briefs</h3>
           <div id="news-tab-briefs-list" class="space-y-2">
@@ -1268,11 +1270,6 @@
             <span>Edit Credentials / Title</span>
           </button>
 
-          <div class="flex items-center justify-center gap-4 pt-2 text-sm">
-            <a href="https://sports-app-psi.vercel.app/terms.html" target="_blank" rel="noopener noreferrer" class="text-[var(--text-muted)] underline hover:text-[var(--text-main)]">Terms of Service</a>
-            <a href="https://sports-app-psi.vercel.app/privacy.html" target="_blank" rel="noopener noreferrer" class="text-[var(--text-muted)] underline hover:text-[var(--text-main)]">Privacy Policy</a>
-          </div>
-
           <div class="pt-2 border-t border-[var(--border-subtle)]">
             <button type="button" id="delete-account-toggle" onclick="toggleDeleteAccountPanel()" class="text-xs text-red-400/70 hover:text-red-400 underline min-h-touch">
               Delete my account
@@ -1952,6 +1949,7 @@
     const SPONSOR_PLACEMENT_DEFS = [
       { key: 'global_banner', kind: 'banner', variant: 'strip', label: 'Top Global Sponsor Strip (every screen)' },
       { key: 'news_header_badge', kind: 'badge', variant: 'stacked', label: 'News — Magazine header badge' },
+      { key: 'news_inline_banner', kind: 'banner', label: 'News — banner between Cover Story and Briefs' },
       { key: 'stream_header_badge', kind: 'badge', variant: 'pill', label: 'Pro Voice Stream — header badge' },
       { key: 'polls_header_badge', kind: 'badge', variant: 'pill', label: 'Home — Community Poll card badge' },
       { key: 'multisport_badge', kind: 'badge', variant: 'pill', label: 'Multi-Sport tab — header badge' },
@@ -2138,6 +2136,7 @@
       await Promise.all([
         renderSponsorBanner('global_banner', 'sponsor-banner-global'),
         renderSponsorBadge('news_header_badge', 'sponsor-badge-news'),
+        renderSponsorBanner('news_inline_banner', 'sponsor-banner-news-inline'),
         renderSponsorBadge('stream_header_badge', 'sponsor-badge-stream'),
         renderSponsorBadge('polls_header_badge', 'sponsor-badge-polls'),
         renderSponsorBadge('multisport_badge', 'sponsor-badge-multisport'),
@@ -2281,26 +2280,48 @@
 
     // Shared by both the capped Home preview and the full News tab list,
     // so a brief always looks and behaves identically wherever it shows.
+    function truncateForPreview(text, maxLength) {
+      if (!text || text.length <= maxLength) return text;
+      return text.slice(0, maxLength).trim() + '…';
+    }
+
+    const BRIEF_TRUNCATE_LENGTH = 90; // roughly 2 lines - short briefs never get touched by this at all
+    let briefBodyCache = {}; // avoids stuffing full text into HTML attributes just to toggle it back
+
     function renderBriefCardsInto(container, briefs) {
       container.innerHTML = '';
       briefs.forEach(brief => {
         const item = document.createElement('div');
-        // A brief is short enough to show in full right here already -
-        // no "read more"/detail view needed, that's the whole point of
-        // it being a brief rather than an article. Only clickable when
-        // there's a real source link to send the reader to.
+        // A brief is short enough to show in full right here already in
+        // MOST cases - only genuinely long ones get a Show more/less
+        // toggle, so this never adds clutter to the common short case.
         const hasSource = !!brief.source_url;
         item.className = `bg-[var(--bg-card)] p-2.5 rounded-xl border border-[var(--border-subtle)] hover:border-[var(--accent-main)] transition-colors${hasSource ? ' cursor-pointer' : ''}`;
         if (hasSource) item.onclick = () => window.open(brief.source_url, '_blank', 'noopener,noreferrer');
+
+        const isLong = brief.body.length > BRIEF_TRUNCATE_LENGTH;
+        const truncated = isLong ? brief.body.slice(0, BRIEF_TRUNCATE_LENGTH).trim() + '…' : brief.body;
+        briefBodyCache[brief.brief_id] = brief.body;
+
         item.innerHTML = `
           <div class="text-xs font-bold text-[var(--text-main)] flex items-center gap-2">
             <span class="w-1.5 h-1.5 rounded-full theme-accent-bg flex-shrink-0"></span>
             <span>${escapeHtml(brief.title)}</span>
           </div>
-          <p class="text-sm text-[var(--text-muted)] mt-1 pl-3">${escapeHtml(brief.body)}</p>
+          <p class="text-sm text-[var(--text-muted)] mt-1 pl-3" id="brief-body-${brief.brief_id}">${escapeHtml(truncated)}</p>
+          ${isLong ? `<button onclick="event.stopPropagation(); toggleBriefExpand('${brief.brief_id}', this)" class="text-xs font-bold theme-accent-text pl-3 mt-0.5">Show more</button>` : ''}
         `;
         container.appendChild(item);
       });
+    }
+
+    function toggleBriefExpand(briefId, btn) {
+      const el = document.getElementById(`brief-body-${briefId}`);
+      const expanded = btn.textContent === 'Show less';
+      el.textContent = expanded
+        ? briefBodyCache[briefId].slice(0, BRIEF_TRUNCATE_LENGTH).trim() + '…'
+        : briefBodyCache[briefId];
+      btn.textContent = expanded ? 'Show more' : 'Show less';
     }
 
     async function loadNewsBriefs() {
@@ -2419,12 +2440,12 @@
             <div class="flex items-center justify-between text-sm text-[var(--text-muted)] border-b border-[var(--border-subtle)] pb-2">
               <span class="flex items-center gap-1.5">
                 ${cover.author_photo_url ? `<img src="${cover.author_photo_url}" alt="" onerror="this.style.display='none'" class="w-4 h-4 rounded-full object-cover">` : ''}
-                <span>By ${escapeHtml(cover.author_name)}</span>
+                ${cover.author_name ? `<span>By ${escapeHtml(cover.author_name)}</span>` : ''}
               </span>
               <span>${cover.read_minutes ? cover.read_minutes + ' Min Read • ' : ''}${new Date(cover.published_at).toLocaleDateString()}</span>
             </div>
-            <p class="text-xs text-[var(--text-main)] leading-relaxed">${escapeHtml(cover.dek || '')}</p>
-            <button class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] font-bold text-xs py-2.5 rounded-xl border border-[var(--border-subtle)]">Read Full Magazine Article</button>
+            <p class="text-xs text-[var(--text-main)] leading-relaxed">${escapeHtml(truncateForPreview(cover.dek || '', 140))}</p>
+            <button onclick="openArticleDetailById('${cover.article_id}')" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] font-bold text-xs py-2.5 rounded-xl border border-[var(--border-subtle)]">Read Full Magazine Article</button>
           </div>
         </div>
       ` : '';
@@ -2492,7 +2513,7 @@
           <div class="flex items-center justify-between text-sm text-[var(--text-muted)] border-b border-[var(--border-subtle)] pb-2">
             <span class="flex items-center gap-1.5">
               ${article.author_photo_url ? `<img src="${article.author_photo_url}" alt="" onerror="this.style.display='none'" class="w-4 h-4 rounded-full object-cover">` : ''}
-              <span>By ${escapeHtml(article.author_name)}</span>
+              ${article.author_name ? `<span>By ${escapeHtml(article.author_name)}</span>` : ''}
             </span>
             <span>${article.read_minutes ? article.read_minutes + ' Min Read • ' : ''}${new Date(article.published_at).toLocaleDateString()}</span>
           </div>
