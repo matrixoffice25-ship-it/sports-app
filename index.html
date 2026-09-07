@@ -177,18 +177,8 @@
     <!-- App Navigation Header & Core Tab Bar -->
     <header class="w-full bg-[var(--nav-bar-bg)] backdrop-blur-md border-b border-[var(--border-subtle)] z-40 sticky top-0 flex flex-col transition-colors">
       
-      <!-- Top Global Sponsor Strip (ENLARGED) -->
-      <div class="bg-gradient-to-r from-red-950/90 via-slate-900 to-red-950/90 border-b border-red-500/30 px-5 py-3 flex items-center justify-between shadow-md">
-        <div class="flex items-center space-x-3">
-          <svg class="h-6 w-auto" viewBox="0 0 100 24" fill="none">
-            <rect width="100" height="24" rx="12" fill="#F40009"/>
-            <path d="M12 17C22 17 28 8 40 8C52 8 58 17 68 17C78 17 84 9 92 9" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.85"/>
-            <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11.5" fill="white" letter-spacing="0.5">PULSE</text>
-          </svg>
-          <span class="text-xs text-slate-200 font-extrabold uppercase tracking-wider">Official Global Partner</span>
-        </div>
-        <span class="text-sm font-mono font-bold text-red-300 bg-red-500/25 px-2 py-1 rounded border border-red-500/40">SPONSORED</span>
-      </div>
+      <!-- Top Global Sponsor Strip - fully editable from Manage Sponsor Ads / the admin dashboard's Sponsors tab -->
+      <div id="sponsor-banner-global"></div>
 
       <!-- Top Title & Quick Actions -->
       <div class="px-4 py-3 flex items-center justify-between">
@@ -282,13 +272,7 @@
       <section id="tab-selector" class="tab-page hidden space-y-4">
         
         <div class="text-center py-2">
-          <div class="inline-flex items-center gap-2 bg-red-950/40 border border-red-500/30 px-3 py-1 rounded-full text-sm mb-2 shadow-sm">
-            <svg class="h-3 w-auto inline-block" viewBox="0 0 100 24" fill="none">
-              <rect width="100" height="24" rx="12" fill="#F40009"/>
-              <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
-            </svg>
-            <span class="text-red-300 font-bold uppercase tracking-wider">Multi-Sport Championship Series</span>
-          </div>
+          <div class="inline-flex justify-center mb-2" id="sponsor-badge-multisport"></div>
           <h2 class="text-xl font-extrabold text-[var(--text-main)]">Sport Hubs</h2>
         </div>
 
@@ -526,12 +510,6 @@
             <div id="sponsor-badge-news"></div>
           </div>
 
-          <div id="news-admin-buttons" class="hidden flex items-center justify-end gap-2 flex-wrap">
-            <button onclick="openSponsorManager()" class="text-sm font-bold text-[var(--text-muted)] hover:text-[var(--text-main)] underline">Manage Sponsor Ads</button>
-            <button onclick="openArticleManager()" class="text-sm font-bold text-[var(--text-muted)] hover:text-[var(--text-main)] underline">Manage</button>
-            <button onclick="openArticleComposer()" class="min-h-touch min-w-touch px-3 py-1.5 rounded-xl text-xs font-extrabold theme-accent-bg">+ New</button>
-          </div>
-
           <div id="news-category-chips" class="flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar">
             <!-- populated by loadNewsCategories() -->
           </div>
@@ -542,6 +520,15 @@
                has is_cover_story = true for the current sport -->
         </div>
 
+        <div class="space-y-2">
+          <h3 class="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider">All News Briefs</h3>
+          <div id="news-tab-briefs-list" class="space-y-2">
+            <!-- populated dynamically by loadNewsTabBriefs() - EVERY brief,
+                 not just the 3-item Home preview -->
+          </div>
+        </div>
+
+        <h3 class="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider pt-2">Magazine Articles</h3>
         <div id="news-article-list" class="space-y-3">
           <!-- populated dynamically by loadNewsTab() -->
         </div>
@@ -766,7 +753,7 @@
           <p class="text-sm text-[var(--text-muted)] text-center py-6">Loading broadcasts...</p>
         </div>
 
-        <button onclick="handleComposerButtonClick()" class="fixed top-1/2 -translate-y-1/2 right-4 w-14 h-14 rounded-full bg-gradient-to-tr from-violet-accent to-purple-600 text-white shadow-2xl border-2 border-white/20 flex items-center justify-center text-xl hover:scale-110 active:scale-95 transition-all z-30 shadow-violet-500/30" title="Compose Broadcast">✎</button>
+        <button id="pro-voice-compose-fab" onclick="handleComposerButtonClick()" class="hidden fixed top-1/2 -translate-y-1/2 right-4 w-14 h-14 rounded-full bg-gradient-to-tr from-violet-accent to-purple-600 text-white shadow-2xl border-2 border-white/20 flex items-center justify-center text-xl hover:scale-110 active:scale-95 transition-all z-30 shadow-violet-500/30" title="Compose Broadcast">✎</button>
 
       </section>
 
@@ -786,7 +773,7 @@
           </div>
 
           <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-black">
-            <iframe id="podcast-iframe" class="w-full h-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1" title="Terry Rowles Podcast" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <iframe id="podcast-iframe" class="w-full h-full" src="" title="Terry Rowles Podcast" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
           </div>
 
           <div id="sponsor-banner-podcast" class="mt-3"></div>
@@ -844,7 +831,7 @@
               <span>Gear Lab Video Review: ST-04 Clubhead & Shaft Fitting</span>
             </div>
             <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-black">
-              <iframe id="gear-iframe" class="w-full h-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1" title="Gear & Tech Audit Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+              <iframe id="gear-iframe" class="w-full h-full" src="" title="Gear & Tech Audit Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
           </div>
 
@@ -1126,7 +1113,7 @@
         </div>
 
         <div id="auth-mode-toggle" class="text-center">
-          <button type="button" id="auth-mode-link" onclick="setAuthMode(isLoginMode ? 'signup' : 'login')" class="text-xs font-bold theme-accent-text underline min-h-touch">
+          <button type="button" id="auth-mode-link" onclick="setAuthMode(isLoginMode ? 'signup' : 'login')" class="w-full min-h-touch text-sm font-bold theme-accent-text underline py-2">
             Already have an account? Log In
           </button>
         </div>
@@ -1248,10 +1235,17 @@
             </div>
           </div>
 
-          <button type="submit" id="profile-submit-btn" class="w-full min-h-touch theme-accent-bg font-extrabold text-xs py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all mt-2 hover:opacity-90">
+          <button type="submit" id="profile-submit-btn" class="w-full min-h-touch theme-accent-bg font-extrabold text-base py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all mt-2 hover:opacity-90">
             
             <span id="profile-submit-text">Create Account</span>
           </button>
+
+          <p class="text-xs text-center text-[var(--text-muted)]">
+            By continuing, you agree to our
+            <a href="terms-of-service.html" target="_blank" rel="noopener noreferrer" class="underline theme-accent-text">Terms of Service</a>
+            and
+            <a href="privacy-policy.html" target="_blank" rel="noopener noreferrer" class="underline theme-accent-text">Privacy Policy</a>.
+          </p>
         </form>
 
         <div id="profile-overview-view" class="space-y-3 hidden">
@@ -1282,6 +1276,11 @@
             <span>Edit Credentials / Title</span>
           </button>
 
+          <div class="flex items-center justify-center gap-4 pt-2 text-sm">
+            <a href="https://sports-app-psi.vercel.app/terms.html" target="_blank" rel="noopener noreferrer" class="text-[var(--text-muted)] underline hover:text-[var(--text-main)]">Terms of Service</a>
+            <a href="https://sports-app-psi.vercel.app/privacy.html" target="_blank" rel="noopener noreferrer" class="text-[var(--text-muted)] underline hover:text-[var(--text-main)]">Privacy Policy</a>
+          </div>
+
           <div class="pt-2 border-t border-[var(--border-subtle)]">
             <button type="button" id="delete-account-toggle" onclick="toggleDeleteAccountPanel()" class="text-xs text-red-400/70 hover:text-red-400 underline min-h-touch">
               Delete my account
@@ -1303,6 +1302,12 @@
         <button id="persistent-logout-btn" onclick="handleLogOut()" class="hidden w-full min-h-touch bg-red-950/40 hover:bg-red-950/60 text-red-300 font-bold text-xs py-2.5 rounded-xl border border-red-500/30 items-center justify-center gap-2 transition-all">
           <span>Log Out</span>
         </button>
+
+        <p class="text-xs text-center text-[var(--text-muted)] pt-1">
+          <a href="privacy-policy.html" target="_blank" rel="noopener noreferrer" class="underline hover:text-[var(--text-main)]">Privacy Policy</a>
+          <span class="px-1">·</span>
+          <a href="terms-of-service.html" target="_blank" rel="noopener noreferrer" class="underline hover:text-[var(--text-main)]">Terms of Service</a>
+        </p>
 
       </div>
     </div>
@@ -1343,127 +1348,6 @@
       <div class="w-full max-w-lg max-h-[90vh] flex flex-col bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-t-3xl sm:rounded-3xl shadow-2xl relative animate-slide-up overflow-hidden">
         <button onclick="document.getElementById('article-detail-modal').classList.add('hidden')" class="absolute top-3 right-3 z-20 min-h-touch min-w-touch flex items-center justify-center bg-black/50 rounded-full text-white text-lg">✕</button>
         <div id="article-detail-body" class="overflow-y-auto"></div>
-      </div>
-    </div>
-
-    <!-- ARTICLE COMPOSER MODAL - admin/editor only. Mirrors the Pro Voice
-         composer pattern: client-side role gate + server-side RLS as the
-         real enforcement. -->
-    <div id="article-composer-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all">
-      <div class="w-full max-w-md max-h-[92vh] flex flex-col bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-t-3xl sm:rounded-3xl p-5 space-y-3 shadow-2xl relative animate-slide-up overflow-y-auto">
-        <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
-          <h3 id="article-composer-title" class="text-sm font-bold">New Article</h3>
-          <button onclick="closeArticleComposer()" class="min-h-touch min-w-touch flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-main)] text-lg">✕</button>
-        </div>
-
-        <input type="hidden" id="article-form-id" value="">
-
-        <input type="text" id="article-form-title" maxlength="120" placeholder="Headline" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
-        <input type="text" id="article-form-dek" maxlength="200" placeholder="One-line summary (shown in the list)" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
-
-        <select id="article-form-category" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] focus:outline-none focus:border-violet-accent"></select>
-
-        <div class="space-y-1">
-          <span class="text-sm text-slate-400 font-medium">Cover Image (optional)</span>
-          <div class="flex items-center gap-3">
-            <div id="article-thumb-dropzone" onclick="document.getElementById('article-form-cover-input').click()" class="w-16 h-16 flex-shrink-0 rounded-xl border-2 border-dashed border-[var(--border-subtle)] flex items-center justify-center cursor-pointer overflow-hidden">
-              <span class="text-sm text-[var(--text-muted)]">＋</span>
-            </div>
-            <img id="article-thumb-preview-img" class="hidden w-16 h-16 flex-shrink-0 rounded-xl object-cover border border-[var(--border-subtle)]">
-            <input type="file" id="article-form-cover-input" accept="image/*" class="hidden" onchange="handleArticleCoverImage(this)">
-            <button type="button" id="article-thumb-remove-btn" onclick="clearArticleCoverImage()" class="hidden text-sm text-[var(--text-muted)] hover:text-red-400 underline min-h-touch">Remove</button>
-          </div>
-        </div>
-
-        <textarea id="article-form-body" rows="8" placeholder="Article body — plain text or simple Markdown (**bold**, *italic*, # headings, - lists, [links](https://...))" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent"></textarea>
-
-        <div class="grid grid-cols-2 gap-2">
-          <input type="text" id="article-form-author" placeholder="Byline (e.g. Ansel Cruz)" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
-          <input type="text" id="article-form-source-url" placeholder="Source URL (optional)" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
-        </div>
-
-        <label class="flex items-center gap-2 text-xs text-[var(--text-main)]">
-          <input type="checkbox" id="article-form-cover-story" class="w-4 h-4">
-          Set as this sport's Cover Story (replaces any existing one)
-        </label>
-        <label class="flex items-center gap-2 text-xs text-[var(--text-main)]">
-          <input type="checkbox" id="article-form-featured" class="w-4 h-4">
-          Show in the "Featured" filter
-        </label>
-
-        <div class="grid grid-cols-2 gap-2 pt-1">
-          <button onclick="saveArticle('draft')" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] font-bold text-xs py-2.5 rounded-xl border border-[var(--border-subtle)]">Save as Draft</button>
-          <button onclick="saveArticle('published')" class="w-full min-h-touch theme-accent-bg text-white font-bold text-xs py-2.5 rounded-xl">Publish Now</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ARTICLE MANAGER MODAL - admin-only list of every article (draft +
-         published) for the sport currently being browsed, with edit /
-         publish / unpublish / delete actions. This is what makes "editable
-         from the very beginning" actually true day-to-day. -->
-    <div id="article-manager-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all">
-      <div class="w-full max-w-md max-h-[85vh] flex flex-col bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-t-3xl sm:rounded-3xl p-5 space-y-3 shadow-2xl relative animate-slide-up">
-        <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
-          <h3 class="text-sm font-bold">Manage Articles</h3>
-          <button onclick="document.getElementById('article-manager-modal').classList.add('hidden')" class="min-h-touch min-w-touch flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-main)] text-lg">✕</button>
-        </div>
-        <button onclick="openArticleComposer()" class="w-full min-h-touch theme-accent-bg text-white font-bold text-xs py-2.5 rounded-xl">+ New Article</button>
-        <div id="article-manager-list" class="space-y-2 overflow-y-auto pr-1"></div>
-      </div>
-    </div>
-
-    <!-- SPONSOR ADS MANAGER MODAL - admin-only. Every "PULSE" badge and
-         banner across the app (News, Pro Voice Stream, Podcast, Equipment,
-         Polls) is driven from the `sponsor_placements` table and edited
-         here - none of it is hardcoded in the page anymore. -->
-    <div id="sponsor-manager-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all">
-      <div class="w-full max-w-md max-h-[90vh] flex flex-col bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-t-3xl sm:rounded-3xl p-5 space-y-3 shadow-2xl relative animate-slide-up overflow-y-auto">
-        <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
-          <h3 class="text-sm font-bold">Manage Sponsor Ads</h3>
-          <button onclick="closeSponsorManager()" class="min-h-touch min-w-touch flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-main)] text-lg">✕</button>
-        </div>
-
-        <div id="sponsor-manager-list" class="space-y-2"></div>
-
-        <!-- Inline edit form, shown when a slot is picked from the list above -->
-        <div id="sponsor-manager-form" class="hidden space-y-2 border-t border-[var(--border-subtle)] pt-3">
-          <p id="sponsor-form-slot-label" class="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]"></p>
-          <input type="hidden" id="sponsor-form-key">
-          <input type="hidden" id="sponsor-form-kind">
-
-          <label class="flex items-center gap-2 text-xs text-[var(--text-main)]">
-            <input type="checkbox" id="sponsor-form-active" class="w-4 h-4">
-            Ad is active (shown to real users)
-          </label>
-          <label class="flex items-center gap-2 text-xs text-[var(--text-main)]">
-            <input type="checkbox" id="sponsor-form-all-sports" class="w-4 h-4">
-            Apply to ALL sports (unchecked = just the sport you're currently browsing)
-          </label>
-
-          <div class="grid grid-cols-2 gap-2">
-            <input type="text" id="sponsor-form-sponsor-name" placeholder="Sponsor name" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
-            <input type="text" id="sponsor-form-logo-text" maxlength="10" placeholder="Logo text (e.g. PULSE)" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-sm text-[var(--text-muted)]">Logo color</span>
-            <input type="color" id="sponsor-form-logo-color" value="#F40009" class="w-10 h-8 rounded border border-[var(--border-subtle)] bg-transparent">
-          </div>
-          <input type="text" id="sponsor-form-eyebrow" maxlength="40" placeholder="Small label (e.g. Official Show Partner, Supporter)" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
-
-          <div id="sponsor-form-banner-fields" class="space-y-2 hidden">
-            <input type="text" id="sponsor-form-headline" maxlength="80" placeholder="Headline (e.g. Terry's Hydration Guide)" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
-            <input type="text" id="sponsor-form-cta-label" maxlength="60" placeholder="Button text (e.g. Claim Free Towel)" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
-            <input type="text" id="sponsor-form-cta-url" placeholder="Button link (optional, https://...)" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
-          </div>
-
-          <div id="sponsor-form-preview" class="pt-2"></div>
-
-          <div class="grid grid-cols-2 gap-2 pt-1">
-            <button onclick="closeSponsorForm()" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] font-bold text-xs py-2.5 rounded-xl border border-[var(--border-subtle)]">Cancel</button>
-            <button onclick="saveSponsorPlacement()" class="w-full min-h-touch theme-accent-bg text-white font-bold text-xs py-2.5 rounded-xl">Save</button>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -1933,7 +1817,9 @@
               </div>
             </div>`;
           }).join('')}
-          <p class="text-xs text-[var(--text-muted)] mt-1">${total} vote${total === 1 ? '' : 's'} total</p>
+          ${currentUser.role === 'admin'
+            ? `<p class="text-xs text-[var(--text-muted)] mt-1">${total} vote${total === 1 ? '' : 's'} total (only admins see the raw count - everyone else sees percentages only)</p>`
+            : ''}
         `;
       }
 
@@ -2075,9 +1961,11 @@
     // new physical slot later means adding one line here plus a
     // container div + render call at that spot in the page.
     const SPONSOR_PLACEMENT_DEFS = [
+      { key: 'global_banner', kind: 'banner', variant: 'strip', label: 'Top Global Sponsor Strip (every screen)' },
       { key: 'news_header_badge', kind: 'badge', variant: 'stacked', label: 'News — Magazine header badge' },
       { key: 'stream_header_badge', kind: 'badge', variant: 'pill', label: 'Pro Voice Stream — header badge' },
       { key: 'polls_header_badge', kind: 'badge', variant: 'pill', label: 'Home — Community Poll card badge' },
+      { key: 'multisport_badge', kind: 'badge', variant: 'pill', label: 'Multi-Sport tab — header badge' },
       { key: 'equipment_header_badge', kind: 'badge', variant: 'header', label: 'Equipment & Fitting — card header badge' },
       { key: 'podcast_header_badge', kind: 'badge', variant: 'header', label: 'Shows/Podcast — card header badge' },
       { key: 'podcast_banner', kind: 'banner', label: 'Shows/Podcast — banner under video' },
@@ -2093,6 +1981,18 @@
         <rect width="100" height="24" rx="12" fill="${escapeHtml(logoColor || '#F40009')}"/>
         <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">${escapeHtml((logoText || 'PULSE').toUpperCase())}</text>
       </svg>`;
+    }
+
+    // A sponsor's logo can be represented three ways, in priority order:
+    // an uploaded logo image (most flexible - any real brand mark), or
+    // generated text-in-a-pill (logo_text/logo_color - quick, no upload
+    // needed). This is shared by every badge/banner so admins only ever
+    // set it once per sponsor row.
+    function sponsorLogoHtml(sp, heightClass, heightPx) {
+      if (sp.logo_image_url) {
+        return `<img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="${heightClass} w-auto inline-block object-contain" style="max-height:${heightPx}px;">`;
+      }
+      return pulseLogoSvg(sp.logo_text, sp.logo_color, heightClass);
     }
 
     // Sport-specific row wins if one exists and is active; otherwise a
@@ -2127,7 +2027,7 @@
       const sp = await fetchSponsorPlacement(key);
       if (!sp) { el.innerHTML = ''; return; }
 
-      const logo = pulseLogoSvg(sp.logo_text, sp.logo_color, 'h-3.5');
+      const logo = sponsorLogoHtml(sp, 'h-3.5', 22);
 
       if (def.variant === 'stacked') {
         // News magazine header: "POWERED BY" stacked above the logo.
@@ -2136,10 +2036,11 @@
           ${logo}
         `;
       } else if (def.variant === 'pill') {
-        // Pro Voice Stream / Polls: a small bordered pill with logo + label.
+        // Pro Voice Stream / Polls / Multi-Sport: a small bordered pill
+        // with logo + label.
         el.innerHTML = `
           <div class="flex items-center gap-1 bg-red-950/40 border border-red-500/30 px-2 py-1 rounded-xl">
-            ${pulseLogoSvg(sp.logo_text, sp.logo_color, 'h-3')}
+            ${sponsorLogoHtml(sp, 'h-3', 18)}
             <span class="text-xs font-bold text-red-300 uppercase">${escapeHtml(sp.eyebrow_label || 'Supporter')}</span>
           </div>
         `;
@@ -2158,16 +2059,46 @@
     async function renderSponsorBanner(key, containerId) {
       const el = document.getElementById(containerId);
       if (!el) return;
+      const def = sponsorDefFor(key);
       const sp = await fetchSponsorPlacement(key);
       if (!sp) { el.innerHTML = ''; return; }
 
       const safeSponsorName = escapeHtml(sp.sponsor_name || 'Sponsor');
       const safeCtaUrl = sp.cta_url ? escapeHtml(sp.cta_url) : '';
+      const ctaAttr = `onclick="sponsorCtaClick('${safeSponsorName.replace(/'/g, "\\'")}', '${safeCtaUrl.replace(/'/g, "\\'")}')"`;
+
+      // The top global strip is a different shape entirely (thin,
+      // full-width) from the card-style banners used elsewhere, so it
+      // gets its own layout - but pulls from the exact same data fields.
+      if (def.variant === 'strip') {
+        el.innerHTML = sp.banner_image_url
+          ? `<img src="${sp.banner_image_url}" alt="" onerror="this.style.display='none'" class="w-full block cursor-pointer" ${ctaAttr} style="max-height:64px; object-fit:cover;">`
+          : `
+            <div class="bg-gradient-to-r from-red-950/90 via-slate-900 to-red-950/90 border-b border-red-500/30 px-5 py-3 flex items-center justify-between shadow-md cursor-pointer" ${ctaAttr}>
+              <div class="flex items-center space-x-3">
+                ${sponsorLogoHtml(sp, 'h-6', 34)}
+                <span class="text-xs text-slate-200 font-extrabold uppercase tracking-wider">${escapeHtml(sp.eyebrow_label || 'Official Global Partner')}</span>
+              </div>
+              <span class="text-sm font-mono font-bold text-red-300 bg-red-500/25 px-2 py-1 rounded border border-red-500/40">SPONSORED</span>
+            </div>
+          `;
+        return;
+      }
+
+      // A full custom banner image replaces the generated card layout
+      // entirely - the whole thing becomes one clickable creative,
+      // exactly like a real ad unit an agency would hand over as a
+      // finished image rather than text fields to assemble.
+      if (sp.banner_image_url) {
+        el.innerHTML = `<img src="${sp.banner_image_url}" alt="" onerror="this.style.display='none'" class="w-full rounded-xl cursor-pointer" ${ctaAttr}>`;
+        return;
+      }
+
       el.innerHTML = `
         <div class="bg-gradient-to-r from-red-950/40 via-[var(--bg-app)] to-[var(--bg-surface)] p-3 rounded-xl border border-red-500/30 space-y-2">
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-2">
-              ${pulseLogoSvg(sp.logo_text, sp.logo_color, 'h-3.5')}
+              ${sponsorLogoHtml(sp, 'h-3.5', 22)}
               <div>
                 <div class="text-xs font-extrabold text-red-400 uppercase tracking-wider">${escapeHtml(sp.eyebrow_label || 'Sponsored')}</div>
                 <div class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(sp.headline || '')}</div>
@@ -2175,11 +2106,39 @@
             </div>
             <span class="text-xs font-bold text-slate-300 bg-red-900/60 px-1.5 py-0.5 rounded uppercase border border-red-500/30">SPONSORED</span>
           </div>
-          <button onclick="sponsorCtaClick('${safeSponsorName.replace(/'/g, "\\'")}', '${safeCtaUrl.replace(/'/g, "\\'")}')" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-slate-200 text-xs font-bold py-2 rounded-lg border border-red-500/20 flex items-center justify-center gap-1.5 transition-all">
+          <button ${ctaAttr} class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-slate-200 text-xs font-bold py-2 rounded-lg border border-red-500/20 flex items-center justify-center gap-1.5 transition-all">
             <span>${escapeHtml(sp.cta_label || 'Learn More')}</span>
           </button>
         </div>
       `;
+    }
+
+    // Shows & Gear: both the Podcast and Equipment/Gear video iframes
+    // used to be hardcoded to the same placeholder YouTube ID with no
+    // connection to anything an admin could edit. This pulls the most
+    // recent active episode of the given type from `podcast_episodes`
+    // (which now covers both types via `media_type`) and points the
+    // iframe at it - if none exists yet, the iframe is simply left
+    // showing nothing rather than a confusing placeholder video.
+    async function loadMediaEmbed(mediaType, iframeId) {
+      const iframe = document.getElementById(iframeId);
+      if (!iframe) return;
+
+      const { data, error } = await supabaseClient
+        .from('podcast_episodes')
+        .select('youtube_video_id, title')
+        .eq('media_type', mediaType)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error || !data || !data.youtube_video_id) {
+        iframe.removeAttribute('src');
+        return;
+      }
+      iframe.src = `https://www.youtube.com/embed/${encodeURIComponent(data.youtube_video_id)}?enablejsapi=1`;
+      iframe.title = data.title || iframe.title;
     }
 
     // Every sponsor container div exists in the DOM at all times (tabs
@@ -2188,174 +2147,17 @@
     // whether or not the user has actually visited it yet.
     async function refreshAllSponsorPlacements() {
       await Promise.all([
+        renderSponsorBanner('global_banner', 'sponsor-banner-global'),
         renderSponsorBadge('news_header_badge', 'sponsor-badge-news'),
         renderSponsorBadge('stream_header_badge', 'sponsor-badge-stream'),
         renderSponsorBadge('polls_header_badge', 'sponsor-badge-polls'),
+        renderSponsorBadge('multisport_badge', 'sponsor-badge-multisport'),
         renderSponsorBadge('equipment_header_badge', 'sponsor-badge-equipment'),
         renderSponsorBadge('podcast_header_badge', 'sponsor-badge-podcast'),
         renderSponsorBanner('podcast_banner', 'sponsor-banner-podcast'),
         renderSponsorBanner('equipment_banner', 'sponsor-banner-equipment'),
       ]);
     }
-
-    // ------------------------------------------------------------
-    // ADMIN: SPONSOR ADS MANAGER
-    // ------------------------------------------------------------
-    async function openSponsorManager() {
-      if (currentUser.role !== 'admin') {
-        triggerToast('Only admin accounts can manage sponsor ads.');
-        return;
-      }
-      document.getElementById('sponsor-manager-form').classList.add('hidden');
-
-      const { data: rows } = await supabaseClient
-        .from('sponsor_placements')
-        .select('*')
-        .order('placement_key', { ascending: true });
-
-      const listEl = document.getElementById('sponsor-manager-list');
-      listEl.innerHTML = SPONSOR_PLACEMENT_DEFS.map(def => {
-        const sportRow = (rows || []).find(r => r.placement_key === def.key && r.sport_id === currentSportId);
-        const globalRow = (rows || []).find(r => r.placement_key === def.key && !r.sport_id);
-        const active = sportRow || globalRow;
-        const statusLabel = !active ? 'Not set (hidden)' : (active.is_active ? 'Active' : 'Off');
-        const scopeLabel = active ? (active.sport_id ? 'This sport' : 'All sports') : '';
-        return `
-          <button onclick='openSponsorForm(${JSON.stringify(def.key)})' class="w-full text-left bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] p-2.5 rounded-xl border border-[var(--border-subtle)] transition-all">
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(def.label)}</span>
-              <span class="text-sm flex-shrink-0 px-2 py-0.5 rounded-full font-bold ${active?.is_active ? 'bg-emerald-fairway/20 text-emerald-light' : 'bg-[var(--border-subtle)] text-[var(--text-muted)]'}">${statusLabel}</span>
-            </div>
-            ${scopeLabel ? `<span class="text-xs text-[var(--text-muted)]">${scopeLabel}</span>` : ''}
-          </button>
-        `;
-      }).join('');
-
-      document.getElementById('sponsor-manager-modal').classList.remove('hidden');
-    }
-
-    function closeSponsorManager() {
-      document.getElementById('sponsor-manager-modal').classList.add('hidden');
-    }
-
-    let editingSponsorRow = null;
-
-    async function openSponsorForm(key) {
-      const def = sponsorDefFor(key);
-      const { data: rows } = await supabaseClient.from('sponsor_placements').select('*').eq('placement_key', key);
-      const sportRow = (rows || []).find(r => r.sport_id === currentSportId);
-      const globalRow = (rows || []).find(r => !r.sport_id);
-      editingSponsorRow = sportRow || globalRow || null;
-
-      document.getElementById('sponsor-form-key').value = key;
-      document.getElementById('sponsor-form-kind').value = def.kind;
-      document.getElementById('sponsor-form-slot-label').innerText = def.label;
-      document.getElementById('sponsor-form-active').checked = editingSponsorRow ? !!editingSponsorRow.is_active : true;
-      document.getElementById('sponsor-form-all-sports').checked = editingSponsorRow ? !editingSponsorRow.sport_id : false;
-      document.getElementById('sponsor-form-sponsor-name').value = editingSponsorRow?.sponsor_name || 'PULSE';
-      document.getElementById('sponsor-form-logo-text').value = editingSponsorRow?.logo_text || 'PULSE';
-      document.getElementById('sponsor-form-logo-color').value = editingSponsorRow?.logo_color || '#F40009';
-      document.getElementById('sponsor-form-eyebrow').value = editingSponsorRow?.eyebrow_label || '';
-      document.getElementById('sponsor-form-headline').value = editingSponsorRow?.headline || '';
-      document.getElementById('sponsor-form-cta-label').value = editingSponsorRow?.cta_label || '';
-      document.getElementById('sponsor-form-cta-url').value = editingSponsorRow?.cta_url || '';
-
-      document.getElementById('sponsor-form-banner-fields').classList.toggle('hidden', def.kind !== 'banner');
-      updateSponsorFormPreview();
-      document.getElementById('sponsor-manager-form').classList.remove('hidden');
-    }
-
-    function closeSponsorForm() {
-      document.getElementById('sponsor-manager-form').classList.add('hidden');
-      editingSponsorRow = null;
-    }
-
-    // Live preview inside the form itself, so an admin can see exactly
-    // what they're about to publish before saving.
-    function updateSponsorFormPreview() {
-      const key = document.getElementById('sponsor-form-key').value;
-      const def = sponsorDefFor(key);
-      const fakeRow = {
-        sponsor_name: document.getElementById('sponsor-form-sponsor-name').value,
-        logo_text: document.getElementById('sponsor-form-logo-text').value,
-        logo_color: document.getElementById('sponsor-form-logo-color').value,
-        eyebrow_label: document.getElementById('sponsor-form-eyebrow').value,
-        headline: document.getElementById('sponsor-form-headline').value,
-        cta_label: document.getElementById('sponsor-form-cta-label').value,
-        cta_url: document.getElementById('sponsor-form-cta-url').value,
-      };
-      const previewEl = document.getElementById('sponsor-form-preview');
-      previewEl.innerHTML = '<p class="text-sm text-[var(--text-muted)] mb-1">Preview:</p><div id="sponsor-live-preview-target"></div>';
-      const target = document.getElementById('sponsor-live-preview-target');
-      if (def.kind === 'banner') {
-        target.innerHTML = `
-          <div class="bg-gradient-to-r from-red-950/40 via-[var(--bg-app)] to-[var(--bg-surface)] p-3 rounded-xl border border-red-500/30 space-y-2">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2">
-                ${pulseLogoSvg(fakeRow.logo_text, fakeRow.logo_color, 'h-3.5')}
-                <div>
-                  <div class="text-xs font-extrabold text-red-400 uppercase tracking-wider">${escapeHtml(fakeRow.eyebrow_label || 'Sponsored')}</div>
-                  <div class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(fakeRow.headline || '')}</div>
-                </div>
-              </div>
-              <span class="text-xs font-bold text-slate-300 bg-red-900/60 px-1.5 py-0.5 rounded uppercase border border-red-500/30">SPONSORED</span>
-            </div>
-            <div class="w-full text-center bg-[var(--bg-card)] text-slate-200 text-xs font-bold py-2 rounded-lg border border-red-500/20">${escapeHtml(fakeRow.cta_label || 'Learn More')}</div>
-          </div>
-        `;
-      } else if (def.variant === 'pill') {
-        target.innerHTML = `<div class="flex items-center gap-1 bg-red-950/40 border border-red-500/30 px-2 py-1 rounded-xl w-fit">${pulseLogoSvg(fakeRow.logo_text, fakeRow.logo_color, 'h-3')}<span class="text-xs font-bold text-red-300 uppercase">${escapeHtml(fakeRow.eyebrow_label || 'Supporter')}</span></div>`;
-      } else if (def.variant === 'stacked') {
-        target.innerHTML = `<span class="text-xs text-slate-400 block font-mono">${escapeHtml(fakeRow.eyebrow_label || 'POWERED BY')}</span>${pulseLogoSvg(fakeRow.logo_text, fakeRow.logo_color, 'h-3.5')}`;
-      } else {
-        target.innerHTML = `<div class="text-right"><span class="text-xs font-mono text-[var(--text-muted)] block uppercase">${escapeHtml(fakeRow.eyebrow_label || '')}</span>${pulseLogoSvg(fakeRow.logo_text, fakeRow.logo_color, 'h-3')}</div>`;
-      }
-    }
-
-    async function saveSponsorPlacement() {
-      const key = document.getElementById('sponsor-form-key').value;
-      const applyAllSports = document.getElementById('sponsor-form-all-sports').checked;
-
-      const payload = {
-        placement_key: key,
-        kind: document.getElementById('sponsor-form-kind').value,
-        sport_id: applyAllSports ? null : currentSportId,
-        is_active: document.getElementById('sponsor-form-active').checked,
-        sponsor_name: document.getElementById('sponsor-form-sponsor-name').value.trim() || 'PULSE',
-        logo_text: document.getElementById('sponsor-form-logo-text').value.trim() || 'PULSE',
-        logo_color: document.getElementById('sponsor-form-logo-color').value || '#F40009',
-        eyebrow_label: document.getElementById('sponsor-form-eyebrow').value.trim() || null,
-        headline: document.getElementById('sponsor-form-headline').value.trim() || null,
-        cta_label: document.getElementById('sponsor-form-cta-label').value.trim() || null,
-        cta_url: document.getElementById('sponsor-form-cta-url').value.trim() || null,
-      };
-
-      let error;
-      if (editingSponsorRow) {
-        ({ error } = await supabaseClient.from('sponsor_placements').update(payload).eq('placement_id', editingSponsorRow.placement_id));
-      } else {
-        ({ error } = await supabaseClient.from('sponsor_placements').insert(payload));
-      }
-
-      if (error) {
-        triggerToast(`Could not save: ${error.message}`);
-        return;
-      }
-
-      triggerToast('Sponsor ad saved! 🥤');
-      closeSponsorForm();
-      await openSponsorManager();
-      await refreshAllSponsorPlacements();
-    }
-
-    // Live-update the in-form preview as the admin types, so they never
-    // have to save blind to see what a change looks like. These input
-    // elements are already in the DOM above this script tag, so the
-    // listeners can attach immediately.
-    ['sponsor-form-sponsor-name','sponsor-form-logo-text','sponsor-form-logo-color','sponsor-form-eyebrow','sponsor-form-headline','sponsor-form-cta-label','sponsor-form-cta-url'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.addEventListener('input', updateSponsorFormPreview);
-    });
 
     let currentTab = 'tab-home';
     let currentAudience = 'Public';
@@ -2488,6 +2290,30 @@
     // News tab itself via "View Magazine".
     const HOME_NEWS_PREVIEW_COUNT = 3;
 
+    // Shared by both the capped Home preview and the full News tab list,
+    // so a brief always looks and behaves identically wherever it shows.
+    function renderBriefCardsInto(container, briefs) {
+      container.innerHTML = '';
+      briefs.forEach(brief => {
+        const item = document.createElement('div');
+        // A brief is short enough to show in full right here already -
+        // no "read more"/detail view needed, that's the whole point of
+        // it being a brief rather than an article. Only clickable when
+        // there's a real source link to send the reader to.
+        const hasSource = !!brief.source_url;
+        item.className = `bg-[var(--bg-card)] p-2.5 rounded-xl border border-[var(--border-subtle)] hover:border-[var(--accent-main)] transition-colors${hasSource ? ' cursor-pointer' : ''}`;
+        if (hasSource) item.onclick = () => window.open(brief.source_url, '_blank', 'noopener,noreferrer');
+        item.innerHTML = `
+          <div class="text-xs font-bold text-[var(--text-main)] flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full theme-accent-bg flex-shrink-0"></span>
+            <span>${escapeHtml(brief.title)}</span>
+          </div>
+          <p class="text-sm text-[var(--text-muted)] mt-1 pl-3">${escapeHtml(brief.body)}</p>
+        `;
+        container.appendChild(item);
+      });
+    }
+
     async function loadNewsBriefs() {
       const container = document.getElementById('dynamic-briefs-list');
       if (!container) return;
@@ -2518,35 +2344,47 @@
         return;
       }
 
-      container.innerHTML = '';
-      briefs.forEach(brief => {
-        const item = document.createElement('div');
-        // A brief is short enough to show in full right here already -
-        // no "read more"/detail view needed, that's the whole point of
-        // it being a brief rather than an article. Only clickable when
-        // there's a real source link to send the reader to.
-        const hasSource = !!brief.source_url;
-        item.className = `bg-[var(--bg-card)] p-2.5 rounded-xl border border-[var(--border-subtle)] hover:border-[var(--accent-main)] transition-colors${hasSource ? ' cursor-pointer' : ''}`;
-        if (hasSource) item.onclick = () => window.open(brief.source_url, '_blank', 'noopener,noreferrer');
-        item.innerHTML = `
-          <div class="text-xs font-bold text-[var(--text-main)] flex items-center gap-2">
-            <span class="w-1.5 h-1.5 rounded-full theme-accent-bg flex-shrink-0"></span>
-            <span>${escapeHtml(brief.title)}</span>
-          </div>
-          <p class="text-sm text-[var(--text-muted)] mt-1 pl-3">${escapeHtml(brief.body)}</p>
-        `;
-        container.appendChild(item);
-      });
+      renderBriefCardsInto(container, briefs);
+    }
+
+    // The News tab shows EVERY brief, not just the Home preview's top 3 -
+    // this was missing entirely before (briefs only ever appeared on
+    // Home), which is the "News Brief cards missing" gap.
+    async function loadNewsTabBriefs() {
+      const container = document.getElementById('news-tab-briefs-list');
+      if (!container) return;
+
+      if (!currentSportId) {
+        container.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-4">Select a sport to see its news.</p>';
+        return;
+      }
+
+      const { data: briefs, error } = await supabaseClient
+        .from('news_briefs')
+        .select('brief_id, title, body, source_url, created_at')
+        .eq('sport_id', currentSportId)
+        .eq('status', 'published')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        container.innerHTML = `<p class="text-sm text-[var(--text-muted)] text-center py-4">Could not load news: ${escapeHtml(error.message)}</p>`;
+        return;
+      }
+      if (!briefs || !briefs.length) {
+        container.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-4">No news briefs yet.</p>';
+        return;
+      }
+
+      renderBriefCardsInto(container, briefs);
     }
 
     // Full News tab: loads every published article for the sport once,
-    // shows the admin-only compose/manage buttons, renders the cover
-    // story + the (possibly filtered) list.
+    // renders the cover story + the (possibly filtered) list. All
+    // editing (composing, publishing, managing) now lives exclusively
+    // in the Admin Dashboard - this app is read-only for news.
     async function loadNewsTab() {
-      if (document.getElementById('news-admin-buttons')) {
-        document.getElementById('news-admin-buttons').classList.toggle('hidden', currentUser.role !== 'admin');
-      }
       await loadNewsCategories();
+      await loadNewsTabBriefs();
 
       const coverContainer = document.getElementById('news-cover-story-container');
       const listContainer = document.getElementById('news-article-list');
@@ -2674,226 +2512,6 @@
         </div>
       `;
       document.getElementById('article-detail-modal').classList.remove('hidden');
-    }
-
-    // ------------------------------------------------------------
-    // ADMIN: ARTICLE COMPOSER (create + edit)
-    // Same gating pattern as the Pro Voice composer: client-side check
-    // for a responsive UI, RLS on the `articles` table is what actually
-    // enforces it server-side.
-    // ------------------------------------------------------------
-    let pendingArticleCoverFile = null;
-    let editingArticleId = null;
-
-    async function openArticleComposer(articleToEdit) {
-      if (currentUser.role !== 'admin') {
-        triggerToast('Only admin accounts can create or edit articles.');
-        return;
-      }
-      if (!currentSportId) {
-        triggerToast('Select a sport first (Multi-Sport tab) before writing an article.');
-        return;
-      }
-
-      const categorySelect = document.getElementById('article-form-category');
-      categorySelect.innerHTML = cachedCategories.map(c => `<option value="${c.slug}">${escapeHtml(c.label)}</option>`).join('');
-
-      editingArticleId = articleToEdit ? articleToEdit.article_id : null;
-      document.getElementById('article-composer-title').innerText = articleToEdit ? 'Edit Article' : 'New Article';
-      document.getElementById('article-form-id').value = editingArticleId || '';
-      document.getElementById('article-form-title').value = articleToEdit?.title || '';
-      document.getElementById('article-form-dek').value = articleToEdit?.dek || '';
-      document.getElementById('article-form-body').value = articleToEdit?.body_markdown || '';
-      document.getElementById('article-form-author').value = articleToEdit?.author_name || currentUser.name || '';
-      document.getElementById('article-form-source-url').value = articleToEdit?.source_url || '';
-      document.getElementById('article-form-cover-story').checked = !!articleToEdit?.is_cover_story;
-      document.getElementById('article-form-featured').checked = !!articleToEdit?.is_featured;
-      if (articleToEdit?.category_slug) categorySelect.value = articleToEdit.category_slug;
-
-      clearArticleCoverImage();
-      if (articleToEdit?.cover_image_url) {
-        document.getElementById('article-thumb-preview-img').src = articleToEdit.cover_image_url;
-        document.getElementById('article-thumb-preview-img').classList.remove('hidden');
-        document.getElementById('article-thumb-dropzone').classList.add('hidden');
-      }
-
-      document.getElementById('article-manager-modal').classList.add('hidden');
-      document.getElementById('article-composer-modal').classList.remove('hidden');
-    }
-
-    function closeArticleComposer() {
-      document.getElementById('article-composer-modal').classList.add('hidden');
-      editingArticleId = null;
-      pendingArticleCoverFile = null;
-    }
-
-    function handleArticleCoverImage(input) {
-      if (!input.files || !input.files[0]) return;
-      pendingArticleCoverFile = input.files[0];
-      const reader = new FileReader();
-      reader.onload = e => {
-        const img = document.getElementById('article-thumb-preview-img');
-        img.src = e.target.result;
-        img.classList.remove('hidden');
-        document.getElementById('article-thumb-dropzone').classList.add('hidden');
-        document.getElementById('article-thumb-remove-btn').classList.remove('hidden');
-      };
-      reader.readAsDataURL(input.files[0]);
-    }
-    function clearArticleCoverImage() {
-      pendingArticleCoverFile = null;
-      document.getElementById('article-form-cover-input').value = '';
-      document.getElementById('article-thumb-preview-img').classList.add('hidden');
-      document.getElementById('article-thumb-dropzone').classList.remove('hidden');
-      document.getElementById('article-thumb-remove-btn').classList.add('hidden');
-    }
-
-    async function saveArticle(status) {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (!session) { triggerToast('Please log in again.'); return; }
-
-      const title = document.getElementById('article-form-title').value.trim();
-      const bodyMarkdown = document.getElementById('article-form-body').value.trim();
-      if (!title || !bodyMarkdown) {
-        triggerToast('A headline and article body are both required.');
-        return;
-      }
-
-      let coverImageUrl = document.getElementById('article-thumb-preview-img').classList.contains('hidden')
-        ? null
-        : (editingArticleId ? cachedNewsArticles.find(a => a.article_id === editingArticleId)?.cover_image_url : null);
-
-      // Only re-upload if a NEW file was picked this session - re-editing
-      // an article without touching the image shouldn't re-upload it.
-      if (pendingArticleCoverFile) {
-        try {
-          const contentType = pendingArticleCoverFile.type || 'image/jpeg';
-          const extension = contentType.includes('png') ? 'png' : 'jpg';
-          const { data: uploadInfo, error: uploadUrlErr } = await supabaseClient.functions.invoke('get-r2-upload-url', {
-            method: 'POST',
-            body: { contentType, extension },
-          });
-          if (!uploadUrlErr && uploadInfo?.uploadUrl) {
-            const putRes = await fetch(uploadInfo.uploadUrl, { method: 'PUT', headers: { 'Content-Type': contentType }, body: pendingArticleCoverFile });
-            if (putRes.ok) coverImageUrl = uploadInfo.publicUrl;
-          }
-        } catch (err) {
-          console.error('Article cover image upload failed (non-fatal, article still saves):', err);
-        }
-      }
-
-      const wordCount = bodyMarkdown.split(/\s+/).filter(Boolean).length;
-      const readMinutes = Math.max(1, Math.round(wordCount / 200)); // ~200 wpm, a reasonable estimate an admin can eyeball but not manually type every time
-
-      const payload = {
-        sport_id: currentSportId,
-        category_slug: document.getElementById('article-form-category').value,
-        title,
-        dek: document.getElementById('article-form-dek').value.trim() || null,
-        body_markdown: bodyMarkdown,
-        cover_image_url: coverImageUrl,
-        author_name: document.getElementById('article-form-author').value.trim() || 'Staff',
-        source_url: document.getElementById('article-form-source-url').value.trim() || null,
-        read_minutes: readMinutes,
-        is_cover_story: document.getElementById('article-form-cover-story').checked,
-        is_featured: document.getElementById('article-form-featured').checked,
-        status,
-        published_at: status === 'published' ? new Date().toISOString() : null,
-      };
-
-      let error;
-      if (editingArticleId) {
-        ({ error } = await supabaseClient.from('articles').update(payload).eq('article_id', editingArticleId));
-      } else {
-        payload.created_by = session.user.id;
-        ({ error } = await supabaseClient.from('articles').insert(payload));
-      }
-
-      if (error) {
-        // If this fails because another article already has
-        // is_cover_story = true for this sport, the DB's unique index
-        // is what's actually stopping it - the fix is to open that
-        // other article in Manage and uncheck its Cover Story box first.
-        triggerToast(`Could not save: ${error.message}`);
-        return;
-      }
-
-      triggerToast(status === 'published' ? 'Article published! 📰' : 'Draft saved.');
-      closeArticleComposer();
-      await loadNewsTab();
-      await loadNewsBriefs();
-    }
-
-    // ------------------------------------------------------------
-    // ADMIN: ARTICLE MANAGER (list everything, edit/publish/delete)
-    // ------------------------------------------------------------
-    async function openArticleManager() {
-      if (currentUser.role !== 'admin') {
-        triggerToast('Only admin accounts can manage articles.');
-        return;
-      }
-      if (!currentSportId) {
-        triggerToast('Select a sport first (Multi-Sport tab).');
-        return;
-      }
-
-      const { data: articles, error } = await supabaseClient
-        .from('articles')
-        .select('article_id, title, status, is_cover_story, is_featured, category_slug, created_at')
-        .eq('sport_id', currentSportId)
-        .order('created_at', { ascending: false });
-
-      const listEl = document.getElementById('article-manager-list');
-      if (error) {
-        listEl.innerHTML = `<p class="text-sm text-[var(--text-muted)] text-center py-4">${escapeHtml(error.message)}</p>`;
-      } else if (!articles || !articles.length) {
-        listEl.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-4">No articles for this sport yet.</p>';
-      } else {
-        listEl.innerHTML = articles.map(a => `
-          <div class="bg-[var(--bg-card)] p-2.5 rounded-xl border border-[var(--border-subtle)] space-y-2">
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-xs font-bold text-[var(--text-main)] truncate">${escapeHtml(a.title)}</span>
-              <span class="text-sm flex-shrink-0 px-2 py-0.5 rounded-full font-bold ${a.status === 'published' ? 'bg-emerald-fairway/20 text-emerald-light' : 'bg-[var(--border-subtle)] text-[var(--text-muted)]'}">${a.status}</span>
-            </div>
-            <div class="flex items-center gap-2 flex-wrap">
-              <button onclick="editArticleById('${a.article_id}')" class="text-sm font-bold text-[var(--text-main)] underline min-h-touch">Edit</button>
-              ${a.status === 'published'
-                ? `<button onclick="setArticleStatus('${a.article_id}', 'archived')" class="text-sm font-bold text-[var(--text-muted)] underline min-h-touch">Unpublish</button>`
-                : `<button onclick="setArticleStatus('${a.article_id}', 'published')" class="text-sm font-bold text-emerald-light underline min-h-touch">Publish</button>`}
-              <button onclick="deleteArticleById('${a.article_id}')" class="text-sm font-bold text-red-400 underline min-h-touch">Delete</button>
-            </div>
-          </div>
-        `).join('');
-      }
-
-      document.getElementById('article-manager-modal').classList.remove('hidden');
-    }
-
-    async function editArticleById(articleId) {
-      const { data, error } = await supabaseClient.from('articles').select('*').eq('article_id', articleId).maybeSingle();
-      if (error || !data) { triggerToast('Could not load that article to edit.'); return; }
-      if (!cachedCategories.length) await loadNewsCategories();
-      openArticleComposer(data);
-    }
-
-    async function setArticleStatus(articleId, status) {
-      const payload = { status, published_at: status === 'published' ? new Date().toISOString() : null };
-      const { error } = await supabaseClient.from('articles').update(payload).eq('article_id', articleId);
-      if (error) { triggerToast(`Could not update: ${error.message}`); return; }
-      triggerToast(status === 'published' ? 'Article published! 📰' : 'Article unpublished.');
-      openArticleManager();
-      await loadNewsTab();
-      await loadNewsBriefs();
-    }
-
-    async function deleteArticleById(articleId) {
-      if (!confirm('Delete this article permanently? This cannot be undone.')) return;
-      const { error } = await supabaseClient.from('articles').delete().eq('article_id', articleId);
-      if (error) { triggerToast(`Could not delete: ${error.message}`); return; }
-      triggerToast('Article deleted.');
-      openArticleManager();
-      await loadNewsTab();
-      await loadNewsBriefs();
     }
 
     function initAudio() {
@@ -3594,8 +3212,10 @@
       // Sport/title shown together only for admin-verified accounts -
       // no checkmark symbol anymore, per request. A self-chosen title
       // alone never implies verification.
-      const isVerified = profile?.role === 'verified_pro';
+      const isVerified = profile?.role === 'verified' || profile?.role === 'inner_circle' || profile?.role === 'admin';
       currentUser.role = profile?.role || 'fan';
+      const fab = document.getElementById('pro-voice-compose-fab');
+      if (fab) fab.classList.toggle('hidden', !canPostToProVoice());
       const badgeText = isVerified
         ? `${profile?.title || 'Verified'}${sportName ? ' · ' + sportName : ''}`
         : (profile?.title || '');
@@ -3660,9 +3280,22 @@
       }
     }
 
+    function canPostToProVoice() {
+      return currentUser.role === 'admin' || currentUser.role === 'verified' || currentUser.role === 'inner_circle';
+    }
+
+    // Who is allowed to SEE an Inner Circle post - separate from who can
+    // POST one. An admin can always see everything (for moderation); an
+    // Inner Circle member sees Inner Circle content; a plain verified pro
+    // who is NOT marked Inner Circle does not automatically get to see
+    // Inner Circle posts just for being verified.
+    function canViewInnerCirclePosts() {
+      return currentUser.role === 'admin' || currentUser.role === 'inner_circle';
+    }
+
     function handleComposerButtonClick() {
-      if (currentUser.role !== 'verified_pro' && currentUser.role !== 'admin') {
-        triggerToast('Only admin-verified accounts can post to Pro Voice Stream.');
+      if (!canPostToProVoice()) {
+        triggerToast('Only verified or Inner Circle accounts can post to Pro Voice Stream.');
         return;
       }
       if (!currentSportId) {
@@ -4192,7 +3825,7 @@
 
       if (error) {
         // This is also where the server-side rule shows up for real: if
-        // someone's role isn't verified_pro/admin, RLS rejects the insert
+        // someone's role isn't verified/inner_circle/admin, RLS rejects the insert
         // here even if they somehow reached this function.
         triggerToast(`Could not publish: ${error.message}`);
         return;
@@ -4284,21 +3917,26 @@
         .select('post_id, author_id, body_text, media_type, media_url, thumbnail_url, audience, posted_at, expires_at')
         .eq('sport_id', currentSportId)
         .order('posted_at', { ascending: false })
-        .limit(3);
+        .limit(10); // fetch a few extra since some may get filtered out below, then take the top 3 visible ones
 
-      if (error || !posts || !posts.length) {
+      // Belt-and-suspenders: even though the real access control lives in
+      // the database's RLS policy, filter here too so a post never even
+      // briefly renders for someone who shouldn't see it.
+      const visiblePosts = (posts || []).filter(p => p.audience === 'public' || canViewInnerCirclePosts()).slice(0, 3);
+
+      if (error || !visiblePosts.length) {
         container.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-4">No Pro Voice posts yet.</p>';
         return;
       }
 
-      const authorIds = [...new Set(posts.map(p => p.author_id))];
+      const authorIds = [...new Set(visiblePosts.map(p => p.author_id))];
       const { data: authors } = await supabaseClient
         .from('users').select('user_id, display_name, title, photo_url, role')
         .in('user_id', authorIds);
       const authorMap = {};
       (authors || []).forEach(a => authorMap[a.user_id] = a);
 
-      const cardsHtml = await Promise.all(posts.map(post =>
+      const cardsHtml = await Promise.all(visiblePosts.map(post =>
         renderProPostCard(post, session?.user?.id, authorMap[post.author_id], currentSportName, 'home')
       ));
       container.innerHTML = cardsHtml.join('');
@@ -4414,11 +4052,16 @@
         .eq('sport_id', currentSportId)
         .order('posted_at', { ascending: false });
 
+      // Belt-and-suspenders: even though the real access control lives in
+      // the database's RLS policy, filter here too so a post never even
+      // briefly renders for someone who shouldn't see it.
+      const visiblePosts = (posts || []).filter(p => p.audience === 'public' || canViewInnerCirclePosts());
+
       if (error) {
         feed.innerHTML = `<p class="text-sm text-[var(--text-muted)] text-center py-6">Could not load feed: ${error.message}</p>`;
         return;
       }
-      if (!posts || !posts.length) {
+      if (!visiblePosts.length) {
         feed.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-6">No broadcasts yet.</p>';
         return;
       }
@@ -4426,14 +4069,14 @@
       // Fetch every distinct author's info in one simple query (no join),
       // then look each one up client-side per card - this sidesteps the
       // embedding ambiguity entirely instead of working around it.
-      const authorIds = [...new Set(posts.map(p => p.author_id))];
+      const authorIds = [...new Set(visiblePosts.map(p => p.author_id))];
       const { data: authors } = await supabaseClient
         .from('users').select('user_id, display_name, title, photo_url, role')
         .in('user_id', authorIds);
       const authorMap = {};
       (authors || []).forEach(a => authorMap[a.user_id] = a);
 
-      const cardsHtml = await Promise.all(posts.map(post =>
+      const cardsHtml = await Promise.all(visiblePosts.map(post =>
         renderProPostCard(post, session?.user?.id, authorMap[post.author_id], currentSportName, 'feed')
       ));
       feed.innerHTML = cardsHtml.join('');
@@ -4507,6 +4150,9 @@
         <button onclick="openReportModal('${post.post_id}')" class="text-xs text-[var(--text-muted)] hover:text-red-400 underline min-h-touch">Report</button>
       ` : '';
 
+      const audienceBadge = post.audience === 'public'
+        ? `<span class="inline-flex items-center gap-1 text-sm font-bold px-2 py-0.5 rounded-full bg-emerald-fairway/15 text-emerald-light border border-emerald-fairway/30">🌐 Public</span>`
+        : `<span class="inline-flex items-center gap-1 text-sm font-bold px-2 py-0.5 rounded-full bg-violet-accent/15 text-violet-light border border-violet-accent/30">🔒 Inner Circle</span>`;
       return `
         <div class="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl p-4 space-y-3 relative overflow-hidden">
           <div class="flex items-start justify-between">
@@ -4514,9 +4160,10 @@
               <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-violet-accent shadow">
                 <img src="${authorPhoto}" class="w-full h-full object-cover">
               </div>
-              <div>
+              <div class="space-y-0.5">
                 <h4 class="text-xs font-bold text-[var(--text-main)]">${authorName}</h4>
-                <p class="text-sm text-[var(--text-muted)]">${sportLabel}${author?.title || 'Verified Pro'} · ${post.audience === 'public' ? '🌐 Public' : '🔒 Inner Circle'}</p>
+                <p class="text-sm text-[var(--text-muted)]">${sportLabel}${author?.title || 'Verified Pro'}</p>
+                ${audienceBadge}
               </div>
             </div>
             <div class="bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded-full text-sm font-mono font-bold">
@@ -4820,6 +4467,8 @@
       safeBootStep('loadHomeProVoicePreview', () => loadHomeProVoicePreview());
       safeBootStep('loadActivePoll', () => loadActivePoll());
       safeBootStep('refreshAllSponsorPlacements', () => refreshAllSponsorPlacements());
+      safeBootStep('loadPodcastEmbed', () => loadMediaEmbed('podcast', 'podcast-iframe'));
+      safeBootStep('loadGearEmbed', () => loadMediaEmbed('gear', 'gear-iframe'));
       safeBootStep('renderSportSwitcherLabel', () => renderSportSwitcherLabel());
 
       // Register the service worker - makes the app installable and gives
