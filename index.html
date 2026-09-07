@@ -760,8 +760,8 @@
         <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
           <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
             <div>
-              <span class="text-xs font-bold text-amber-400 uppercase tracking-wider bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">Shows & Conversations</span>
-              <h3 class="text-sm font-bold text-[var(--text-main)] mt-1">Terry Rowles Podcast</h3>
+              <span id="podcast-eyebrow-label" class="text-xs font-bold text-amber-400 uppercase tracking-wider bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">Shows & Conversations</span>
+              <h3 id="podcast-title-label" class="text-sm font-bold text-[var(--text-main)] mt-1">Terry Rowles Podcast</h3>
             </div>
             <div id="sponsor-badge-podcast"></div>
           </div>
@@ -769,6 +769,7 @@
           <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-black">
             <iframe id="podcast-iframe" class="w-full h-full" src="" title="Terry Rowles Podcast" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
           </div>
+          <div id="podcast-chapters-list" class="flex flex-wrap gap-1.5"></div>
 
           <div id="sponsor-banner-podcast" class="mt-3"></div>
 
@@ -813,8 +814,8 @@
           
           <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
             <div>
-              <span class="text-xs font-bold theme-accent-text uppercase tracking-wider theme-accent-subtle-bg px-2 py-0.5 rounded theme-accent-subtle-border border">Equipment & Fitting</span>
-              <h3 class="text-sm font-bold text-[var(--text-main)] mt-1">Independent Gear & Shaft Lab</h3>
+              <span id="gear-eyebrow-label" class="text-xs font-bold theme-accent-text uppercase tracking-wider theme-accent-subtle-bg px-2 py-0.5 rounded theme-accent-subtle-border border">Equipment & Fitting</span>
+              <h3 id="gear-title-label" class="text-sm font-bold text-[var(--text-main)] mt-1">Independent Gear & Shaft Lab</h3>
             </div>
             <div id="sponsor-badge-equipment"></div>
           </div>
@@ -827,6 +828,7 @@
             <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-black">
               <iframe id="gear-iframe" class="w-full h-full" src="" title="Gear & Tech Audit Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
+            <div id="gear-chapters-list" class="flex flex-wrap gap-1.5"></div>
           </div>
 
           <div id="sponsor-banner-equipment" class="mt-4"></div>
@@ -1803,17 +1805,37 @@
             <div class="h-full ${isMine ? 'theme-accent-bg' : 'bg-[var(--border-subtle)]'}" style="width:${pct}%"></div>
           </div>
         `;
-        // Results are always visible to everyone - but if this viewer can
-        // still vote, each result bar doubles as the vote button, so
-        // there's no separate/confusing second set of buttons underneath.
-        return canVoteNow
-          ? `<button onclick="voteInPoll('${poll.poll_id}', '${o.option_id}')" class="w-full text-left min-h-touch space-y-1 p-1.5 -m-1.5 rounded-lg hover:bg-[var(--bg-card)] transition-all">${barInner}</button>`
-          : `<div class="space-y-1">${barInner}</div>`;
+        if (!canVoteNow) return `<div class="space-y-1">${barInner}</div>`;
+
+        // Voting is now a clear two-step action: tapping an option only
+        // SELECTS it (visibly, with a filled radio dot and a highlighted
+        // border) - it does NOT vote yet. The vote only actually happens
+        // when "Confirm Vote" below is tapped. This is specifically to
+        // prevent a stray/accidental tap from casting a real vote, since
+        // votes can't be undone.
+        return `
+          <button type="button" onclick="selectPollOption('${poll.poll_id}', '${o.option_id}', this)"
+            class="poll-option-btn w-full text-left p-2.5 rounded-xl border-2 border-[var(--border-subtle)] hover:border-[var(--accent-main)] transition-all">
+            <div class="flex items-center gap-2.5">
+              <span class="poll-radio-dot w-4 h-4 rounded-full border-2 border-[var(--border-subtle)] flex-shrink-0 flex items-center justify-center">
+                <span class="poll-radio-fill w-2 h-2 rounded-full theme-accent-bg hidden"></span>
+              </span>
+              <div class="flex-1 space-y-1">${barInner}</div>
+            </div>
+          </button>
+        `;
       }).join('');
 
       return `
         <p class="text-sm font-bold text-[var(--text-main)]">${escapeHtml(poll.question)}</p>
-        ${resultBars}
+        ${canVoteNow ? '<p class="text-xs text-[var(--text-muted)]">Tap an option, then confirm your vote below:</p>' : ''}
+        <div id="poll-options-${poll.poll_id}" class="space-y-2">${resultBars}</div>
+        ${canVoteNow ? `
+          <button id="poll-confirm-${poll.poll_id}" onclick="confirmPollVote('${poll.poll_id}')" disabled
+            class="w-full min-h-touch theme-accent-bg text-white font-bold text-xs py-2.5 rounded-xl opacity-40 cursor-not-allowed transition-all mt-1">
+            Select an option above first
+          </button>
+        ` : ''}
         ${!loggedIn ? '<p class="text-xs text-[var(--text-muted)] mt-1">Log in to vote</p>' : ''}
         ${currentUser.role === 'admin'
           ? `<p class="text-xs text-[var(--text-muted)] mt-1">${total} vote${total === 1 ? '' : 's'} total (only admins see the raw count - everyone else sees percentages only)</p>`
@@ -1897,6 +1919,42 @@
 
       listEl.innerHTML = polls.map((p, i) => `<div id="all-polls-item-${i}" class="bg-[var(--bg-card)] p-3 rounded-xl border border-[var(--border-subtle)] space-y-2"></div>`).join('');
       polls.forEach((p, i) => loadPollIntoElement(p, document.getElementById(`all-polls-item-${i}`)));
+    }
+
+    // Two-step voting: selecting an option just highlights it locally -
+    // nothing is sent to the server until confirmPollVote() runs. This is
+    // what prevents a stray tap from casting a real, permanent vote.
+    let pollSelections = {}; // poll_id -> currently-selected option_id (not yet confirmed)
+
+    function selectPollOption(pollId, optionId, btnEl) {
+      pollSelections[pollId] = optionId;
+
+      const container = document.getElementById(`poll-options-${pollId}`);
+      container.querySelectorAll('.poll-option-btn').forEach(b => {
+        b.classList.remove('border-[var(--accent-main)]', 'theme-accent-subtle-bg');
+        b.classList.add('border-[var(--border-subtle)]');
+        const dot = b.querySelector('.poll-radio-fill');
+        if (dot) dot.classList.add('hidden');
+      });
+
+      btnEl.classList.remove('border-[var(--border-subtle)]');
+      btnEl.classList.add('border-[var(--accent-main)]', 'theme-accent-subtle-bg');
+      const fillDot = btnEl.querySelector('.poll-radio-fill');
+      if (fillDot) fillDot.classList.remove('hidden');
+
+      const confirmBtn = document.getElementById(`poll-confirm-${pollId}`);
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+        confirmBtn.textContent = 'Confirm Vote';
+      }
+    }
+
+    async function confirmPollVote(pollId) {
+      const optionId = pollSelections[pollId];
+      if (!optionId) return; // nothing selected yet - button should be disabled anyway, this is just a safety guard
+      delete pollSelections[pollId];
+      await voteInPoll(pollId, optionId);
     }
 
     async function voteInPoll(pollId, optionId) {
@@ -2110,10 +2168,12 @@
     async function loadMediaEmbed(mediaType, iframeId) {
       const iframe = document.getElementById(iframeId);
       if (!iframe) return;
+      const chaptersListId = mediaType === 'gear' ? 'gear-chapters-list' : 'podcast-chapters-list';
+      const chaptersEl = document.getElementById(chaptersListId);
 
       const { data, error } = await supabaseClient
         .from('podcast_episodes')
-        .select('youtube_video_id, title')
+        .select('episode_id, youtube_video_id, title')
         .eq('media_type', mediaType)
         .eq('is_active', true)
         .order('created_at', { ascending: false })
@@ -2122,10 +2182,65 @@
 
       if (error || !data || !data.youtube_video_id) {
         iframe.removeAttribute('src');
+        if (chaptersEl) chaptersEl.innerHTML = '';
         return;
       }
       iframe.src = `https://www.youtube.com/embed/${encodeURIComponent(data.youtube_video_id)}?enablejsapi=1`;
       iframe.title = data.title || iframe.title;
+
+      if (chaptersEl) await loadEpisodeChapters(data.episode_id, iframeId, chaptersEl);
+    }
+
+    // Chapter jumps - each chapter is just a timestamp + label an admin
+    // sets up per episode. Tapping one seeks the YouTube player to that
+    // point via the same postMessage API already used for seekPodcast.
+    async function loadEpisodeChapters(episodeId, iframeId, chaptersEl) {
+      const { data: chapters } = await supabaseClient
+        .from('episode_chapters')
+        .select('label, time_seconds')
+        .eq('episode_id', episodeId)
+        .order('sort_order', { ascending: true });
+
+      if (!chapters || !chapters.length) { chaptersEl.innerHTML = ''; return; }
+
+      chaptersEl.innerHTML = chapters.map(c => `
+        <button onclick="seekVideoTo('${iframeId}', ${c.time_seconds})" class="text-sm font-bold px-2.5 py-1 rounded-lg bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all">
+          ${formatChapterTime(c.time_seconds)} ${escapeHtml(c.label)}
+        </button>
+      `).join('');
+    }
+
+    function formatChapterTime(totalSeconds) {
+      const mins = Math.floor(totalSeconds / 60);
+      const secs = totalSeconds % 60;
+      return `${mins}:${String(secs).padStart(2, '0')}`;
+    }
+
+    // Generic version of the existing seekPodcast() - works for either
+    // video slot (podcast or gear) via the same YouTube postMessage API.
+    function seekVideoTo(iframeId, seconds) {
+      const iframe = document.getElementById(iframeId);
+      if (iframe && iframe.contentWindow) {
+        iframe.contentWindow.postMessage(JSON.stringify({
+          event: 'command', func: 'seekTo', args: [seconds, true],
+        }), '*');
+      }
+    }
+
+    async function loadContentLabels() {
+      const { data, error } = await supabaseClient.from('app_content_labels').select('label_key, value');
+      if (error || !data) return; // non-fatal - the hardcoded default text already in the HTML stays as a safe fallback
+      const labelMap = {};
+      data.forEach(row => labelMap[row.label_key] = row.value);
+
+      const setIfPresent = (id, key) => {
+        const el = document.getElementById(id);
+        if (el && labelMap[key]) el.textContent = labelMap[key];
+      };
+      setIfPresent('podcast-eyebrow-label', 'podcast_eyebrow');
+      setIfPresent('podcast-title-label', 'podcast_title');
+      setIfPresent('gear-eyebrow-label', 'gear_eyebrow');
+      setIfPresent('gear-title-label', 'gear_title');
     }
 
     // Every sponsor container div exists in the DOM at all times (tabs
@@ -3979,7 +4094,7 @@
       // Check what kind of post this is BEFORE deleting it - once the row
       // is gone, there's no way to know which video file needs cleaning up.
       const { data: postInfo } = await supabaseClient
-        .from('pro_posts').select('media_type, media_url').eq('post_id', postId).single();
+        .from('pro_posts').select('media_type, media_url, thumbnail_url').eq('post_id', postId).single();
 
       const { error } = await supabaseClient.from('pro_posts').delete().eq('post_id', postId);
       if (error) {
@@ -3987,18 +4102,27 @@
         return;
       }
 
-      // Also delete the actual video file from storage - otherwise it sits
-      // there wasting space forever, since the automatic cleanup only
-      // catches videos that reach their normal 30-hour expiry, not ones
-      // deleted early by hand.
-      if (postInfo?.media_type === 'Video' && postInfo?.media_url) {
+      // Also delete the actual video file AND its thumbnail from storage -
+      // otherwise they sit there wasting space forever, since the
+      // automatic cleanup only catches videos that reach their normal
+      // 30-hour expiry, not ones deleted early by hand. Both are
+      // deliberately non-fatal: a storage-cleanup hiccup should never
+      // make it look like the delete itself failed.
+      if (postInfo?.media_type === 'Video' && postInfo.media_url) {
         try {
-          await supabaseClient.functions.invoke('delete-video-from-r2', {
-            method: 'POST',
-            body: { mediaUrl: postInfo.media_url },
-          });
+          await supabaseClient.functions.invoke('delete-video-from-r2', { method: 'POST', body: { mediaUrl: postInfo.media_url } });
         } catch (err) {
           console.error('Could not delete video file from storage (post itself is still removed):', err);
+        }
+      }
+      // Both Video AND Voice posts can have an optional R2-hosted
+      // thumbnail (Photo posts store their image directly as a data URL,
+      // not in R2, so there's nothing separate to clean up for those).
+      if (postInfo?.thumbnail_url) {
+        try {
+          await supabaseClient.functions.invoke('delete-video-from-r2', { method: 'POST', body: { mediaUrl: postInfo.thumbnail_url } });
+        } catch (err) {
+          console.error('Could not delete thumbnail from storage (post itself is still removed):', err);
         }
       }
 
@@ -4479,6 +4603,7 @@
       safeBootStep('refreshAllSponsorPlacements', () => refreshAllSponsorPlacements());
       safeBootStep('loadPodcastEmbed', () => loadMediaEmbed('podcast', 'podcast-iframe'));
       safeBootStep('loadGearEmbed', () => loadMediaEmbed('gear', 'gear-iframe'));
+      safeBootStep('loadContentLabels', () => loadContentLabels());
       safeBootStep('renderSportSwitcherLabel', () => renderSportSwitcherLabel());
 
       // Register the service worker - makes the app installable and gives
