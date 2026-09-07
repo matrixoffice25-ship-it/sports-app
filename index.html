@@ -402,13 +402,17 @@
       <section id="tab-home" class="tab-page space-y-4">
 
         <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3" id="poll-card">
-          <div class="flex items-center space-x-2">
-            <span class="text-lg">🗳️</span>
-            <h4 class="text-xs font-bold text-[var(--text-main)]">Community Poll</h4>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <span class="text-lg">🗳️</span>
+              <h4 class="text-xs font-bold text-[var(--text-main)]">Community Poll</h4>
+            </div>
+            <div id="sponsor-badge-polls"></div>
           </div>
           <div id="poll-content" class="space-y-2">
             <p class="text-sm text-[var(--text-muted)]">Log in and select a sport to vote in polls.</p>
           </div>
+          <button id="see-all-polls-btn" onclick="openAllPollsModal()" class="hidden text-sm font-bold text-red-400 hover:text-red-300">See All Polls</button>
         </div>
 
         <!-- PULSE AD PLACEHOLDER - replace with real ad partner once MVP ships -->
@@ -486,7 +490,6 @@
                 
                 <span>Daily News Brief Feed</span>
               </h3>
-              <p class="text-xs text-[var(--text-muted)]">Curated daily athletic intelligence</p>
             </div>
             <button onclick="switchTab('tab-news')" class="text-sm font-bold text-red-400 hover:text-red-300 flex items-center gap-1">
               <span>View Magazine</span>
@@ -510,102 +513,29 @@
             <div>
               <div class="flex items-center space-x-2">
                 <span class="text-xs font-extrabold uppercase tracking-widest text-red-400 bg-red-950/40 px-2 py-0.5 rounded border border-red-500/30">ONLINE MAGAZINE</span>
-                <span class="text-xs text-[var(--text-muted)] font-mono">ISSUE #14 • AUG 2026</span>
               </div>
             </div>
-            <div class="text-right">
-              <span class="text-xs text-slate-400 block font-mono">POWERED BY</span>
-              <svg class="h-3.5 w-auto inline-block" viewBox="0 0 100 24" fill="none">
-                <rect width="100" height="24" rx="12" fill="#F40009"/>
-                <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
-              </svg>
-            </div>
+            <div id="sponsor-badge-news"></div>
           </div>
 
-          <div class="flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar">
-            <button onclick="filterNewsCategory('all', this)" class="news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold theme-accent-bg flex-shrink-0 transition-all">All News</button>
-            <button onclick="filterNewsCategory('news', this)" class="news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-white flex-shrink-0 transition-all">⛳ News</button>
-            <button onclick="filterNewsCategory('technology', this)" class="news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-white flex-shrink-0 transition-all">⚙️ Technology</button>
-            <button onclick="filterNewsCategory('featured', this)" class="news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-white flex-shrink-0 transition-all">🥤 Featured</button>
+          <div id="news-admin-buttons" class="hidden flex items-center justify-end gap-2 flex-wrap">
+            <button onclick="openSponsorManager()" class="text-sm font-bold text-[var(--text-muted)] hover:text-[var(--text-main)] underline">Manage Sponsor Ads</button>
+            <button onclick="openArticleManager()" class="text-sm font-bold text-[var(--text-muted)] hover:text-[var(--text-main)] underline">Manage</button>
+            <button onclick="openArticleComposer()" class="min-h-touch min-w-touch px-3 py-1.5 rounded-xl text-xs font-extrabold theme-accent-bg">+ New</button>
+          </div>
+
+          <div id="news-category-chips" class="flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar">
+            <!-- populated by loadNewsCategories() -->
           </div>
         </div>
 
-        <div class="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl overflow-hidden shadow-xl group">
-          <div class="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=700&auto=format&fit=crop&q=80" alt="Golf Athlete Swing" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500">
-            <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-app)] via-black/40 to-transparent z-10"></div>
-            
-            <div class="absolute top-3 left-3 z-20 bg-red-600 text-white text-xs font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow">
-              COVER STORY
-            </div>
-          </div>
-
-          <div class="p-4 space-y-3">
-            <div class="flex items-center justify-between text-sm text-[var(--text-muted)] border-b border-[var(--border-subtle)] pb-2">
-              <span class="flex items-center gap-1.5">
-                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&auto=format&fit=crop&q=80" class="w-4 h-4 rounded-full object-cover">
-                <span>By Ansel Cruz & Priya Shah</span>
-              </span>
-              <span>4 Min Read • Aug 28, 2026</span>
-            </div>
-            <p class="text-xs text-[var(--text-main)] leading-relaxed">
-              When players match shaft tip firmness with high-inertia driver geometry, off-center hits retain up to 94% of ball speed. Our lead coaches break down the practical drills used with top tour pros.
-            </p>
-            <button onclick="triggerToast('Opening Cover Story Deep Dive 📖')" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] font-bold text-xs py-2.5 rounded-xl border border-[var(--border-subtle)] flex items-center justify-center gap-2 transition-all">
-              <span>Read Full Magazine Article</span>
-              
-            </button>
-          </div>
+        <div id="news-cover-story-container">
+          <!-- populated dynamically by loadNewsTab() from whichever article
+               has is_cover_story = true for the current sport -->
         </div>
 
-        <div class="bg-gradient-to-r from-red-950/60 via-red-900/40 to-slate-900 p-4 rounded-2xl border-2 border-red-500/40 space-y-2.5 relative overflow-hidden coke-glow">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <svg class="h-5 w-auto" viewBox="0 0 100 24" fill="none">
-                <rect width="100" height="24" rx="12" fill="#F40009"/>
-                <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
-              </svg>
-              <div class="text-sm font-black text-white">Refresh Your Round</div>
-            </div>
-          </div>
-          <button onclick="triggerToast('PULSE 2-for-1 Pro Shop Voucher Saved to Wallet! 🥤')" class="w-full min-h-touch bg-white hover:bg-slate-100 text-red-600 font-extrabold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg mt-2">
-            
-            <span>Redeem Pro Shop Voucher</span>
-          </button>
-        </div>
-
-        <div class="space-y-3">
-          <div class="bg-[var(--bg-surface)] p-3.5 rounded-xl border border-[var(--border-subtle)] space-y-2 hover:border-[var(--accent-main)] transition-colors">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-emerald-light bg-emerald-fairway/10 px-2 py-0.5 rounded">GOLF NEWS</span>
-              <span class="text-xs text-[var(--text-muted)]">2 Hours Ago</span>
-            </div>
-            <h4 class="text-xs font-bold text-[var(--text-main)]">How Lead-Side Dominant Players Eliminate the High Right Miss</h4>
-            <p class="text-sm text-[var(--text-muted)]">Our Coaching Staff demonstrates the simple range tee alignment drill that keeps your chest over the ball.</p>
-          </div>
-
-          <div class="bg-[var(--bg-surface)] p-3.5 rounded-xl border border-[var(--border-subtle)] space-y-2 hover:border-violet-accent transition-colors">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-violet-light bg-violet-accent/10 px-2 py-0.5 rounded">FEATURED RECOVERY</span>
-              <span class="text-xs text-[var(--text-muted)]">5 Hours Ago</span>
-            </div>
-            <h4 class="text-xs font-bold text-[var(--text-main)]">Morning Hip Opener Routine for Golfers Over 40</h4>
-            <p class="text-sm text-[var(--text-muted)]">Gentle mobility flows designed to loosen up the pelvic capsule without risking lower back strain.</p>
-          </div>
-        </div>
-
-        <!-- COCA-COLA AD: ATHLETE SPOTLIGHT -->
-        <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all mt-4" onclick="triggerToast('Opening Spotlight! 📖')">
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white">
-              
-            </div>
-            <div>
-              <div class="text-xs font-bold text-red-400 uppercase">PULSE Athlete Spotlight</div>
-              <div class="text-xs font-bold text-[var(--text-main)]">Athlete Hydration Tips</div>
-            </div>
-          </div>
-          
+        <div id="news-article-list" class="space-y-3">
+          <!-- populated dynamically by loadNewsTab() -->
         </div>
 
       </section>
@@ -821,13 +751,7 @@
             </h2>
           </div>
 
-          <div class="flex items-center gap-1 bg-red-950/40 border border-red-500/30 px-2 py-1 rounded-xl">
-            <svg class="h-3 w-auto" viewBox="0 0 100 24" fill="none">
-              <rect width="100" height="24" rx="12" fill="#F40009"/>
-              <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
-            </svg>
-            <span class="text-xs font-bold text-red-300 uppercase">Supporter</span>
-          </div>
+          <div id="sponsor-badge-stream"></div>
         </div>
 
         <div id="stream-feed-list" class="space-y-4">
@@ -850,32 +774,14 @@
               <span class="text-xs font-bold text-amber-400 uppercase tracking-wider bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">Shows & Conversations</span>
               <h3 class="text-sm font-bold text-[var(--text-main)] mt-1">Terry Rowles Podcast</h3>
             </div>
+            <div id="sponsor-badge-podcast"></div>
           </div>
 
           <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-black">
             <iframe id="podcast-iframe" class="w-full h-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1" title="Terry Rowles Podcast" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
           </div>
 
-          <!-- PLACEMENT 1: UNDER PODCAST VIDEO -->
-          <div class="bg-gradient-to-r from-red-950/40 via-[var(--bg-app)] to-[var(--bg-surface)] p-3 rounded-xl border border-red-500/30 space-y-2 mt-3">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2">
-                <svg class="h-3.5 w-auto" viewBox="0 0 100 24" fill="none">
-                  <rect width="100" height="24" rx="12" fill="#F40009"/>
-                  <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
-                </svg>
-                <div>
-                  <div class="text-xs font-extrabold text-red-400 uppercase tracking-wider">Official Show Partner</div>
-                  <div class="text-xs font-bold text-[var(--text-main)]">Terry's Mid-Round Hydration Guide for ST-04</div>
-                </div>
-              </div>
-              <span class="text-xs font-bold text-slate-300 bg-red-900/60 px-1.5 py-0.5 rounded uppercase border border-red-500/30">SPONSORED</span>
-            </div>
-            <button onclick="triggerToast('Loading Terry Rowles x PULSE Hydration Blueprint 🥤')" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-slate-200 text-xs font-bold py-2 rounded-lg border border-red-500/20 flex items-center justify-center gap-1.5 transition-all">
-              <span>View 4-Step Hydration & Electrolyte Timing</span>
-              
-            </button>
-          </div>
+          <div id="sponsor-banner-podcast" class="mt-3"></div>
 
           <div>
             <div class="text-sm font-bold text-[var(--text-main)] mb-2 mt-3">Episode Chapter Jumps:</div>
@@ -921,13 +827,7 @@
               <span class="text-xs font-bold theme-accent-text uppercase tracking-wider theme-accent-subtle-bg px-2 py-0.5 rounded theme-accent-subtle-border border">Equipment & Fitting</span>
               <h3 class="text-sm font-bold text-[var(--text-main)] mt-1">Independent Gear & Shaft Lab</h3>
             </div>
-            <div class="text-right">
-              <span class="text-xs font-mono text-[var(--text-muted)] block uppercase">TESTING SUPPORT</span>
-              <svg class="h-3 w-auto inline-block" viewBox="0 0 100 24" fill="none">
-                <rect width="100" height="24" rx="12" fill="#F40009"/>
-                <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
-              </svg>
-            </div>
+            <div id="sponsor-badge-equipment"></div>
           </div>
 
           <div class="space-y-2">
@@ -940,26 +840,7 @@
             </div>
           </div>
 
-          <!-- PLACEMENT 2: UNDER GEAR LAB VIDEO -->
-          <div class="bg-gradient-to-r from-red-950/40 via-[var(--bg-app)] to-[var(--bg-surface)] p-3 rounded-xl border border-red-500/30 space-y-2 mt-4">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2">
-                <svg class="h-3.5 w-auto" viewBox="0 0 100 24" fill="none">
-                  <rect width="100" height="24" rx="12" fill="#F40009"/>
-                  <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
-                </svg>
-                <div>
-                  <div class="text-xs font-extrabold text-red-400 uppercase tracking-wider">PULSE Studios Feature</div>
-                  <div class="text-xs font-bold text-[var(--text-main)]">Refresh Your Equipment Loadout</div>
-                </div>
-              </div>
-              <span class="text-xs font-bold text-slate-300 bg-red-900/60 px-1.5 py-0.5 rounded uppercase border border-red-500/30">SPONSORED</span>
-            </div>
-            <button onclick="triggerToast('Added PULSE Tour Towel to Bag! 🛒')" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-slate-200 text-xs font-bold py-2 rounded-lg border border-red-500/20 flex items-center justify-center gap-1.5 transition-all">
-              <span>Claim Free PULSE Tour Towel with Fitting</span>
-              
-            </button>
-          </div>
+          <div id="sponsor-banner-equipment" class="mt-4"></div>
 
           <div class="bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl flex items-center justify-between">
             <div class="flex items-center space-x-2">
@@ -1436,6 +1317,148 @@
       </div>
     </div>
 
+    <!-- ALL POLLS MODAL - keeps Home to one poll (simple, uncluttered) while
+         still letting anyone reach every active poll for their sport. -->
+    <div id="all-polls-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all">
+      <div class="w-full max-w-md max-h-[85vh] flex flex-col bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-t-3xl sm:rounded-3xl p-5 space-y-3 shadow-2xl relative animate-slide-up">
+        <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
+          <h3 class="text-sm font-bold flex items-center gap-2">🗳️ All Active Polls</h3>
+          <button onclick="document.getElementById('all-polls-modal').classList.add('hidden')" class="min-h-touch min-w-touch flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-main)] text-lg">✕</button>
+        </div>
+        <div id="all-polls-list" class="space-y-4 overflow-y-auto pr-1"></div>
+      </div>
+    </div>
+
+    <!-- ARTICLE DETAIL MODAL - the real reader view; replaces the old
+         "Read Full Magazine Article" toast placeholder. -->
+    <div id="article-detail-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all">
+      <div class="w-full max-w-lg max-h-[90vh] flex flex-col bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-t-3xl sm:rounded-3xl shadow-2xl relative animate-slide-up overflow-hidden">
+        <button onclick="document.getElementById('article-detail-modal').classList.add('hidden')" class="absolute top-3 right-3 z-20 min-h-touch min-w-touch flex items-center justify-center bg-black/50 rounded-full text-white text-lg">✕</button>
+        <div id="article-detail-body" class="overflow-y-auto"></div>
+      </div>
+    </div>
+
+    <!-- ARTICLE COMPOSER MODAL - admin/editor only. Mirrors the Pro Voice
+         composer pattern: client-side role gate + server-side RLS as the
+         real enforcement. -->
+    <div id="article-composer-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all">
+      <div class="w-full max-w-md max-h-[92vh] flex flex-col bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-t-3xl sm:rounded-3xl p-5 space-y-3 shadow-2xl relative animate-slide-up overflow-y-auto">
+        <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
+          <h3 id="article-composer-title" class="text-sm font-bold">New Article</h3>
+          <button onclick="closeArticleComposer()" class="min-h-touch min-w-touch flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-main)] text-lg">✕</button>
+        </div>
+
+        <input type="hidden" id="article-form-id" value="">
+
+        <input type="text" id="article-form-title" maxlength="120" placeholder="Headline" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
+        <input type="text" id="article-form-dek" maxlength="200" placeholder="One-line summary (shown in the list)" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
+
+        <select id="article-form-category" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] focus:outline-none focus:border-violet-accent"></select>
+
+        <div class="space-y-1">
+          <span class="text-sm text-slate-400 font-medium">Cover Image (optional)</span>
+          <div class="flex items-center gap-3">
+            <div id="article-thumb-dropzone" onclick="document.getElementById('article-form-cover-input').click()" class="w-16 h-16 flex-shrink-0 rounded-xl border-2 border-dashed border-[var(--border-subtle)] flex items-center justify-center cursor-pointer overflow-hidden">
+              <span class="text-sm text-[var(--text-muted)]">＋</span>
+            </div>
+            <img id="article-thumb-preview-img" class="hidden w-16 h-16 flex-shrink-0 rounded-xl object-cover border border-[var(--border-subtle)]">
+            <input type="file" id="article-form-cover-input" accept="image/*" class="hidden" onchange="handleArticleCoverImage(this)">
+            <button type="button" id="article-thumb-remove-btn" onclick="clearArticleCoverImage()" class="hidden text-sm text-[var(--text-muted)] hover:text-red-400 underline min-h-touch">Remove</button>
+          </div>
+        </div>
+
+        <textarea id="article-form-body" rows="8" placeholder="Article body — plain text or simple Markdown (**bold**, *italic*, # headings, - lists, [links](https://...))" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent"></textarea>
+
+        <div class="grid grid-cols-2 gap-2">
+          <input type="text" id="article-form-author" placeholder="Byline (e.g. Ansel Cruz)" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
+          <input type="text" id="article-form-source-url" placeholder="Source URL (optional)" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
+        </div>
+
+        <label class="flex items-center gap-2 text-xs text-[var(--text-main)]">
+          <input type="checkbox" id="article-form-cover-story" class="w-4 h-4">
+          Set as this sport's Cover Story (replaces any existing one)
+        </label>
+        <label class="flex items-center gap-2 text-xs text-[var(--text-main)]">
+          <input type="checkbox" id="article-form-featured" class="w-4 h-4">
+          Show in the "Featured" filter
+        </label>
+
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button onclick="saveArticle('draft')" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] font-bold text-xs py-2.5 rounded-xl border border-[var(--border-subtle)]">Save as Draft</button>
+          <button onclick="saveArticle('published')" class="w-full min-h-touch theme-accent-bg text-white font-bold text-xs py-2.5 rounded-xl">Publish Now</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARTICLE MANAGER MODAL - admin-only list of every article (draft +
+         published) for the sport currently being browsed, with edit /
+         publish / unpublish / delete actions. This is what makes "editable
+         from the very beginning" actually true day-to-day. -->
+    <div id="article-manager-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all">
+      <div class="w-full max-w-md max-h-[85vh] flex flex-col bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-t-3xl sm:rounded-3xl p-5 space-y-3 shadow-2xl relative animate-slide-up">
+        <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
+          <h3 class="text-sm font-bold">Manage Articles</h3>
+          <button onclick="document.getElementById('article-manager-modal').classList.add('hidden')" class="min-h-touch min-w-touch flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-main)] text-lg">✕</button>
+        </div>
+        <button onclick="openArticleComposer()" class="w-full min-h-touch theme-accent-bg text-white font-bold text-xs py-2.5 rounded-xl">+ New Article</button>
+        <div id="article-manager-list" class="space-y-2 overflow-y-auto pr-1"></div>
+      </div>
+    </div>
+
+    <!-- SPONSOR ADS MANAGER MODAL - admin-only. Every "PULSE" badge and
+         banner across the app (News, Pro Voice Stream, Podcast, Equipment,
+         Polls) is driven from the `sponsor_placements` table and edited
+         here - none of it is hardcoded in the page anymore. -->
+    <div id="sponsor-manager-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all">
+      <div class="w-full max-w-md max-h-[90vh] flex flex-col bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-t-3xl sm:rounded-3xl p-5 space-y-3 shadow-2xl relative animate-slide-up overflow-y-auto">
+        <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
+          <h3 class="text-sm font-bold">Manage Sponsor Ads</h3>
+          <button onclick="closeSponsorManager()" class="min-h-touch min-w-touch flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-main)] text-lg">✕</button>
+        </div>
+
+        <div id="sponsor-manager-list" class="space-y-2"></div>
+
+        <!-- Inline edit form, shown when a slot is picked from the list above -->
+        <div id="sponsor-manager-form" class="hidden space-y-2 border-t border-[var(--border-subtle)] pt-3">
+          <p id="sponsor-form-slot-label" class="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]"></p>
+          <input type="hidden" id="sponsor-form-key">
+          <input type="hidden" id="sponsor-form-kind">
+
+          <label class="flex items-center gap-2 text-xs text-[var(--text-main)]">
+            <input type="checkbox" id="sponsor-form-active" class="w-4 h-4">
+            Ad is active (shown to real users)
+          </label>
+          <label class="flex items-center gap-2 text-xs text-[var(--text-main)]">
+            <input type="checkbox" id="sponsor-form-all-sports" class="w-4 h-4">
+            Apply to ALL sports (unchecked = just the sport you're currently browsing)
+          </label>
+
+          <div class="grid grid-cols-2 gap-2">
+            <input type="text" id="sponsor-form-sponsor-name" placeholder="Sponsor name" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
+            <input type="text" id="sponsor-form-logo-text" maxlength="10" placeholder="Logo text (e.g. PULSE)" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-[var(--text-muted)]">Logo color</span>
+            <input type="color" id="sponsor-form-logo-color" value="#F40009" class="w-10 h-8 rounded border border-[var(--border-subtle)] bg-transparent">
+          </div>
+          <input type="text" id="sponsor-form-eyebrow" maxlength="40" placeholder="Small label (e.g. Official Show Partner, Supporter)" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
+
+          <div id="sponsor-form-banner-fields" class="space-y-2 hidden">
+            <input type="text" id="sponsor-form-headline" maxlength="80" placeholder="Headline (e.g. Terry's Hydration Guide)" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
+            <input type="text" id="sponsor-form-cta-label" maxlength="60" placeholder="Button text (e.g. Claim Free Towel)" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
+            <input type="text" id="sponsor-form-cta-url" placeholder="Button link (optional, https://...)" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-2.5 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent">
+          </div>
+
+          <div id="sponsor-form-preview" class="pt-2"></div>
+
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <button onclick="closeSponsorForm()" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] font-bold text-xs py-2.5 rounded-xl border border-[var(--border-subtle)]">Cancel</button>
+            <button onclick="saveSponsorPlacement()" class="w-full min-h-touch theme-accent-bg text-white font-bold text-xs py-2.5 rounded-xl">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div id="composer-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all">
       <div class="w-full max-w-md bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-t-3xl sm:rounded-3xl p-5 space-y-4 shadow-2xl relative animate-slide-up">
         
@@ -1791,6 +1814,7 @@
       loadHomeProVoicePreview();
       loadActivePoll();
       refreshWalletPointsDisplay();
+      refreshAllSponsorPlacements();
     }
 
     // Explicit action only - a user must deliberately choose to change
@@ -1848,6 +1872,7 @@
       loadNewsBriefs();
       renderSportSwitcherLabel();
       refreshWalletPointsDisplay();
+      refreshAllSponsorPlacements();
     }
 
     async function enterSport(slug) {
@@ -1867,61 +1892,32 @@
     }
 
     // ============================================================
-    // COMMUNITY POLLS: admin creates the question, users vote once.
+    // COMMUNITY POLLS: admin creates the question (and, optionally, a
+    // priority) directly in the Supabase dashboard's Table Editor. Home
+    // only ever shows ONE poll - whichever has the lowest `priority`
+    // number (ties broken by newest) - so the dashboard never gets
+    // cluttered with a stack of polls. Every other active poll for the
+    // sport is still reachable via "See All Polls" without forcing
+    // everyone to scroll past all of them by default.
     // ============================================================
-    async function loadActivePoll() {
-      const pollContent = document.getElementById('poll-content');
-      if (!pollContent) return;
+    let cachedActivePollCount = 0;
 
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (!currentSportId) {
-        pollContent.innerHTML = '<p class="text-sm text-[var(--text-muted)]">Select a sport to see its poll.</p>';
-        return;
-      }
-
-      const { data: poll, error } = await supabaseClient
-        .from('polls')
-        .select('poll_id, question, poll_options(option_id, label, sort_order)')
-        .eq('sport_id', currentSportId)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (error || !poll) {
-        pollContent.innerHTML = '<p class="text-sm text-[var(--text-muted)]">No active poll right now — check back soon.</p>';
-        return;
-      }
-
-      // Guests browsing without an account have no vote to look up -
-      // skip straight to showing votable options, without erroring on a
-      // missing session.
-      const myVote = session
-        ? (await supabaseClient
-            .from('poll_votes')
-            .select('option_id')
-            .eq('poll_id', poll.poll_id)
-            .eq('user_id', session.user.id)
-            .maybeSingle()).data
-        : null;
-
+    // Shared renderer used by BOTH the single Home poll card and the "See
+    // All Polls" list, so voting/results look identical everywhere.
+    function buildPollBlockHtml(poll, myVote, resultsMap, loggedIn) {
       const sortedOptions = (poll.poll_options || []).slice().sort((a, b) => a.sort_order - b.sort_order);
 
       if (myVote) {
-        const { data: results } = await supabaseClient.rpc('get_poll_results', { p_poll_id: poll.poll_id });
-        const countMap = {};
-        (results || []).forEach(r => countMap[r.option_id] = r.vote_count);
-        const total = Object.values(countMap).reduce((a, b) => a + Number(b), 0) || 1;
-
-        pollContent.innerHTML = `
-          <p class="text-sm font-bold text-[var(--text-main)]">${poll.question}</p>
+        const total = Object.values(resultsMap).reduce((a, b) => a + Number(b), 0) || 1;
+        return `
+          <p class="text-sm font-bold text-[var(--text-main)]">${escapeHtml(poll.question)}</p>
           ${sortedOptions.map(o => {
-            const count = Number(countMap[o.option_id] || 0);
+            const count = Number(resultsMap[o.option_id] || 0);
             const pct = Math.round((count / total) * 100);
             const isMine = o.option_id === myVote.option_id;
             return `<div class="space-y-1">
               <div class="flex items-center justify-between text-xs">
-                <span class="${isMine ? 'font-bold theme-accent-text' : 'text-[var(--text-muted)]'}">${o.label}${isMine ? ' ✓' : ''}</span>
+                <span class="${isMine ? 'font-bold theme-accent-text' : 'text-[var(--text-muted)]'}">${escapeHtml(o.label)}${isMine ? ' ✓' : ''}</span>
                 <span class="text-[var(--text-muted)]">${pct}%</span>
               </div>
               <div class="w-full h-2 bg-[var(--bg-app)] rounded-full overflow-hidden">
@@ -1931,20 +1927,96 @@
           }).join('')}
           <p class="text-xs text-[var(--text-muted)] mt-1">${total} vote${total === 1 ? '' : 's'} total</p>
         `;
-      } else {
-        // Logged-out guests see the same question and options as everyone
-        // else - tapping one prompts them to log in, rather than the poll
-        // being hidden from them entirely beforehand.
-        pollContent.innerHTML = `
-          <p class="text-sm font-bold text-[var(--text-main)]">${poll.question}</p>
-          ${sortedOptions.map(o => `
-            <button onclick="voteInPoll('${poll.poll_id}', '${o.option_id}')" class="w-full min-h-touch text-left p-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-xs font-bold text-[var(--text-main)] transition-all">
-              ${o.label}
-            </button>
-          `).join('')}
-          ${!session ? '<p class="text-xs text-[var(--text-muted)] mt-1">Log in to vote</p>' : ''}
-        `;
       }
+
+      // Logged-out guests see the same question and options as everyone
+      // else - tapping one prompts them to log in, rather than the poll
+      // being hidden from them entirely beforehand.
+      return `
+        <p class="text-sm font-bold text-[var(--text-main)]">${escapeHtml(poll.question)}</p>
+        ${sortedOptions.map(o => `
+          <button onclick="voteInPoll('${poll.poll_id}', '${o.option_id}')" class="w-full min-h-touch text-left p-2.5 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-xs font-bold text-[var(--text-main)] transition-all">
+            ${escapeHtml(o.label)}
+          </button>
+        `).join('')}
+        ${!loggedIn ? '<p class="text-xs text-[var(--text-muted)] mt-1">Log in to vote</p>' : ''}
+      `;
+    }
+
+    async function loadPollIntoElement(poll, targetEl) {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const myVote = session
+        ? (await supabaseClient
+            .from('poll_votes')
+            .select('option_id')
+            .eq('poll_id', poll.poll_id)
+            .eq('user_id', session.user.id)
+            .maybeSingle()).data
+        : null;
+
+      let resultsMap = {};
+      if (myVote) {
+        const { data: results } = await supabaseClient.rpc('get_poll_results', { p_poll_id: poll.poll_id });
+        (results || []).forEach(r => resultsMap[r.option_id] = r.vote_count);
+      }
+      targetEl.innerHTML = buildPollBlockHtml(poll, myVote, resultsMap, !!session);
+    }
+
+    async function loadActivePoll() {
+      const pollContent = document.getElementById('poll-content');
+      const seeAllBtn = document.getElementById('see-all-polls-btn');
+      if (!pollContent) return;
+
+      if (!currentSportId) {
+        pollContent.innerHTML = '<p class="text-sm text-[var(--text-muted)]">Select a sport to see its poll.</p>';
+        if (seeAllBtn) seeAllBtn.classList.add('hidden');
+        return;
+      }
+
+      const { data: polls, error } = await supabaseClient
+        .from('polls')
+        .select('poll_id, question, poll_options(option_id, label, sort_order)')
+        .eq('sport_id', currentSportId)
+        .eq('is_active', true)
+        .order('priority', { ascending: true })
+        .order('created_at', { ascending: false });
+
+      if (error || !polls || !polls.length) {
+        pollContent.innerHTML = '<p class="text-sm text-[var(--text-muted)]">No active poll right now — check back soon.</p>';
+        if (seeAllBtn) seeAllBtn.classList.add('hidden');
+        return;
+      }
+
+      cachedActivePollCount = polls.length;
+      if (seeAllBtn) seeAllBtn.classList.toggle('hidden', polls.length <= 1);
+
+      await loadPollIntoElement(polls[0], pollContent);
+    }
+
+    // "See All Polls" - every active poll for the sport, same priority
+    // order as Home, each independently votable. Kept in a modal (not a
+    // permanently-visible list) specifically so the Home dashboard never
+    // has to show more than one poll at a time.
+    async function openAllPollsModal() {
+      const listEl = document.getElementById('all-polls-list');
+      document.getElementById('all-polls-modal').classList.remove('hidden');
+      listEl.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-4">Loading polls…</p>';
+
+      const { data: polls, error } = await supabaseClient
+        .from('polls')
+        .select('poll_id, question, poll_options(option_id, label, sort_order)')
+        .eq('sport_id', currentSportId)
+        .eq('is_active', true)
+        .order('priority', { ascending: true })
+        .order('created_at', { ascending: false });
+
+      if (error || !polls || !polls.length) {
+        listEl.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-4">No active polls right now.</p>';
+        return;
+      }
+
+      listEl.innerHTML = polls.map((p, i) => `<div id="all-polls-item-${i}" class="bg-[var(--bg-card)] p-3 rounded-xl border border-[var(--border-subtle)] space-y-2"></div>`).join('');
+      polls.forEach((p, i) => loadPollIntoElement(p, document.getElementById(`all-polls-item-${i}`)));
     }
 
     async function voteInPoll(pollId, optionId) {
@@ -1971,7 +2043,311 @@
       playSfx("G5", "8n");
       triggerToast('Vote submitted! +1 point 🗳️');
       loadActivePoll();
+      // Also refresh the All Polls modal's copy of this poll if it's open
+      // right now - voting from there shouldn't require closing/reopening
+      // the modal to see the result.
+      if (!document.getElementById('all-polls-modal').classList.contains('hidden')) {
+        openAllPollsModal();
+      }
     }
+
+    // ============================================================
+    // SPONSOR PLACEMENTS ("PULSE" ad badges & banners)
+    // Every sponsor slot in the app - the small "Powered by" badges in a
+    // card header, AND the full banner ad cards - is driven by the
+    // `sponsor_placements` table instead of hardcoded HTML. Adding a
+    // brand-new physical slot on a new screen still needs a small code
+    // change (a container div + one render call), but editing anything
+    // about an EXISTING slot - sponsor name, logo, colors, wording, the
+    // link, or turning it on/off - is 100% in-app, no code, no redeploy.
+    // ============================================================
+
+    // Every known slot in the app, and which visual style it uses. This
+    // is what populates the dropdown in Manage Sponsor Ads - adding a
+    // new physical slot later means adding one line here plus a
+    // container div + render call at that spot in the page.
+    const SPONSOR_PLACEMENT_DEFS = [
+      { key: 'news_header_badge', kind: 'badge', variant: 'stacked', label: 'News — Magazine header badge' },
+      { key: 'stream_header_badge', kind: 'badge', variant: 'pill', label: 'Pro Voice Stream — header badge' },
+      { key: 'polls_header_badge', kind: 'badge', variant: 'pill', label: 'Home — Community Poll card badge' },
+      { key: 'equipment_header_badge', kind: 'badge', variant: 'header', label: 'Equipment & Fitting — card header badge' },
+      { key: 'podcast_header_badge', kind: 'badge', variant: 'header', label: 'Shows/Podcast — card header badge' },
+      { key: 'podcast_banner', kind: 'banner', label: 'Shows/Podcast — banner under video' },
+      { key: 'equipment_banner', kind: 'banner', label: 'Equipment & Fitting — banner under video' },
+    ];
+
+    function sponsorDefFor(key) {
+      return SPONSOR_PLACEMENT_DEFS.find(d => d.key === key);
+    }
+
+    function pulseLogoSvg(logoText, logoColor, heightClass) {
+      return `<svg class="${heightClass} w-auto inline-block" viewBox="0 0 100 24" fill="none">
+        <rect width="100" height="24" rx="12" fill="${escapeHtml(logoColor || '#F40009')}"/>
+        <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">${escapeHtml((logoText || 'PULSE').toUpperCase())}</text>
+      </svg>`;
+    }
+
+    // Sport-specific row wins if one exists and is active; otherwise a
+    // global (sport_id = null) row is used; otherwise the slot is
+    // simply hidden rather than showing a broken/empty ad.
+    async function fetchSponsorPlacement(key) {
+      let query = supabaseClient
+        .from('sponsor_placements')
+        .select('*')
+        .eq('placement_key', key)
+        .eq('is_active', true);
+
+      query = currentSportId
+        ? query.or(`sport_id.eq.${currentSportId},sport_id.is.null`)
+        : query.is('sport_id', null);
+
+      const { data, error } = await query;
+      if (error || !data || !data.length) return null;
+      // Prefer the sport-specific row over the global fallback if both exist.
+      return data.find(r => r.sport_id === currentSportId) || data.find(r => !r.sport_id) || data[0];
+    }
+
+    function sponsorCtaClick(sponsorName, ctaUrl) {
+      if (ctaUrl) { window.open(ctaUrl, '_blank', 'noopener,noreferrer'); return; }
+      triggerToast(`Opening ${sponsorName || 'sponsor'} offer…`);
+    }
+
+    async function renderSponsorBadge(key, containerId) {
+      const el = document.getElementById(containerId);
+      if (!el) return;
+      const def = sponsorDefFor(key);
+      const sp = await fetchSponsorPlacement(key);
+      if (!sp) { el.innerHTML = ''; return; }
+
+      const logo = pulseLogoSvg(sp.logo_text, sp.logo_color, 'h-3.5');
+
+      if (def.variant === 'stacked') {
+        // News magazine header: "POWERED BY" stacked above the logo.
+        el.innerHTML = `
+          <span class="text-xs text-slate-400 block font-mono text-right">${escapeHtml(sp.eyebrow_label || 'POWERED BY')}</span>
+          ${logo}
+        `;
+      } else if (def.variant === 'pill') {
+        // Pro Voice Stream / Polls: a small bordered pill with logo + label.
+        el.innerHTML = `
+          <div class="flex items-center gap-1 bg-red-950/40 border border-red-500/30 px-2 py-1 rounded-xl">
+            ${pulseLogoSvg(sp.logo_text, sp.logo_color, 'h-3')}
+            <span class="text-xs font-bold text-red-300 uppercase">${escapeHtml(sp.eyebrow_label || 'Supporter')}</span>
+          </div>
+        `;
+      } else {
+        // 'header' variant - Equipment/Podcast: eyebrow label above the
+        // logo, right-aligned in the card header.
+        el.innerHTML = `
+          <div class="text-right">
+            <span class="text-xs font-mono text-[var(--text-muted)] block uppercase">${escapeHtml(sp.eyebrow_label || '')}</span>
+            ${logo}
+          </div>
+        `;
+      }
+    }
+
+    async function renderSponsorBanner(key, containerId) {
+      const el = document.getElementById(containerId);
+      if (!el) return;
+      const sp = await fetchSponsorPlacement(key);
+      if (!sp) { el.innerHTML = ''; return; }
+
+      const safeSponsorName = escapeHtml(sp.sponsor_name || 'Sponsor');
+      const safeCtaUrl = sp.cta_url ? escapeHtml(sp.cta_url) : '';
+      el.innerHTML = `
+        <div class="bg-gradient-to-r from-red-950/40 via-[var(--bg-app)] to-[var(--bg-surface)] p-3 rounded-xl border border-red-500/30 space-y-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              ${pulseLogoSvg(sp.logo_text, sp.logo_color, 'h-3.5')}
+              <div>
+                <div class="text-xs font-extrabold text-red-400 uppercase tracking-wider">${escapeHtml(sp.eyebrow_label || 'Sponsored')}</div>
+                <div class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(sp.headline || '')}</div>
+              </div>
+            </div>
+            <span class="text-xs font-bold text-slate-300 bg-red-900/60 px-1.5 py-0.5 rounded uppercase border border-red-500/30">SPONSORED</span>
+          </div>
+          <button onclick="sponsorCtaClick('${safeSponsorName.replace(/'/g, "\\'")}', '${safeCtaUrl.replace(/'/g, "\\'")}')" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-slate-200 text-xs font-bold py-2 rounded-lg border border-red-500/20 flex items-center justify-center gap-1.5 transition-all">
+            <span>${escapeHtml(sp.cta_label || 'Learn More')}</span>
+          </button>
+        </div>
+      `;
+    }
+
+    // Every sponsor container div exists in the DOM at all times (tabs
+    // are just hidden/shown with CSS, never removed) - so refreshing
+    // every slot here, once per sport change, keeps every tab correct
+    // whether or not the user has actually visited it yet.
+    async function refreshAllSponsorPlacements() {
+      await Promise.all([
+        renderSponsorBadge('news_header_badge', 'sponsor-badge-news'),
+        renderSponsorBadge('stream_header_badge', 'sponsor-badge-stream'),
+        renderSponsorBadge('polls_header_badge', 'sponsor-badge-polls'),
+        renderSponsorBadge('equipment_header_badge', 'sponsor-badge-equipment'),
+        renderSponsorBadge('podcast_header_badge', 'sponsor-badge-podcast'),
+        renderSponsorBanner('podcast_banner', 'sponsor-banner-podcast'),
+        renderSponsorBanner('equipment_banner', 'sponsor-banner-equipment'),
+      ]);
+    }
+
+    // ------------------------------------------------------------
+    // ADMIN: SPONSOR ADS MANAGER
+    // ------------------------------------------------------------
+    async function openSponsorManager() {
+      if (currentUser.role !== 'admin') {
+        triggerToast('Only admin accounts can manage sponsor ads.');
+        return;
+      }
+      document.getElementById('sponsor-manager-form').classList.add('hidden');
+
+      const { data: rows } = await supabaseClient
+        .from('sponsor_placements')
+        .select('*')
+        .order('placement_key', { ascending: true });
+
+      const listEl = document.getElementById('sponsor-manager-list');
+      listEl.innerHTML = SPONSOR_PLACEMENT_DEFS.map(def => {
+        const sportRow = (rows || []).find(r => r.placement_key === def.key && r.sport_id === currentSportId);
+        const globalRow = (rows || []).find(r => r.placement_key === def.key && !r.sport_id);
+        const active = sportRow || globalRow;
+        const statusLabel = !active ? 'Not set (hidden)' : (active.is_active ? 'Active' : 'Off');
+        const scopeLabel = active ? (active.sport_id ? 'This sport' : 'All sports') : '';
+        return `
+          <button onclick='openSponsorForm(${JSON.stringify(def.key)})' class="w-full text-left bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] p-2.5 rounded-xl border border-[var(--border-subtle)] transition-all">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(def.label)}</span>
+              <span class="text-sm flex-shrink-0 px-2 py-0.5 rounded-full font-bold ${active?.is_active ? 'bg-emerald-fairway/20 text-emerald-light' : 'bg-[var(--border-subtle)] text-[var(--text-muted)]'}">${statusLabel}</span>
+            </div>
+            ${scopeLabel ? `<span class="text-xs text-[var(--text-muted)]">${scopeLabel}</span>` : ''}
+          </button>
+        `;
+      }).join('');
+
+      document.getElementById('sponsor-manager-modal').classList.remove('hidden');
+    }
+
+    function closeSponsorManager() {
+      document.getElementById('sponsor-manager-modal').classList.add('hidden');
+    }
+
+    let editingSponsorRow = null;
+
+    async function openSponsorForm(key) {
+      const def = sponsorDefFor(key);
+      const { data: rows } = await supabaseClient.from('sponsor_placements').select('*').eq('placement_key', key);
+      const sportRow = (rows || []).find(r => r.sport_id === currentSportId);
+      const globalRow = (rows || []).find(r => !r.sport_id);
+      editingSponsorRow = sportRow || globalRow || null;
+
+      document.getElementById('sponsor-form-key').value = key;
+      document.getElementById('sponsor-form-kind').value = def.kind;
+      document.getElementById('sponsor-form-slot-label').innerText = def.label;
+      document.getElementById('sponsor-form-active').checked = editingSponsorRow ? !!editingSponsorRow.is_active : true;
+      document.getElementById('sponsor-form-all-sports').checked = editingSponsorRow ? !editingSponsorRow.sport_id : false;
+      document.getElementById('sponsor-form-sponsor-name').value = editingSponsorRow?.sponsor_name || 'PULSE';
+      document.getElementById('sponsor-form-logo-text').value = editingSponsorRow?.logo_text || 'PULSE';
+      document.getElementById('sponsor-form-logo-color').value = editingSponsorRow?.logo_color || '#F40009';
+      document.getElementById('sponsor-form-eyebrow').value = editingSponsorRow?.eyebrow_label || '';
+      document.getElementById('sponsor-form-headline').value = editingSponsorRow?.headline || '';
+      document.getElementById('sponsor-form-cta-label').value = editingSponsorRow?.cta_label || '';
+      document.getElementById('sponsor-form-cta-url').value = editingSponsorRow?.cta_url || '';
+
+      document.getElementById('sponsor-form-banner-fields').classList.toggle('hidden', def.kind !== 'banner');
+      updateSponsorFormPreview();
+      document.getElementById('sponsor-manager-form').classList.remove('hidden');
+    }
+
+    function closeSponsorForm() {
+      document.getElementById('sponsor-manager-form').classList.add('hidden');
+      editingSponsorRow = null;
+    }
+
+    // Live preview inside the form itself, so an admin can see exactly
+    // what they're about to publish before saving.
+    function updateSponsorFormPreview() {
+      const key = document.getElementById('sponsor-form-key').value;
+      const def = sponsorDefFor(key);
+      const fakeRow = {
+        sponsor_name: document.getElementById('sponsor-form-sponsor-name').value,
+        logo_text: document.getElementById('sponsor-form-logo-text').value,
+        logo_color: document.getElementById('sponsor-form-logo-color').value,
+        eyebrow_label: document.getElementById('sponsor-form-eyebrow').value,
+        headline: document.getElementById('sponsor-form-headline').value,
+        cta_label: document.getElementById('sponsor-form-cta-label').value,
+        cta_url: document.getElementById('sponsor-form-cta-url').value,
+      };
+      const previewEl = document.getElementById('sponsor-form-preview');
+      previewEl.innerHTML = '<p class="text-sm text-[var(--text-muted)] mb-1">Preview:</p><div id="sponsor-live-preview-target"></div>';
+      const target = document.getElementById('sponsor-live-preview-target');
+      if (def.kind === 'banner') {
+        target.innerHTML = `
+          <div class="bg-gradient-to-r from-red-950/40 via-[var(--bg-app)] to-[var(--bg-surface)] p-3 rounded-xl border border-red-500/30 space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                ${pulseLogoSvg(fakeRow.logo_text, fakeRow.logo_color, 'h-3.5')}
+                <div>
+                  <div class="text-xs font-extrabold text-red-400 uppercase tracking-wider">${escapeHtml(fakeRow.eyebrow_label || 'Sponsored')}</div>
+                  <div class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(fakeRow.headline || '')}</div>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-slate-300 bg-red-900/60 px-1.5 py-0.5 rounded uppercase border border-red-500/30">SPONSORED</span>
+            </div>
+            <div class="w-full text-center bg-[var(--bg-card)] text-slate-200 text-xs font-bold py-2 rounded-lg border border-red-500/20">${escapeHtml(fakeRow.cta_label || 'Learn More')}</div>
+          </div>
+        `;
+      } else if (def.variant === 'pill') {
+        target.innerHTML = `<div class="flex items-center gap-1 bg-red-950/40 border border-red-500/30 px-2 py-1 rounded-xl w-fit">${pulseLogoSvg(fakeRow.logo_text, fakeRow.logo_color, 'h-3')}<span class="text-xs font-bold text-red-300 uppercase">${escapeHtml(fakeRow.eyebrow_label || 'Supporter')}</span></div>`;
+      } else if (def.variant === 'stacked') {
+        target.innerHTML = `<span class="text-xs text-slate-400 block font-mono">${escapeHtml(fakeRow.eyebrow_label || 'POWERED BY')}</span>${pulseLogoSvg(fakeRow.logo_text, fakeRow.logo_color, 'h-3.5')}`;
+      } else {
+        target.innerHTML = `<div class="text-right"><span class="text-xs font-mono text-[var(--text-muted)] block uppercase">${escapeHtml(fakeRow.eyebrow_label || '')}</span>${pulseLogoSvg(fakeRow.logo_text, fakeRow.logo_color, 'h-3')}</div>`;
+      }
+    }
+
+    async function saveSponsorPlacement() {
+      const key = document.getElementById('sponsor-form-key').value;
+      const applyAllSports = document.getElementById('sponsor-form-all-sports').checked;
+
+      const payload = {
+        placement_key: key,
+        kind: document.getElementById('sponsor-form-kind').value,
+        sport_id: applyAllSports ? null : currentSportId,
+        is_active: document.getElementById('sponsor-form-active').checked,
+        sponsor_name: document.getElementById('sponsor-form-sponsor-name').value.trim() || 'PULSE',
+        logo_text: document.getElementById('sponsor-form-logo-text').value.trim() || 'PULSE',
+        logo_color: document.getElementById('sponsor-form-logo-color').value || '#F40009',
+        eyebrow_label: document.getElementById('sponsor-form-eyebrow').value.trim() || null,
+        headline: document.getElementById('sponsor-form-headline').value.trim() || null,
+        cta_label: document.getElementById('sponsor-form-cta-label').value.trim() || null,
+        cta_url: document.getElementById('sponsor-form-cta-url').value.trim() || null,
+      };
+
+      let error;
+      if (editingSponsorRow) {
+        ({ error } = await supabaseClient.from('sponsor_placements').update(payload).eq('placement_id', editingSponsorRow.placement_id));
+      } else {
+        ({ error } = await supabaseClient.from('sponsor_placements').insert(payload));
+      }
+
+      if (error) {
+        triggerToast(`Could not save: ${error.message}`);
+        return;
+      }
+
+      triggerToast('Sponsor ad saved! 🥤');
+      closeSponsorForm();
+      await openSponsorManager();
+      await refreshAllSponsorPlacements();
+    }
+
+    // Live-update the in-form preview as the admin types, so they never
+    // have to save blind to see what a change looks like. These input
+    // elements are already in the DOM above this script tag, so the
+    // listeners can attach immediately.
+    ['sponsor-form-sponsor-name','sponsor-form-logo-text','sponsor-form-logo-color','sponsor-form-eyebrow','sponsor-form-headline','sponsor-form-cta-label','sponsor-form-cta-url'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', updateSponsorFormPreview);
+    });
 
     let currentTab = 'tab-home';
     let currentAudience = 'Public';
@@ -2011,6 +2387,99 @@
       });
     }
 
+    // ============================================================
+    // ARTICLES / ONLINE MAGAZINE (Segment 5: Media & News)
+    // Backed by the real `articles` + `news_categories` tables (see the
+    // migration SQL) instead of hardcoded mock HTML. One content model
+    // feeds BOTH the compact Home preview and the full magazine tab, so
+    // there's only ever one place content actually lives.
+    // ============================================================
+
+    // Never trust title/dek/author/body text into innerHTML unescaped -
+    // even admin-authored content should not become stored XSS if an
+    // admin account is ever compromised or a field gets copy-pasted from
+    // somewhere untrusted.
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    // A small, safe Markdown-ish renderer - NOT a full CommonMark
+    // implementation on purpose. Everything is escaped first, then a
+    // short whitelist of patterns (bold, italic, headings, links, lists,
+    // paragraphs) is turned into HTML. Links are restricted to http(s)
+    // only, so `javascript:` or other schemes can never end up in an
+    // href. This is deliberately simple so it's easy to audit and keep
+    // safe as the magazine grows, rather than pulling in a full library.
+    function renderMarkdownSafe(md) {
+      if (!md) return '';
+      const escaped = escapeHtml(md);
+      const withInline = escaped
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="underline theme-accent-text">$1</a>');
+
+      const lines = withInline.split('\n');
+      let html = '';
+      let inList = false;
+      lines.forEach(line => {
+        const trimmed = line.trim();
+        if (/^-\s+/.test(trimmed)) {
+          if (!inList) { html += '<ul class="list-disc pl-4 space-y-1">'; inList = true; }
+          html += `<li>${trimmed.replace(/^-\s+/, '')}</li>`;
+          return;
+        }
+        if (inList) { html += '</ul>'; inList = false; }
+        if (/^###\s+/.test(trimmed)) { html += `<h4 class="text-xs font-bold mt-2">${trimmed.replace(/^###\s+/, '')}</h4>`; return; }
+        if (/^##\s+/.test(trimmed)) { html += `<h3 class="text-sm font-bold mt-2">${trimmed.replace(/^##\s+/, '')}</h3>`; return; }
+        if (/^#\s+/.test(trimmed)) { html += `<h2 class="text-base font-bold mt-2">${trimmed.replace(/^#\s+/, '')}</h2>`; return; }
+        if (trimmed === '') { html += '<div class="h-2"></div>'; return; }
+        html += `<p class="text-xs leading-relaxed">${trimmed}</p>`;
+      });
+      if (inList) html += '</ul>';
+      return html;
+    }
+
+    function timeAgo(isoDate) {
+      const diffMs = Date.now() - new Date(isoDate).getTime();
+      const mins = Math.floor(diffMs / 60000);
+      if (mins < 1) return 'Just now';
+      if (mins < 60) return `${mins} Min${mins === 1 ? '' : 's'} Ago`;
+      const hours = Math.floor(mins / 60);
+      if (hours < 24) return `${hours} Hour${hours === 1 ? '' : 's'} Ago`;
+      const days = Math.floor(hours / 24);
+      return `${days} Day${days === 1 ? '' : 's'} Ago`;
+    }
+
+    let cachedCategories = [];
+    let cachedNewsArticles = [];   // every published article for the current sport, loaded once per News tab visit
+    let currentNewsCategoryFilter = 'all';
+
+    async function loadNewsCategories() {
+      const { data, error } = await supabaseClient
+        .from('news_categories')
+        .select('slug, label, sort_order')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
+      cachedCategories = error ? [] : (data || []);
+
+      const chipsEl = document.getElementById('news-category-chips');
+      if (!chipsEl) return;
+      currentNewsCategoryFilter = 'all';
+      const allChip = `<button onclick="filterNewsCategory('all', this)" class="news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold theme-accent-bg flex-shrink-0 transition-all">All News</button>`;
+      const rest = cachedCategories.map(c =>
+        `<button onclick="filterNewsCategory('${c.slug}', this)" class="news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-white flex-shrink-0 transition-all">${escapeHtml(c.label)}</button>`
+      ).join('');
+      chipsEl.innerHTML = allChip + rest;
+    }
+
+    // Home Command Center: only the newest few, so the dashboard stays
+    // simple and doesn't get overwhelming - full history lives in the
+    // News tab itself via "View Magazine".
+    const HOME_NEWS_PREVIEW_COUNT = 3;
+
     async function loadNewsBriefs() {
       const container = document.getElementById('dynamic-briefs-list');
       if (!container) return;
@@ -2020,15 +2489,20 @@
         return;
       }
 
+      // News Briefs are a different, shorter content type from Full
+      // Articles - short, quick-scan, capped at 60 words in the admin
+      // tool - and live in their own table. The magazine's long-form
+      // Articles are a separate system entirely (see loadNewsTab below).
       const { data: briefs, error } = await supabaseClient
         .from('news_briefs')
         .select('brief_id, title, body, source_url, created_at')
         .eq('sport_id', currentSportId)
+        .eq('status', 'published')
         .order('created_at', { ascending: false })
-        .limit(20);
+        .limit(HOME_NEWS_PREVIEW_COUNT);
 
       if (error) {
-        container.innerHTML = `<p class="text-sm text-[var(--text-muted)] text-center py-4">Could not load news: ${error.message}</p>`;
+        container.innerHTML = `<p class="text-sm text-[var(--text-muted)] text-center py-4">Could not load news: ${escapeHtml(error.message)}</p>`;
         return;
       }
       if (!briefs || !briefs.length) {
@@ -2039,25 +2513,379 @@
       container.innerHTML = '';
       briefs.forEach(brief => {
         const item = document.createElement('div');
-        item.className = 'bg-[var(--bg-card)] p-2.5 rounded-xl border border-[var(--border-subtle)] hover:border-[var(--accent-main)] transition-colors';
+        // A brief is short enough to show in full right here already -
+        // no "read more"/detail view needed, that's the whole point of
+        // it being a brief rather than an article. Only clickable when
+        // there's a real source link to send the reader to.
+        const hasSource = !!brief.source_url;
+        item.className = `bg-[var(--bg-card)] p-2.5 rounded-xl border border-[var(--border-subtle)] hover:border-[var(--accent-main)] transition-colors${hasSource ? ' cursor-pointer' : ''}`;
+        if (hasSource) item.onclick = () => window.open(brief.source_url, '_blank', 'noopener,noreferrer');
         item.innerHTML = `
           <div class="text-xs font-bold text-[var(--text-main)] flex items-center gap-2">
-            <span class="w-1.5 h-1.5 rounded-full theme-accent-bg"></span>
-            <span>${brief.title}</span>
+            <span class="w-1.5 h-1.5 rounded-full theme-accent-bg flex-shrink-0"></span>
+            <span>${escapeHtml(brief.title)}</span>
           </div>
-          <p class="text-sm text-[var(--text-muted)] mt-1 pl-3">${brief.body}</p>
+          <p class="text-sm text-[var(--text-muted)] mt-1 pl-3">${escapeHtml(brief.body)}</p>
         `;
         container.appendChild(item);
       });
     }
 
+    // Full News tab: loads every published article for the sport once,
+    // shows the admin-only compose/manage buttons, renders the cover
+    // story + the (possibly filtered) list.
+    async function loadNewsTab() {
+      if (document.getElementById('news-admin-buttons')) {
+        document.getElementById('news-admin-buttons').classList.toggle('hidden', currentUser.role !== 'admin');
+      }
+      await loadNewsCategories();
+
+      const coverContainer = document.getElementById('news-cover-story-container');
+      const listContainer = document.getElementById('news-article-list');
+      if (!coverContainer || !listContainer) return;
+
+      if (!currentSportId) {
+        coverContainer.innerHTML = '';
+        listContainer.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-6">Select a sport to see its magazine.</p>';
+        return;
+      }
+
+      const { data: articles, error } = await supabaseClient
+        .from('articles')
+        .select('article_id, title, dek, body_markdown, cover_image_url, author_name, author_photo_url, category_slug, read_minutes, is_cover_story, is_featured, published_at')
+        .eq('sport_id', currentSportId)
+        .eq('status', 'published')
+        .order('published_at', { ascending: false });
+
+      if (error) {
+        listContainer.innerHTML = `<p class="text-sm text-[var(--text-muted)] text-center py-6">Could not load the magazine: ${escapeHtml(error.message)}</p>`;
+        return;
+      }
+
+      cachedNewsArticles = articles || [];
+      renderNewsTabFromCache();
+    }
+
+    function renderNewsTabFromCache() {
+      const coverContainer = document.getElementById('news-cover-story-container');
+      const listContainer = document.getElementById('news-article-list');
+      if (!coverContainer || !listContainer) return;
+
+      const cover = cachedNewsArticles.find(a => a.is_cover_story);
+      coverContainer.innerHTML = cover ? `
+        <div class="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl overflow-hidden shadow-xl group cursor-pointer" onclick="openArticleDetailById('${cover.article_id}')">
+          <div class="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden">
+            ${cover.cover_image_url ? `<img src="${cover.cover_image_url}" alt="" onerror="this.style.display='none'" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500">` : ''}
+            <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-app)] via-black/40 to-transparent z-10"></div>
+            <div class="absolute top-3 left-3 z-20 bg-red-600 text-white text-xs font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow">COVER STORY</div>
+          </div>
+          <div class="p-4 space-y-3">
+            <h2 class="text-sm font-bold text-[var(--text-main)]">${escapeHtml(cover.title)}</h2>
+            <div class="flex items-center justify-between text-sm text-[var(--text-muted)] border-b border-[var(--border-subtle)] pb-2">
+              <span class="flex items-center gap-1.5">
+                ${cover.author_photo_url ? `<img src="${cover.author_photo_url}" alt="" onerror="this.style.display='none'" class="w-4 h-4 rounded-full object-cover">` : ''}
+                <span>By ${escapeHtml(cover.author_name)}</span>
+              </span>
+              <span>${cover.read_minutes ? cover.read_minutes + ' Min Read • ' : ''}${new Date(cover.published_at).toLocaleDateString()}</span>
+            </div>
+            <p class="text-xs text-[var(--text-main)] leading-relaxed">${escapeHtml(cover.dek || '')}</p>
+            <button class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] font-bold text-xs py-2.5 rounded-xl border border-[var(--border-subtle)]">Read Full Magazine Article</button>
+          </div>
+        </div>
+      ` : '';
+
+      const categoryLabel = (slug) => {
+        const c = cachedCategories.find(cat => cat.slug === slug);
+        return c ? c.label : slug;
+      };
+
+      const visible = cachedNewsArticles.filter(a => {
+        if (a.is_cover_story) return false; // already shown above, don't duplicate in the list
+        if (currentNewsCategoryFilter === 'all') return true;
+        if (currentNewsCategoryFilter === 'featured') return a.is_featured;
+        return a.category_slug === currentNewsCategoryFilter;
+      });
+
+      if (!visible.length) {
+        listContainer.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-6">Nothing in this category yet.</p>';
+        return;
+      }
+
+      listContainer.innerHTML = visible.map(a => `
+        <div class="bg-[var(--bg-surface)] p-3.5 rounded-xl border border-[var(--border-subtle)] space-y-2 hover:border-[var(--accent-main)] transition-colors cursor-pointer" onclick="openArticleDetailById('${a.article_id}')">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-emerald-light bg-emerald-fairway/10 px-2 py-0.5 rounded">${escapeHtml(categoryLabel(a.category_slug)).toUpperCase()}</span>
+            <span class="text-xs text-[var(--text-muted)]">${timeAgo(a.published_at)}</span>
+          </div>
+          <h4 class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(a.title)}</h4>
+          ${a.dek ? `<p class="text-sm text-[var(--text-muted)]">${escapeHtml(a.dek)}</p>` : ''}
+        </div>
+      `).join('');
+    }
+
     function filterNewsCategory(cat, btn) {
+      currentNewsCategoryFilter = cat;
       document.querySelectorAll('.news-cat-chip').forEach(el => {
         el.className = 'news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-white flex-shrink-0 transition-all';
       });
       btn.className = 'news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold theme-accent-bg flex-shrink-0 transition-all';
       playSfx("F4", "16n");
-      triggerToast(`Magazine Filter: ${cat.toUpperCase()}`);
+      renderNewsTabFromCache();
+    }
+
+    // Reader view. Uses the News tab's cache when available (no extra
+    // network round trip while browsing the magazine); falls back to a
+    // direct fetch when opened from the Home preview, which may not have
+    // loaded the full News tab cache yet.
+    async function openArticleDetailById(articleId) {
+      let article = cachedNewsArticles.find(a => a.article_id === articleId);
+      if (!article) {
+        const { data } = await supabaseClient
+          .from('articles')
+          .select('article_id, title, dek, body_markdown, cover_image_url, author_name, author_photo_url, category_slug, read_minutes, published_at, source_url')
+          .eq('article_id', articleId)
+          .eq('status', 'published')
+          .maybeSingle();
+        article = data;
+      }
+      if (!article) { triggerToast('Could not load that article.'); return; }
+
+      document.getElementById('article-detail-body').innerHTML = `
+        ${article.cover_image_url ? `<img src="${article.cover_image_url}" alt="" onerror="this.style.display='none'" class="w-full aspect-video object-cover">` : ''}
+        <div class="p-5 space-y-3">
+          <h2 class="text-base font-bold text-[var(--text-main)]">${escapeHtml(article.title)}</h2>
+          <div class="flex items-center justify-between text-sm text-[var(--text-muted)] border-b border-[var(--border-subtle)] pb-2">
+            <span class="flex items-center gap-1.5">
+              ${article.author_photo_url ? `<img src="${article.author_photo_url}" alt="" onerror="this.style.display='none'" class="w-4 h-4 rounded-full object-cover">` : ''}
+              <span>By ${escapeHtml(article.author_name)}</span>
+            </span>
+            <span>${article.read_minutes ? article.read_minutes + ' Min Read • ' : ''}${new Date(article.published_at).toLocaleDateString()}</span>
+          </div>
+          <div class="space-y-2">${renderMarkdownSafe(article.body_markdown)}</div>
+          ${article.source_url ? `<a href="${escapeHtml(article.source_url)}" target="_blank" rel="noopener noreferrer" class="text-xs underline theme-accent-text">Original source ↗</a>` : ''}
+        </div>
+      `;
+      document.getElementById('article-detail-modal').classList.remove('hidden');
+    }
+
+    // ------------------------------------------------------------
+    // ADMIN: ARTICLE COMPOSER (create + edit)
+    // Same gating pattern as the Pro Voice composer: client-side check
+    // for a responsive UI, RLS on the `articles` table is what actually
+    // enforces it server-side.
+    // ------------------------------------------------------------
+    let pendingArticleCoverFile = null;
+    let editingArticleId = null;
+
+    async function openArticleComposer(articleToEdit) {
+      if (currentUser.role !== 'admin') {
+        triggerToast('Only admin accounts can create or edit articles.');
+        return;
+      }
+      if (!currentSportId) {
+        triggerToast('Select a sport first (Multi-Sport tab) before writing an article.');
+        return;
+      }
+
+      const categorySelect = document.getElementById('article-form-category');
+      categorySelect.innerHTML = cachedCategories.map(c => `<option value="${c.slug}">${escapeHtml(c.label)}</option>`).join('');
+
+      editingArticleId = articleToEdit ? articleToEdit.article_id : null;
+      document.getElementById('article-composer-title').innerText = articleToEdit ? 'Edit Article' : 'New Article';
+      document.getElementById('article-form-id').value = editingArticleId || '';
+      document.getElementById('article-form-title').value = articleToEdit?.title || '';
+      document.getElementById('article-form-dek').value = articleToEdit?.dek || '';
+      document.getElementById('article-form-body').value = articleToEdit?.body_markdown || '';
+      document.getElementById('article-form-author').value = articleToEdit?.author_name || currentUser.name || '';
+      document.getElementById('article-form-source-url').value = articleToEdit?.source_url || '';
+      document.getElementById('article-form-cover-story').checked = !!articleToEdit?.is_cover_story;
+      document.getElementById('article-form-featured').checked = !!articleToEdit?.is_featured;
+      if (articleToEdit?.category_slug) categorySelect.value = articleToEdit.category_slug;
+
+      clearArticleCoverImage();
+      if (articleToEdit?.cover_image_url) {
+        document.getElementById('article-thumb-preview-img').src = articleToEdit.cover_image_url;
+        document.getElementById('article-thumb-preview-img').classList.remove('hidden');
+        document.getElementById('article-thumb-dropzone').classList.add('hidden');
+      }
+
+      document.getElementById('article-manager-modal').classList.add('hidden');
+      document.getElementById('article-composer-modal').classList.remove('hidden');
+    }
+
+    function closeArticleComposer() {
+      document.getElementById('article-composer-modal').classList.add('hidden');
+      editingArticleId = null;
+      pendingArticleCoverFile = null;
+    }
+
+    function handleArticleCoverImage(input) {
+      if (!input.files || !input.files[0]) return;
+      pendingArticleCoverFile = input.files[0];
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = document.getElementById('article-thumb-preview-img');
+        img.src = e.target.result;
+        img.classList.remove('hidden');
+        document.getElementById('article-thumb-dropzone').classList.add('hidden');
+        document.getElementById('article-thumb-remove-btn').classList.remove('hidden');
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+    function clearArticleCoverImage() {
+      pendingArticleCoverFile = null;
+      document.getElementById('article-form-cover-input').value = '';
+      document.getElementById('article-thumb-preview-img').classList.add('hidden');
+      document.getElementById('article-thumb-dropzone').classList.remove('hidden');
+      document.getElementById('article-thumb-remove-btn').classList.add('hidden');
+    }
+
+    async function saveArticle(status) {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) { triggerToast('Please log in again.'); return; }
+
+      const title = document.getElementById('article-form-title').value.trim();
+      const bodyMarkdown = document.getElementById('article-form-body').value.trim();
+      if (!title || !bodyMarkdown) {
+        triggerToast('A headline and article body are both required.');
+        return;
+      }
+
+      let coverImageUrl = document.getElementById('article-thumb-preview-img').classList.contains('hidden')
+        ? null
+        : (editingArticleId ? cachedNewsArticles.find(a => a.article_id === editingArticleId)?.cover_image_url : null);
+
+      // Only re-upload if a NEW file was picked this session - re-editing
+      // an article without touching the image shouldn't re-upload it.
+      if (pendingArticleCoverFile) {
+        try {
+          const contentType = pendingArticleCoverFile.type || 'image/jpeg';
+          const extension = contentType.includes('png') ? 'png' : 'jpg';
+          const { data: uploadInfo, error: uploadUrlErr } = await supabaseClient.functions.invoke('get-r2-upload-url', {
+            method: 'POST',
+            body: { contentType, extension },
+          });
+          if (!uploadUrlErr && uploadInfo?.uploadUrl) {
+            const putRes = await fetch(uploadInfo.uploadUrl, { method: 'PUT', headers: { 'Content-Type': contentType }, body: pendingArticleCoverFile });
+            if (putRes.ok) coverImageUrl = uploadInfo.publicUrl;
+          }
+        } catch (err) {
+          console.error('Article cover image upload failed (non-fatal, article still saves):', err);
+        }
+      }
+
+      const wordCount = bodyMarkdown.split(/\s+/).filter(Boolean).length;
+      const readMinutes = Math.max(1, Math.round(wordCount / 200)); // ~200 wpm, a reasonable estimate an admin can eyeball but not manually type every time
+
+      const payload = {
+        sport_id: currentSportId,
+        category_slug: document.getElementById('article-form-category').value,
+        title,
+        dek: document.getElementById('article-form-dek').value.trim() || null,
+        body_markdown: bodyMarkdown,
+        cover_image_url: coverImageUrl,
+        author_name: document.getElementById('article-form-author').value.trim() || 'Staff',
+        source_url: document.getElementById('article-form-source-url').value.trim() || null,
+        read_minutes: readMinutes,
+        is_cover_story: document.getElementById('article-form-cover-story').checked,
+        is_featured: document.getElementById('article-form-featured').checked,
+        status,
+        published_at: status === 'published' ? new Date().toISOString() : null,
+      };
+
+      let error;
+      if (editingArticleId) {
+        ({ error } = await supabaseClient.from('articles').update(payload).eq('article_id', editingArticleId));
+      } else {
+        payload.created_by = session.user.id;
+        ({ error } = await supabaseClient.from('articles').insert(payload));
+      }
+
+      if (error) {
+        // If this fails because another article already has
+        // is_cover_story = true for this sport, the DB's unique index
+        // is what's actually stopping it - the fix is to open that
+        // other article in Manage and uncheck its Cover Story box first.
+        triggerToast(`Could not save: ${error.message}`);
+        return;
+      }
+
+      triggerToast(status === 'published' ? 'Article published! 📰' : 'Draft saved.');
+      closeArticleComposer();
+      await loadNewsTab();
+      await loadNewsBriefs();
+    }
+
+    // ------------------------------------------------------------
+    // ADMIN: ARTICLE MANAGER (list everything, edit/publish/delete)
+    // ------------------------------------------------------------
+    async function openArticleManager() {
+      if (currentUser.role !== 'admin') {
+        triggerToast('Only admin accounts can manage articles.');
+        return;
+      }
+      if (!currentSportId) {
+        triggerToast('Select a sport first (Multi-Sport tab).');
+        return;
+      }
+
+      const { data: articles, error } = await supabaseClient
+        .from('articles')
+        .select('article_id, title, status, is_cover_story, is_featured, category_slug, created_at')
+        .eq('sport_id', currentSportId)
+        .order('created_at', { ascending: false });
+
+      const listEl = document.getElementById('article-manager-list');
+      if (error) {
+        listEl.innerHTML = `<p class="text-sm text-[var(--text-muted)] text-center py-4">${escapeHtml(error.message)}</p>`;
+      } else if (!articles || !articles.length) {
+        listEl.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-4">No articles for this sport yet.</p>';
+      } else {
+        listEl.innerHTML = articles.map(a => `
+          <div class="bg-[var(--bg-card)] p-2.5 rounded-xl border border-[var(--border-subtle)] space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-bold text-[var(--text-main)] truncate">${escapeHtml(a.title)}</span>
+              <span class="text-sm flex-shrink-0 px-2 py-0.5 rounded-full font-bold ${a.status === 'published' ? 'bg-emerald-fairway/20 text-emerald-light' : 'bg-[var(--border-subtle)] text-[var(--text-muted)]'}">${a.status}</span>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <button onclick="editArticleById('${a.article_id}')" class="text-sm font-bold text-[var(--text-main)] underline min-h-touch">Edit</button>
+              ${a.status === 'published'
+                ? `<button onclick="setArticleStatus('${a.article_id}', 'archived')" class="text-sm font-bold text-[var(--text-muted)] underline min-h-touch">Unpublish</button>`
+                : `<button onclick="setArticleStatus('${a.article_id}', 'published')" class="text-sm font-bold text-emerald-light underline min-h-touch">Publish</button>`}
+              <button onclick="deleteArticleById('${a.article_id}')" class="text-sm font-bold text-red-400 underline min-h-touch">Delete</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('article-manager-modal').classList.remove('hidden');
+    }
+
+    async function editArticleById(articleId) {
+      const { data, error } = await supabaseClient.from('articles').select('*').eq('article_id', articleId).maybeSingle();
+      if (error || !data) { triggerToast('Could not load that article to edit.'); return; }
+      if (!cachedCategories.length) await loadNewsCategories();
+      openArticleComposer(data);
+    }
+
+    async function setArticleStatus(articleId, status) {
+      const payload = { status, published_at: status === 'published' ? new Date().toISOString() : null };
+      const { error } = await supabaseClient.from('articles').update(payload).eq('article_id', articleId);
+      if (error) { triggerToast(`Could not update: ${error.message}`); return; }
+      triggerToast(status === 'published' ? 'Article published! 📰' : 'Article unpublished.');
+      openArticleManager();
+      await loadNewsTab();
+      await loadNewsBriefs();
+    }
+
+    async function deleteArticleById(articleId) {
+      if (!confirm('Delete this article permanently? This cannot be undone.')) return;
+      const { error } = await supabaseClient.from('articles').delete().eq('article_id', articleId);
+      if (error) { triggerToast(`Could not delete: ${error.message}`); return; }
+      triggerToast('Article deleted.');
+      openArticleManager();
+      await loadNewsTab();
+      await loadNewsBriefs();
     }
 
     function initAudio() {
@@ -2190,6 +3018,7 @@
 
       if (tabId === 'tab-stream') loadProFeed();
       if (tabId === 'tab-home') loadHomeProVoicePreview();
+      if (tabId === 'tab-news') loadNewsTab();
     }
 
 
@@ -2665,10 +3494,21 @@
         .single();
 
       if (profileErr || !profile) {
-        console.error('applyLoggedInState profile fetch failed:', profileErr);
-        triggerToast(`Profile fetch error: ${profileErr ? profileErr.message : 'no data returned'}`);
-        await supabaseClient.auth.signOut();
-        isLoggedIn = false;
+        // This used to sign the person out and leave the whole app with no
+        // sport context at all - meaning EVERY piece of content (news,
+        // polls, articles, sponsors) would show nothing, with no way to
+        // recover short of a hard refresh, even for a purely transient
+        // hiccup. Now: stay logged in, log the real error for debugging,
+        // and still fall back to Golf so the app has content one way or
+        // another rather than going completely blank.
+        console.error('applyLoggedInState profile fetch failed (non-fatal, falling back to Golf so content still loads):', profileErr);
+        try {
+          const { data: golfSport } = await supabaseClient
+            .from('sport_verticals').select('sport_id').eq('slug', 'golf').single();
+          if (golfSport) currentSportId = golfSport.sport_id;
+        } catch (e) {
+          console.error('Fallback to Golf also failed (non-fatal):', e);
+        }
         return;
       }
 
@@ -2714,6 +3554,7 @@
         loadActivePoll();
         loadHomeProVoicePreview();
         loadNewsBriefs();
+        refreshAllSponsorPlacements();
         try {
           const { data: sport } = await supabaseClient
             .from('sport_verticals')
@@ -3766,6 +4607,11 @@
       const canvas = document.getElementById('quiz-canvas-video');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
+      // Some browsers/extensions (canvas-fingerprinting protection in
+      // privacy-hardened browsers, certain ad blockers) can return null
+      // here instead of a real context. This is purely decorative, so
+      // just skip it rather than let it take anything else down.
+      if (!ctx) return;
       let angle = 0;
 
       function draw() {
@@ -3826,6 +4672,7 @@
       const canvas = document.getElementById('fitness-quiz-canvas-video');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
+      if (!ctx) return; // see initQuizCanvas above for why this can legitimately be null
       let angle = 0;
 
       function draw() {
@@ -3904,20 +4751,45 @@
       });
     }, 1000);
 
-    window.onload = async function() {
-      setThemeMode('dark', false);
-      setAccentPalette('emerald', false);
-      setFontScale(1, false);
-      switchTab('tab-home');
-      initQuizCanvas();
-      initFitnessQuizCanvas();
-      validatePasswordRules();
-      renderMyTickets();
+    // Every single step below is wrapped individually. This is the fix
+    // for a real, serious bug: previously, if ANY one of these threw
+    // (e.g. a canvas context coming back null in some browser), every
+    // step after it would silently never run at all - no error shown,
+    // just an app that looks like nothing loaded. Now, a failure in any
+    // one piece is logged to the console and the rest of the app still
+    // boots normally.
+    function safeBootStep(label, fn) {
+      try {
+        fn();
+      } catch (err) {
+        console.error(`Boot step "${label}" failed (non-fatal, rest of the app still loads):`, err);
+      }
+    }
 
-      const existingUser = await restoreSession();
+    window.onload = async function() {
+      safeBootStep('setThemeMode', () => setThemeMode('dark', false));
+      safeBootStep('setAccentPalette', () => setAccentPalette('emerald', false));
+      safeBootStep('setFontScale', () => setFontScale(1, false));
+      safeBootStep('switchTab', () => switchTab('tab-home'));
+      safeBootStep('initQuizCanvas', () => initQuizCanvas());
+      safeBootStep('initFitnessQuizCanvas', () => initFitnessQuizCanvas());
+      safeBootStep('validatePasswordRules', () => validatePasswordRules());
+      safeBootStep('renderMyTickets', () => renderMyTickets());
+
+      let existingUser = null;
+      try {
+        existingUser = await restoreSession();
+      } catch (err) {
+        console.error('restoreSession failed (non-fatal, continuing as guest):', err);
+      }
+
       if (existingUser) {
-        await applyLoggedInState(existingUser.id); // sets currentSportId to their home sport
-        if (isLoggedIn) triggerToast(`Welcome, ${currentUser.name}! 👋`);
+        try {
+          await applyLoggedInState(existingUser.id); // sets currentSportId to their home sport
+          if (isLoggedIn) triggerToast(`Welcome, ${currentUser.name}! 👋`);
+        } catch (err) {
+          console.error('applyLoggedInState failed (non-fatal, continuing without it):', err);
+        }
       } else {
         // Guest with no account yet - default to Golf so the whole app has
         // a sport context immediately, exactly like a logged-in user gets.
@@ -3931,14 +4803,16 @@
         }
       }
 
-      // Now that a sport is guaranteed to be set either way, load everything
-      // that depends on it. Harmless if applyLoggedInState already loaded
-      // some of these above - a second quick refresh isn't noticeable.
-      loadNewsBriefs();
-      loadProFeed();
-      loadHomeProVoicePreview();
-      loadActivePoll();
-      renderSportSwitcherLabel();
+      // Now that a sport is guaranteed to be set either way, load
+      // everything that depends on it. Each one is independent - one
+      // failing (e.g. a table temporarily unreachable) must never stop
+      // the others from still showing up.
+      safeBootStep('loadNewsBriefs', () => loadNewsBriefs());
+      safeBootStep('loadProFeed', () => loadProFeed());
+      safeBootStep('loadHomeProVoicePreview', () => loadHomeProVoicePreview());
+      safeBootStep('loadActivePoll', () => loadActivePoll());
+      safeBootStep('refreshAllSponsorPlacements', () => refreshAllSponsorPlacements());
+      safeBootStep('renderSportSwitcherLabel', () => renderSportSwitcherLabel());
 
       // Register the service worker - makes the app installable and gives
       // it offline resilience (see service-worker.js for what this covers).
