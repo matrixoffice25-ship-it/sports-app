@@ -382,6 +382,8 @@
           <div id="dynamic-briefs-list" class="space-y-2"></div>
         </div>
 
+        <div id="sponsor-banner-home-footer"></div>
+
       </section>
 
 
@@ -425,6 +427,8 @@
           <!-- populated dynamically by loadNewsTab() -->
         </div>
 
+        <div id="sponsor-banner-news-footer"></div>
+
       </section>
 
 
@@ -447,20 +451,7 @@
         <!-- SUB-VIEW 1: GOLF LESSONS -->
         <div id="subcontent-lessons" class="space-y-4">
           
-          <div class="bg-gradient-to-r from-red-950/40 via-[var(--bg-surface)] to-red-950/30 p-3 rounded-2xl border border-red-500/30 flex items-center justify-between shadow-sm">
-            <div class="flex items-center space-x-3">
-              <svg class="h-4 w-auto" viewBox="0 0 100 24" fill="none">
-                <rect width="100" height="24" rx="12" fill="#F40009"/>
-                <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
-              </svg>
-              <div>
-                <div class="text-sm font-extrabold text-red-400 uppercase tracking-wider">Presenting Sponsor</div>
-                <div class="text-xs font-bold text-[var(--text-main)]">Pro Coaching Master Biomechanics Clinic</div>
-              </div>
-            </div>
-            <span class="text-xs font-bold text-red-300 bg-red-900/60 px-2 py-0.5 rounded border border-red-500/30 uppercase">SPONSORED</span>
-          </div>
-
+          <div id="sponsor-banner-lessons-tab-header"></div>
           <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
             <div class="flex items-center justify-between">
               <div>
@@ -536,20 +527,7 @@
         <!-- SUB-VIEW 2: GOLF FITNESS -->
         <div id="subcontent-fitness" class="space-y-4 hidden">
           
-          <!-- STATIC COCA-COLA PRESENTING SPONSOR PLACEMENT -->
-          <div class="bg-gradient-to-r from-red-950/40 via-[var(--bg-surface)] to-red-950/30 p-3 rounded-2xl border border-red-500/30 flex items-center justify-between shadow-sm">
-            <div class="flex items-center space-x-3">
-              <svg class="h-4 w-auto" viewBox="0 0 100 24" fill="none">
-                <rect width="100" height="24" rx="12" fill="#F40009"/>
-                <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
-              </svg>
-              <div>
-                <div class="text-sm font-extrabold text-red-400 uppercase tracking-wider">Presenting Sponsor</div>
-                <div class="text-xs font-bold text-[var(--text-main)]">Pro Coaching Mobility Clinic</div>
-              </div>
-            </div>
-            <span class="text-xs font-bold text-red-300 bg-red-900/60 px-2 py-0.5 rounded border border-red-500/30 uppercase">SPONSORED</span>
-          </div>
+          <div id="sponsor-banner-fitness-tab-header"></div>
 
           <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
             <div class="flex items-center justify-between">
@@ -807,15 +785,7 @@
       <!-- ================================================================= -->
       <section id="tab-market" class="tab-page hidden space-y-4">
         
-        <div class="bg-gradient-to-r from-red-950/40 via-[var(--bg-surface)] to-red-950/30 p-2.5 rounded-xl border border-red-500/30 flex items-center justify-between shadow-sm">
-          <div class="flex items-center space-x-2.5">
-            <svg class="h-4 w-auto" viewBox="0 0 100 24" fill="none">
-              <rect width="100" height="24" rx="12" fill="#F40009"/>
-              <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
-            </svg>
-            <div class="text-sm font-bold text-[var(--text-main)]">Presenting Partner</div>
-          </div>
-        </div>
+        <div id="sponsor-banner-education-header"></div>
 
         <div id="education-events-list-frontend" class="space-y-3">
           <!-- populated dynamically by loadEducationEventsFrontend() from
@@ -824,6 +794,8 @@
                access to simply never appears here at all (enforced by
                the database itself, not just hidden by this code). -->
         </div>
+
+        <div id="sponsor-banner-education-secondary"></div>
 
         <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
           <h3 class="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider">My Registrations</h3>
@@ -1725,7 +1697,8 @@
                 <span class="text-2xl font-black text-white drop-shadow-lg">${escapeHtml(sport.display_name)}</span>
               </div>
             </div>
-            <div class="p-4">
+            <div class="p-4 space-y-3">
+              <div id="sponsor-banner-sportcard-${sport.sport_id}" class="sport-card-sponsor-slot"></div>
               <button onclick="enterSport('${sport.slug}')" class="w-full min-h-touch theme-accent-bg font-extrabold text-xs py-3 px-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 hover:opacity-90">
                 <span>ENTER ${escapeHtml(sport.display_name.toUpperCase())}</span>
               </button>
@@ -1733,6 +1706,13 @@
           </div>
         `;
       }).join('');
+
+      // Render each card's own sponsor banner now that the containers
+      // actually exist in the DOM - each sport can have its own
+      // sponsor, or all sports fall back to one shared default.
+      await Promise.all(sports.map(sport =>
+        renderSponsorBanner('sport_card_banner', `sponsor-banner-sportcard-${sport.sport_id}`, sport.sport_id)
+      ));
     }
 
     async function enterSport(slug) {
@@ -1985,15 +1965,22 @@
       { key: 'global_banner', kind: 'banner', variant: 'strip', label: 'Top Global Sponsor Strip (every screen)' },
       { key: 'news_header_badge', kind: 'badge', variant: 'stacked', label: 'News — Magazine header badge' },
       { key: 'news_inline_banner', kind: 'banner', label: 'News — banner between Cover Story and Briefs' },
+      { key: 'news_footer_banner', kind: 'banner', label: 'News — banner at the bottom of the tab' },
       { key: 'lessons_card_banner', kind: 'banner', label: 'Command Center — Golf Lessons card ad' },
       { key: 'fitness_card_banner', kind: 'banner', label: 'Command Center — Golf Fitness card ad' },
+      { key: 'home_footer_banner', kind: 'banner', label: 'Command Center — banner at the bottom of the tab' },
       { key: 'stream_header_badge', kind: 'badge', variant: 'pill', label: 'Pro Voice Stream — header badge' },
       { key: 'polls_header_badge', kind: 'badge', variant: 'pill', label: 'Home — Community Poll card badge' },
       { key: 'multisport_badge', kind: 'badge', variant: 'pill', label: 'Multi-Sport tab — header badge' },
+      { key: 'sport_card_banner', kind: 'banner', label: 'Multi-Sport — ad inside EACH sport card (set a sport to customize just that one, or leave sport blank for all)' },
       { key: 'equipment_header_badge', kind: 'badge', variant: 'header', label: 'Equipment & Fitting — card header badge' },
       { key: 'podcast_header_badge', kind: 'badge', variant: 'header', label: 'Shows/Podcast — card header badge' },
       { key: 'podcast_banner', kind: 'banner', label: 'Shows/Podcast — banner under video' },
       { key: 'equipment_banner', kind: 'banner', label: 'Equipment & Fitting — banner under video' },
+      { key: 'lessons_tab_header_banner', kind: 'banner', label: 'Golf Lessons tab — banner at the top' },
+      { key: 'fitness_tab_header_banner', kind: 'banner', label: 'Golf Fitness tab — banner at the top' },
+      { key: 'education_header_banner', kind: 'banner', variant: 'strip', label: 'Education — Presenting Partner strip at the top' },
+      { key: 'education_secondary_banner', kind: 'banner', label: 'Education — second banner, mid-page' },
     ];
 
     function sponsorDefFor(key) {
@@ -2023,20 +2010,24 @@
     // global (sport_id = null) row is used; otherwise the slot is
     // simply hidden rather than showing a broken/empty ad.
     async function fetchSponsorPlacement(key) {
+      return fetchSponsorPlacementForSport(key, currentSportId);
+    }
+
+    async function fetchSponsorPlacementForSport(key, sportId) {
       let query = supabaseClient
         .from('sponsor_placements')
         .select('*')
         .eq('placement_key', key)
         .eq('is_active', true);
 
-      query = currentSportId
-        ? query.or(`sport_id.eq.${currentSportId},sport_id.is.null`)
+      query = sportId
+        ? query.or(`sport_id.eq.${sportId},sport_id.is.null`)
         : query.is('sport_id', null);
 
       const { data, error } = await query;
       if (error || !data || !data.length) return null;
       // Prefer the sport-specific row over the global fallback if both exist.
-      return data.find(r => r.sport_id === currentSportId) || data.find(r => !r.sport_id) || data[0];
+      return data.find(r => r.sport_id === sportId) || data.find(r => !r.sport_id) || data[0];
     }
 
     function sponsorCtaClick(sponsorName, ctaUrl) {
@@ -2044,11 +2035,11 @@
       triggerToast(`Opening ${sponsorName || 'sponsor'} offer…`);
     }
 
-    async function renderSponsorBadge(key, containerId) {
+    async function renderSponsorBadge(key, containerId, explicitSportId) {
       const el = document.getElementById(containerId);
       if (!el) return;
       const def = sponsorDefFor(key);
-      const sp = await fetchSponsorPlacement(key);
+      const sp = await fetchSponsorPlacementForSport(key, explicitSportId !== undefined ? explicitSportId : currentSportId);
       if (!sp) { el.innerHTML = ''; return; }
 
       const logo = sponsorLogoHtml(sp, 'h-3.5', 22);
@@ -2080,11 +2071,11 @@
       }
     }
 
-    async function renderSponsorBanner(key, containerId) {
+    async function renderSponsorBanner(key, containerId, explicitSportId) {
       const el = document.getElementById(containerId);
       if (!el) return;
       const def = sponsorDefFor(key);
-      const sp = await fetchSponsorPlacement(key);
+      const sp = await fetchSponsorPlacementForSport(key, explicitSportId !== undefined ? explicitSportId : currentSportId);
       if (!sp) { el.innerHTML = ''; return; }
 
       const safeSponsorName = escapeHtml(sp.sponsor_name || 'Sponsor');
@@ -2238,8 +2229,14 @@
         renderSponsorBanner('global_banner', 'sponsor-banner-global'),
         renderSponsorBadge('news_header_badge', 'sponsor-badge-news'),
         renderSponsorBanner('news_inline_banner', 'sponsor-banner-news-inline'),
+        renderSponsorBanner('news_footer_banner', 'sponsor-banner-news-footer'),
         renderSponsorBanner('lessons_card_banner', 'sponsor-banner-lessons-card'),
         renderSponsorBanner('fitness_card_banner', 'sponsor-banner-fitness-card'),
+        renderSponsorBanner('lessons_tab_header_banner', 'sponsor-banner-lessons-tab-header'),
+        renderSponsorBanner('fitness_tab_header_banner', 'sponsor-banner-fitness-tab-header'),
+        renderSponsorBanner('home_footer_banner', 'sponsor-banner-home-footer'),
+        renderSponsorBanner('education_header_banner', 'sponsor-banner-education-header'),
+        renderSponsorBanner('education_secondary_banner', 'sponsor-banner-education-secondary'),
         renderSponsorBadge('stream_header_badge', 'sponsor-badge-stream'),
         renderSponsorBadge('polls_header_badge', 'sponsor-badge-polls'),
         renderSponsorBadge('multisport_badge', 'sponsor-badge-multisport'),
