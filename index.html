@@ -1158,6 +1158,28 @@
       </div>
     </div>
 
+    <div id="registration-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all">
+      <div class="w-full max-w-md bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-t-3xl sm:rounded-3xl p-5 space-y-3 shadow-2xl relative animate-slide-up max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
+          <h3 id="registration-modal-title" class="text-sm font-bold text-[var(--text-main)]">Register for Event</h3>
+          <button onclick="closeRegistrationModal()" class="w-8 h-8 rounded-full bg-[var(--bg-card)] text-[var(--text-muted)] flex items-center justify-center hover:text-[var(--text-main)]" title="Close">✕</button>
+        </div>
+
+        <input id="reg-full-name" placeholder="Full name">
+        <input id="reg-email" type="email" placeholder="Email">
+        <input id="reg-phone" type="tel" placeholder="Phone (optional)">
+        <div id="reg-access-code-field" class="hidden">
+          <input id="reg-access-code" placeholder="Access code">
+        </div>
+
+        <p id="registration-modal-status" class="text-xs text-red-400"></p>
+
+        <button onclick="submitRegistration()" class="w-full min-h-touch theme-accent-bg font-extrabold text-sm py-3 rounded-xl shadow-lg transition-all hover:opacity-90">
+          Confirm Registration
+        </button>
+      </div>
+    </div>
+
     <div id="composer-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all">
       <div class="w-full max-w-md bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-t-3xl sm:rounded-3xl p-5 space-y-4 shadow-2xl relative animate-slide-up">
         
@@ -1549,12 +1571,12 @@
       const container = document.getElementById('education-events-list-frontend');
       if (!container) return;
 
-      // RLS already filters this to exactly what this viewer is allowed
-      // to see - a locked event they haven't been granted access to
-      // simply never comes back in this query at all.
+      // Every published event is visible to EVERYONE now, logged in or
+      // not, locked or not - "locked" only affects whether an access
+      // code is required to REGISTER, checked separately below.
       const { data: events, error } = await supabaseClient
         .from('education_events')
-        .select('event_id, title, description, participant_info, host_name, event_type, price_cents, cover_image_url, payment_url, payment_provider, is_locked')
+        .select('event_id, title, description, participant_info, host_name, event_type, price_cents, cover_image_url, payment_url, payment_provider, is_locked, event_datetime')
         .eq('status', 'published')
         .order('sort_order', { ascending: true });
 
@@ -1580,9 +1602,15 @@
         demo: 'Demo', webinar: 'Webinar', conference: 'Conference', panel: 'Panel', hackathon: 'Hackathon', roundtable: 'Roundtable',
       };
 
+      educationEventsCache = {}; // used by the registration modal to know is_locked/title without a re-fetch
+      events.forEach(ev => educationEventsCache[ev.event_id] = ev);
+
       container.innerHTML = events.map(ev => {
         const isRegistered = myRegisteredEventIds.has(ev.event_id);
         const priceLabel = ev.price_cents ? `$${(ev.price_cents / 100).toFixed(2)}` : 'Free';
+        const dateLabel = ev.event_datetime
+          ? new Date(ev.event_datetime).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
+          : null;
         return `
           <div class="bg-[var(--bg-surface)] rounded-2xl border border-[var(--border-subtle)] overflow-hidden shadow-md">
             ${ev.cover_image_url ? `<img src="${ev.cover_image_url}" alt="" class="w-full h-32 object-cover" onerror="this.style.display='none'">` : ''}
@@ -1592,13 +1620,15 @@
                 <span class="text-sm font-bold ${ev.price_cents ? 'text-amber-400' : 'text-emerald-400'}">${priceLabel}</span>
               </div>
               <h3 class="text-base font-extrabold text-[var(--text-main)]">${escapeHtml(ev.title)}</h3>
+              ${dateLabel ? `<p class="text-xs font-bold text-[var(--text-main)]">🗓️ ${escapeHtml(dateLabel)}</p>` : ''}
               ${ev.description ? `<p class="text-xs text-[var(--text-muted)]">${escapeHtml(ev.description)}</p>` : ''}
               ${ev.participant_info ? `<p class="text-xs font-bold text-amber-400">👥 For: ${escapeHtml(ev.participant_info)}</p>` : ''}
               ${ev.host_name ? `<p class="text-xs text-[var(--text-muted)]">Hosted by ${escapeHtml(ev.host_name)}</p>` : ''}
+              ${ev.is_locked && !isRegistered ? `<p class="text-xs font-bold text-violet-light">🔒 An access code is required to register</p>` : ''}
 
               ${isRegistered
                 ? `<button disabled class="w-full min-h-touch bg-emerald-950/40 text-emerald-400 font-black text-sm py-3 px-4 rounded-xl border border-emerald-500/30 flex items-center justify-center gap-2">✓ You're Registered</button>`
-                : `<button onclick="registerForEvent('${ev.event_id}')" class="w-full min-h-touch theme-accent-bg font-black text-sm py-3 px-4 rounded-xl shadow-lg transition-all hover:opacity-90">Register${ev.price_cents ? ` — ${priceLabel}` : ' (Free)'}</button>`
+                : `<button onclick="openRegistrationModal('${ev.event_id}')" class="w-full min-h-touch theme-accent-bg font-black text-sm py-3 px-4 rounded-xl shadow-lg transition-all hover:opacity-90">Register${ev.price_cents ? ` — ${priceLabel}` : ' (Free)'}</button>`
               }
               ${ev.payment_url
                 ? `<a href="${ev.payment_url}" target="_blank" rel="noopener noreferrer" class="block w-full text-center min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] font-bold text-xs py-2.5 rounded-xl border border-[var(--border-subtle)]">Pay${ev.payment_provider ? ` via ${escapeHtml(ev.payment_provider.replace('_', ' '))}` : ''}</a>`
@@ -1610,23 +1640,61 @@
       }).join('');
     }
 
-    async function registerForEvent(eventId) {
+    let educationEventsCache = {};
+    let registeringEventId = null;
+
+    async function openRegistrationModal(eventId) {
+      // Viewing is always free, but actually registering needs an
+      // account - same rule as voting, reacting, etc. elsewhere in the app.
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) { triggerToast('Please log in to register.'); return; }
 
-      const { error } = await supabaseClient.from('education_registrations').insert({ event_id: eventId, user_id: session.user.id });
-      if (error) {
-        // A duplicate registration attempt hits the database's own
-        // uniqueness rule - treat that specific case as a friendly
-        // "you're already in," not a scary error message.
-        if (error.message?.includes('duplicate') || error.code === '23505') {
-          triggerToast("You're already registered for this event!");
-        } else {
-          triggerToast(`Could not register: ${error.message}`);
-        }
+      registeringEventId = eventId;
+      const ev = educationEventsCache[eventId];
+      document.getElementById('registration-modal-title').innerText = `Register: ${ev?.title || 'Event'}`;
+      document.getElementById('reg-full-name').value = currentUser.name || '';
+      document.getElementById('reg-email').value = currentUser.email || '';
+      document.getElementById('reg-phone').value = '';
+      document.getElementById('reg-access-code').value = '';
+      document.getElementById('reg-access-code-field').classList.toggle('hidden', !ev?.is_locked);
+      document.getElementById('registration-modal-status').innerText = '';
+      document.getElementById('registration-modal').classList.remove('hidden');
+    }
+
+    function closeRegistrationModal() {
+      document.getElementById('registration-modal').classList.add('hidden');
+      registeringEventId = null;
+    }
+
+    async function submitRegistration() {
+      const fullName = document.getElementById('reg-full-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const phone = document.getElementById('reg-phone').value.trim();
+      const accessCode = document.getElementById('reg-access-code').value.trim();
+      const statusEl = document.getElementById('registration-modal-status');
+
+      if (!fullName || !email) {
+        statusEl.innerText = 'Name and email are required.';
         return;
       }
 
+      // The actual access-code check happens server-side inside this
+      // database function - the code itself is never exposed to the
+      // browser just for viewing the event, only checked on submit.
+      const { error } = await supabaseClient.rpc('register_for_event', {
+        p_event_id: registeringEventId,
+        p_full_name: fullName,
+        p_email: email,
+        p_phone: phone || null,
+        p_access_code: accessCode || null,
+      });
+
+      if (error) {
+        statusEl.innerText = error.message || 'Could not register - try again.';
+        return;
+      }
+
+      closeRegistrationModal();
       triggerToast('Registered! 🎉');
       loadEducationEventsFrontend();
       loadMyRegistrations();
@@ -1653,15 +1721,42 @@
       if (!data || !data.length) { container.innerHTML = '<p class="text-xs text-[var(--text-muted)]">No registrations yet — register for an event above.</p>'; return; }
 
       const eventIds = data.map(r => r.event_id);
-      const { data: events } = await supabaseClient.from('education_events').select('event_id, title').in('event_id', eventIds);
-      const titleMap = {};
-      (events || []).forEach(ev => titleMap[ev.event_id] = ev.title);
+      const { data: events } = await supabaseClient.from('education_events').select('event_id, title, event_datetime').in('event_id', eventIds);
+      const eventMap = {};
+      (events || []).forEach(ev => eventMap[ev.event_id] = ev);
 
-      container.innerHTML = data.map(r => `
-        <div class="p-2.5 rounded-lg bg-[var(--bg-card)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-main)]">
-          ${escapeHtml(titleMap[r.event_id] || 'Event')}
-        </div>
-      `).join('');
+      container.innerHTML = data.map(r => {
+        const ev = eventMap[r.event_id];
+        const dateLabel = ev?.event_datetime
+          ? new Date(ev.event_datetime).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
+          : null;
+        return `
+          <div class="p-2.5 rounded-lg bg-[var(--bg-card)] border border-[var(--border-subtle)] flex items-center justify-between gap-2">
+            <div>
+              <div class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(ev?.title || 'Event')}</div>
+              ${dateLabel ? `<div class="text-xs text-[var(--text-muted)]">🗓️ ${escapeHtml(dateLabel)}</div>` : ''}
+            </div>
+            <button onclick="unregisterFromEvent('${r.event_id}')" class="text-sm font-bold text-red-400 underline flex-shrink-0">Unregister</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function unregisterFromEvent(eventId) {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) return;
+
+      const { error } = await supabaseClient
+        .from('education_registrations')
+        .update({ status: 'cancelled' })
+        .eq('event_id', eventId)
+        .eq('user_id', session.user.id);
+
+      if (error) { triggerToast(`Could not unregister: ${error.message}`); return; }
+
+      triggerToast('Unregistered.');
+      loadEducationEventsFrontend();
+      loadMyRegistrations();
     }
 
     async function loadSportHubsList() {
