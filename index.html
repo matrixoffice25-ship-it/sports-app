@@ -2475,9 +2475,9 @@
       const chipsEl = document.getElementById('news-category-chips');
       if (!chipsEl) return;
       currentNewsCategoryFilter = 'all';
-      const allChip = `<button onclick="filterNewsCategory('all', this)" class="news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold theme-accent-bg flex-shrink-0 transition-all">All News</button>`;
+      const allChip = `<button data-slug="all" onclick="filterNewsCategory('all', this)" class="news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold theme-accent-bg flex-shrink-0 transition-all">All News</button>`;
       const rest = cachedCategories.map(c =>
-        `<button onclick="filterNewsCategory('${c.slug}', this)" class="news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-main)] flex-shrink-0 transition-all">${escapeHtml(c.label)}</button>`
+        `<button data-slug="${escapeHtml(c.slug)}" onclick="filterNewsCategory('${c.slug}', this)" class="news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-main)] flex-shrink-0 transition-all">${escapeHtml(c.label)}</button>`
       ).join('');
       chipsEl.innerHTML = allChip + rest;
     }
@@ -2682,7 +2682,7 @@
       listContainer.innerHTML = visible.map(a => `
         <div class="bg-[var(--bg-surface)] p-3.5 rounded-xl border border-[var(--border-subtle)] space-y-2 hover:border-[var(--accent-main)] transition-colors cursor-pointer" onclick="openArticleDetailById('${a.article_id}')">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-emerald-light bg-emerald-fairway/10 px-2 py-0.5 rounded">${escapeHtml(categoryLabel(a.category_slug)).toUpperCase()}</span>
+            <span onclick="event.stopPropagation(); filterNewsCategoryFromBadge('${a.category_slug}')" class="text-xs font-bold text-emerald-light bg-emerald-fairway/10 px-2 py-0.5 rounded cursor-pointer hover:bg-emerald-fairway/20 transition-colors">${escapeHtml(categoryLabel(a.category_slug)).toUpperCase()}</span>
             <span class="text-xs text-[var(--text-muted)]">${timeAgo(a.published_at)}</span>
           </div>
           <h4 class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(a.title)}</h4>
@@ -2699,6 +2699,25 @@
       btn.className = 'news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold theme-accent-bg flex-shrink-0 transition-all';
       playSfx("F4", "16n");
       renderNewsTabFromCache();
+    }
+
+    // Called from an article's own category badge (NOT one of the top
+    // filter chips) - looks up the matching top chip by its category so
+    // that gets the "active" styling correctly, instead of accidentally
+    // overwriting the article badge's own appearance with chip styling.
+    function filterNewsCategoryFromBadge(cat) {
+      const matchingChip = document.querySelector(`.news-cat-chip[data-slug="${cat}"]`);
+      if (matchingChip) {
+        filterNewsCategory(cat, matchingChip);
+      } else {
+        // Category chip isn't visible/loaded yet for some reason - still
+        // apply the filter itself so tapping the badge always works.
+        currentNewsCategoryFilter = cat;
+        renderNewsTabFromCache();
+      }
+      switchTab('tab-news');
+      const el = document.getElementById('news-category-chips');
+      if (el && typeof el.scrollIntoView === 'function') el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     // Reader view. Uses the News tab's cache when available (no extra
