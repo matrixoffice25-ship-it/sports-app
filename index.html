@@ -1527,35 +1527,40 @@
     }
 
     async function setActiveSport(sportId) {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (!session) {
-        triggerToast('Please sign up or log in first.');
-        return;
-      }
-
-      await supabaseClient.from("users").update({ active_sport_id: sportId }).eq("user_id", session.user.id);
       currentSportId = sportId;
 
-      // Durable record that this user has ever entered this sport — separate
-      // from active_sport_id (which only tracks what they're CURRENTLY
-      // viewing and gets overwritten every time they switch). This is what
-      // future features (sport-specific badges, "which sports have I played",
-      // per-sport history) should query against, since active_sport_id alone
-      // can't answer "has this user ever played Tennis" once they switch
-      // back to Golf. on conflict do nothing keeps re-entering harmless.
-      await supabaseClient.from('user_sport_profiles').upsert(
-        { user_id: session.user.id, sport_id: sportId },
-        { onConflict: 'user_id,sport_id', ignoreDuplicates: true }
-      );
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        // Persisting WHICH sport a user is on, and their history of
+        // sports they've entered, only makes sense for a real account -
+        // a logged-out visitor can still browse any sport freely, there
+        // is just no row to remember it against between visits.
+        await supabaseClient.from("users").update({ active_sport_id: sportId }).eq("user_id", session.user.id);
 
-      const [lessons, fitness] = await Promise.all([
-        checkEntitlement(sportId, "lessons"),
-        checkEntitlement(sportId, "fitness"),
-      ]);
-      window.activeSportEntitlements = { lessons, fitness };
-      // Segments 1 & 2 screens don't exist yet, so there's no paywall UI to
-      // show/hide here yet. Once built, read window.activeSportEntitlements
-      // before rendering those screens to gate access.
+        // Durable record that this user has ever entered this sport — separate
+        // from active_sport_id (which only tracks what they're CURRENTLY
+        // viewing and gets overwritten every time they switch). This is what
+        // future features (sport-specific badges, "which sports have I played",
+        // per-sport history) should query against, since active_sport_id alone
+        // can't answer "has this user ever played Tennis" once they switch
+        // back to Golf. on conflict do nothing keeps re-entering harmless.
+        await supabaseClient.from('user_sport_profiles').upsert(
+          { user_id: session.user.id, sport_id: sportId },
+          { onConflict: 'user_id,sport_id', ignoreDuplicates: true }
+        );
+
+        const [lessons, fitness] = await Promise.all([
+          checkEntitlement(sportId, "lessons"),
+          checkEntitlement(sportId, "fitness"),
+        ]);
+        window.activeSportEntitlements = { lessons, fitness };
+      } else {
+        window.activeSportEntitlements = { lessons: false, fitness: false };
+      }
+
+      // Everything below is pure VIEWING, which is free for everyone -
+      // none of it should ever have been gated behind login in the first
+      // place.
       loadActivePoll();
       loadProFeed();
       loadHomeProVoicePreview();
@@ -1565,6 +1570,7 @@
       refreshAllSponsorPlacements();
       loadMediaEmbed('podcast', 'podcast-iframe');
       loadMediaEmbed('gear', 'gear-iframe');
+      loadEducationEventsFrontend();
     }
 
     async function loadEducationEventsFrontend() {
@@ -1573,11 +1579,20 @@
 
       // Every published event is visible to EVERYONE now, logged in or
       // not, locked or not - "locked" only affects whether an access
-      // code is required to REGISTER, checked separately below.
+      // code is required to REGISTER, checked separately below. Events
+      // ARE scoped to the currently selected sport though - an event
+      // with no sport_id set applies to every sport (a cross-sport
+      // event), same pattern already used for sponsor placements.
+      if (!currentSportId) {
+        container.innerHTML = '<p class="text-sm text-[var(--text-muted)] text-center py-6">Select a sport to see its events.</p>';
+        return;
+      }
+
       const { data: events, error } = await supabaseClient
         .from('education_events')
         .select('event_id, title, description, participant_info, host_name, event_type, price_cents, cover_image_url, payment_url, payment_provider, is_locked, event_datetime')
         .eq('status', 'published')
+        .or(`sport_id.eq.${currentSportId},sport_id.is.null`)
         .order('sort_order', { ascending: true });
 
       if (error) {
