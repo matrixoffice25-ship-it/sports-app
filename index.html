@@ -1765,7 +1765,7 @@
 
       const { data: sports, error } = await supabaseClient
         .from('sport_verticals')
-        .select('sport_id, slug, display_name, banner_image_url')
+        .select('sport_id, slug, display_name, banner_image_url, status_badge_text, is_launched, cta_label')
         .eq('is_active', true)
         .order('display_name', { ascending: true });
 
@@ -1780,22 +1780,36 @@
 
       container.innerHTML = sports.map(sport => {
         const isCurrent = sport.sport_id === currentSportId;
+        const isLaunched = sport.is_launched !== false;
         const bannerStyle = sport.banner_image_url
           ? `background-image: url('${sport.banner_image_url.replace(/'/g, "\\'")}'); background-size: cover; background-position: center;`
           : ''; // falls back to the card's own gradient background below when no banner is set
+
+        const ctaText = sport.cta_label || (isLaunched ? `ENTER ${sport.display_name.toUpperCase()}` : 'Request Early Access');
+        const ctaAction = isLaunched
+          ? `enterSport('${sport.slug}')`
+          : `triggerToast('Reserved Early Access for ${escapeHtml(sport.display_name).replace(/'/g, "\\'")}! 🎉')`;
+        const ctaClasses = isLaunched
+          ? 'theme-accent-bg shadow-lg hover:opacity-90'
+          : 'bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] border border-[var(--border-subtle)]';
+
         return `
           <div class="bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-card)] border-2 ${isCurrent ? 'theme-accent-subtle-border accent-glow-effect' : 'border-[var(--border-subtle)]'} rounded-2xl overflow-hidden shadow-xl space-y-0">
             <div class="relative h-32 w-full overflow-hidden ${sport.banner_image_url ? '' : 'bg-gradient-to-br from-[var(--accent-main)]/30 to-[var(--bg-surface)]'}" style="${bannerStyle}">
               <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-surface)] via-black/30 to-transparent"></div>
-              ${isCurrent ? '<div class="absolute top-2.5 right-2.5 theme-accent-bg text-sm font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider shadow">Current Hub</div>' : ''}
+              ${sport.status_badge_text ? `
+                <div class="absolute top-2.5 right-2.5 text-sm font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider shadow ${isLaunched ? 'theme-accent-bg' : 'bg-slate-900/90 text-amber-400 border border-amber-500/30'}">
+                  ${escapeHtml(sport.status_badge_text)}
+                </div>
+              ` : ''}
               <div class="absolute bottom-2.5 left-3.5">
                 <span class="text-2xl font-black text-white drop-shadow-lg">${escapeHtml(sport.display_name)}</span>
               </div>
             </div>
             <div class="p-4 space-y-3">
               <div id="sponsor-banner-sportcard-${sport.sport_id}" class="sport-card-sponsor-slot"></div>
-              <button onclick="enterSport('${sport.slug}')" class="w-full min-h-touch theme-accent-bg font-extrabold text-xs py-3 px-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 hover:opacity-90">
-                <span>ENTER ${escapeHtml(sport.display_name.toUpperCase())}</span>
+              <button onclick="${ctaAction}" class="w-full min-h-touch font-extrabold text-xs py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 ${ctaClasses}">
+                <span>${escapeHtml(ctaText)}</span>
               </button>
             </div>
           </div>
