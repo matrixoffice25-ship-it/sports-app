@@ -315,7 +315,7 @@
             <div class="flex items-start justify-between">
               <div>
                 <span class="text-xs font-bold uppercase tracking-wider theme-accent-text theme-accent-subtle-bg px-2 py-0.5 rounded theme-accent-subtle-border border">Golf Lessons</span>
-                <h3 class="text-sm font-bold text-[var(--text-main)] mt-1">Swing Drills Progress</h3>
+                <h3 id="lessons-preview-title" class="text-sm font-bold text-[var(--text-main)] mt-1">Swing Drills Progress</h3>
                 <p class="text-sm text-[var(--text-muted)]">ST-04 Lead Post Rotation Drill</p>
               </div>
               <div class="relative w-14 h-14 flex items-center justify-center">
@@ -334,7 +334,7 @@
               <div class="flex items-center justify-between">
                 <span class="text-xs font-bold uppercase tracking-wider text-violet-light bg-violet-accent/10 px-2 py-0.5 rounded border border-violet-accent/20">Golf Fitness</span>
               </div>
-              <h3 class="text-sm font-bold text-[var(--text-main)] mt-1">Thoracic Hip Mobility</h3>
+              <h3 id="fitness-preview-title" class="text-sm font-bold text-[var(--text-main)] mt-1">Thoracic Hip Mobility</h3>
               <p class="text-sm text-[var(--text-muted)]">12 Min Joint Warmup</p>
             </div>
             <div onclick="event.stopPropagation()" id="sponsor-banner-fitness-card"></div>
@@ -440,11 +440,11 @@
         <div class="bg-[var(--bg-surface)] p-1 rounded-2xl border border-[var(--border-subtle)] flex items-center space-x-1">
           <button id="subtab-btn-lessons" onclick="toggleLessonsSubtab('lessons')" class="flex-1 min-h-touch py-2.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 transition-all theme-accent-bg shadow-md">
             
-            <span>⛳ Golf Lessons</span>
+            <span id="lessons-subtab-label">⛳ Golf Lessons</span>
           </button>
           <button id="subtab-btn-fitness" onclick="toggleLessonsSubtab('fitness')" class="flex-1 min-h-touch py-2.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 transition-all text-[var(--text-muted)] hover:text-[var(--text-main)]">
             
-            <span>💪 Golf Fitness</span>
+            <span id="fitness-subtab-label">💪 Golf Fitness</span>
           </button>
         </div>
 
@@ -456,7 +456,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <span class="text-xs font-bold theme-accent-text uppercase tracking-wider theme-accent-subtle-bg px-2 py-0.5 rounded theme-accent-subtle-border border">Diagnostic Assessment</span>
-                <h3 class="text-sm font-bold text-[var(--text-main)] mt-1">15-Min Swing Diagnostic</h3>
+                <h3 id="lessons-headline" class="text-sm font-bold text-[var(--text-main)] mt-1">15-Min Swing Diagnostic</h3>
               </div>
               <span class="text-xs text-amber-400 font-bold bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">Step 2 of 4</span>
             </div>
@@ -533,7 +533,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <span class="text-xs font-bold text-violet-light uppercase tracking-wider bg-violet-accent/10 px-2 py-0.5 rounded border border-violet-accent/20">Diagnostic Assessment</span>
-                <h3 class="text-sm font-bold text-[var(--text-main)] mt-1">15-Min Physical Fitness Screen</h3>
+                <h3 id="fitness-headline" class="text-sm font-bold text-[var(--text-main)] mt-1">15-Min Physical Fitness Screen</h3>
               </div>
               <span class="text-xs text-amber-400 font-bold bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">Step 2 of 4</span>
             </div>
@@ -1505,6 +1505,8 @@
       refreshAllSponsorPlacements();
       loadMediaEmbed('podcast', 'podcast-iframe');
       loadMediaEmbed('gear', 'gear-iframe');
+      loadEducationEventsFrontend();
+      loadSportSpecificLabels(sportId);
     }
 
     // Explicit action only - a user must deliberately choose to change
@@ -1524,6 +1526,31 @@
       if (!currentSportId) { labelEl.innerText = 'Select Sport'; return; }
       supabaseClient.from('sport_verticals').select('display_name').eq('sport_id', currentSportId).single()
         .then(({ data }) => { if (data) labelEl.innerText = data.display_name; });
+    }
+
+    async function loadSportSpecificLabels(sportId) {
+      if (!sportId) return;
+      const { data: sport } = await supabaseClient
+        .from('sport_verticals')
+        .select('lessons_tab_label, fitness_tab_label, lessons_headline, fitness_headline, lessons_preview_title, fitness_preview_title')
+        .eq('sport_id', sportId)
+        .maybeSingle();
+      if (!sport) return;
+
+      const setText = (id, value) => {
+        const el = document.getElementById(id);
+        if (el && value) el.innerText = value;
+      };
+      // No emoji is assumed or hardcoded here anymore - a golf flag (⛳)
+      // is itself golf-specific branding, so if an admin wants an emoji
+      // in a sub-tab label, they just type it directly into the label
+      // text itself in the Sports tab.
+      setText('lessons-subtab-label', sport.lessons_tab_label);
+      setText('fitness-subtab-label', sport.fitness_tab_label);
+      setText('lessons-headline', sport.lessons_headline);
+      setText('fitness-headline', sport.fitness_headline);
+      setText('lessons-preview-title', sport.lessons_preview_title);
+      setText('fitness-preview-title', sport.fitness_preview_title);
     }
 
     async function setActiveSport(sportId) {
@@ -1571,6 +1598,7 @@
       loadMediaEmbed('podcast', 'podcast-iframe');
       loadMediaEmbed('gear', 'gear-iframe');
       loadEducationEventsFrontend();
+      loadSportSpecificLabels(sportId);
     }
 
     async function loadEducationEventsFrontend() {
@@ -3440,7 +3468,7 @@
         try {
           const { data: golfSport } = await supabaseClient
             .from('sport_verticals').select('sport_id').eq('slug', 'golf').single();
-          if (golfSport) currentSportId = golfSport.sport_id;
+          if (golfSport) { currentSportId = golfSport.sport_id; loadSportSpecificLabels(currentSportId); }
         } catch (e) {
           console.error('Fallback to Golf also failed (non-fatal):', e);
         }
@@ -3490,6 +3518,8 @@
         loadHomeProVoicePreview();
         loadNewsBriefs();
         refreshAllSponsorPlacements();
+        loadEducationEventsFrontend();
+        loadSportSpecificLabels(effectiveSportId);
         try {
           const { data: sport } = await supabaseClient
             .from('sport_verticals')
@@ -4727,7 +4757,7 @@
         try {
           const { data: golfSport } = await supabaseClient
             .from('sport_verticals').select('sport_id').eq('slug', 'golf').single();
-          if (golfSport) currentSportId = golfSport.sport_id;
+          if (golfSport) { currentSportId = golfSport.sport_id; loadSportSpecificLabels(currentSportId); }
         } catch (e) {
           console.error('Could not default guest to Golf (non-fatal):', e);
         }
