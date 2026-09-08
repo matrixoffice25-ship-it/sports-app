@@ -428,10 +428,7 @@
                 <span id="drill-percent-text" class="absolute text-sm font-black text-[var(--text-main)]">65%</span>
               </div>
             </div>
-            <button onclick="event.stopPropagation(); incrementDrillProgress();" class="w-full min-h-touch bg-[var(--bg-app)] hover:bg-[var(--bg-card)] theme-accent-text font-bold text-xs py-2.5 px-3 rounded-xl border theme-accent-subtle-border flex items-center justify-center gap-2 transition-all">
-              
-              <span>Log Completed Drill</span>
-            </button>
+            <div onclick="event.stopPropagation()" id="sponsor-banner-lessons-card"></div>
           </div>
 
           <div onclick="switchTab('tab-lessons'); activateFitnessSubtab();" class="bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-subtle)] flex flex-col justify-between space-y-3 relative overflow-hidden cursor-pointer hover:border-[var(--accent-main)] transition-all">
@@ -442,10 +439,7 @@
               <h3 class="text-sm font-bold text-[var(--text-main)] mt-1">Thoracic Hip Mobility</h3>
               <p class="text-sm text-[var(--text-muted)]">12 Min Joint Warmup</p>
             </div>
-            <button onclick="event.stopPropagation(); switchTab('tab-lessons'); activateFitnessSubtab();" class="w-full min-h-touch bg-gradient-to-r from-violet-accent to-purple-800 hover:from-purple-600 hover:to-violet-accent text-white font-bold text-xs py-2.5 px-3 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all">
-              
-              <span>Launch Mobility Session</span>
-            </button>
+            <div onclick="event.stopPropagation()" id="sponsor-banner-fitness-card"></div>
           </div>
         </div>
 
@@ -921,7 +915,7 @@
               <rect width="100" height="24" rx="12" fill="#F40009"/>
               <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
             </svg>
-            <div class="text-sm font-bold text-white">Presenting Partner</div>
+            <div class="text-sm font-bold text-[var(--text-main)]">Presenting Partner</div>
           </div>
         </div>
 
@@ -1048,7 +1042,7 @@
               <span class="text-xs font-extrabold text-red-300 uppercase tracking-wider">Athlete VIP Club</span>
             </div>
           </div>
-          <p class="text-sm text-slate-200">
+          <p class="text-sm text-[var(--text-main)]">
             Complimentary hydration credits linked to your profile.
           </p>
           <div class="flex items-center justify-between pt-1">
@@ -1274,7 +1268,7 @@
           <div class="bg-[var(--bg-app)] p-3.5 rounded-xl border border-[var(--border-subtle)] space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-sm text-[var(--text-muted)]">Full Name</span>
-              <span id="overview-user-name" class="text-xs font-bold text-white">Guest</span>
+              <span id="overview-user-name" class="text-xs font-bold text-[var(--text-main)]">Guest</span>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-sm text-[var(--text-muted)]">Verified Title</span>
@@ -1730,6 +1724,8 @@
       loadActivePoll();
       refreshWalletPointsDisplay();
       refreshAllSponsorPlacements();
+      loadMediaEmbed('podcast', 'podcast-iframe');
+      loadMediaEmbed('gear', 'gear-iframe');
     }
 
     // Explicit action only - a user must deliberately choose to change
@@ -1788,6 +1784,8 @@
       renderSportSwitcherLabel();
       refreshWalletPointsDisplay();
       refreshAllSponsorPlacements();
+      loadMediaEmbed('podcast', 'podcast-iframe');
+      loadMediaEmbed('gear', 'gear-iframe');
     }
 
     async function enterSport(slug) {
@@ -2040,6 +2038,8 @@
       { key: 'global_banner', kind: 'banner', variant: 'strip', label: 'Top Global Sponsor Strip (every screen)' },
       { key: 'news_header_badge', kind: 'badge', variant: 'stacked', label: 'News — Magazine header badge' },
       { key: 'news_inline_banner', kind: 'banner', label: 'News — banner between Cover Story and Briefs' },
+      { key: 'lessons_card_banner', kind: 'banner', label: 'Command Center — Golf Lessons card ad' },
+      { key: 'fitness_card_banner', kind: 'banner', label: 'Command Center — Golf Fitness card ad' },
       { key: 'stream_header_badge', kind: 'badge', variant: 'pill', label: 'Pro Voice Stream — header badge' },
       { key: 'polls_header_badge', kind: 'badge', variant: 'pill', label: 'Home — Community Poll card badge' },
       { key: 'multisport_badge', kind: 'badge', variant: 'pill', label: 'Multi-Sport tab — header badge' },
@@ -2183,7 +2183,7 @@
             </div>
             <span class="text-xs font-bold text-slate-300 bg-red-900/60 px-1.5 py-0.5 rounded uppercase border border-red-500/30">SPONSORED</span>
           </div>
-          <button ${ctaAttr} class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-slate-200 text-xs font-bold py-2 rounded-lg border border-red-500/20 flex items-center justify-center gap-1.5 transition-all">
+          <button ${ctaAttr} class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] text-xs font-bold py-2 rounded-lg border border-red-500/20 flex items-center justify-center gap-1.5 transition-all">
             <span>${escapeHtml(sp.cta_label || 'Learn More')}</span>
           </button>
         </div>
@@ -2203,9 +2203,16 @@
       const chaptersListId = mediaType === 'gear' ? 'gear-chapters-list' : 'podcast-chapters-list';
       const chaptersEl = document.getElementById(chaptersListId);
 
+      if (!currentSportId) {
+        iframe.removeAttribute('src');
+        if (chaptersEl) chaptersEl.innerHTML = '';
+        return;
+      }
+
       const { data, error } = await supabaseClient
         .from('podcast_episodes')
         .select('episode_id, youtube_video_id, title')
+        .eq('sport_id', currentSportId)
         .eq('media_type', mediaType)
         .eq('is_active', true)
         .order('created_at', { ascending: false })
@@ -2284,6 +2291,8 @@
         renderSponsorBanner('global_banner', 'sponsor-banner-global'),
         renderSponsorBadge('news_header_badge', 'sponsor-badge-news'),
         renderSponsorBanner('news_inline_banner', 'sponsor-banner-news-inline'),
+        renderSponsorBanner('lessons_card_banner', 'sponsor-banner-lessons-card'),
+        renderSponsorBanner('fitness_card_banner', 'sponsor-banner-fitness-card'),
         renderSponsorBadge('stream_header_badge', 'sponsor-badge-stream'),
         renderSponsorBadge('polls_header_badge', 'sponsor-badge-polls'),
         renderSponsorBadge('multisport_badge', 'sponsor-badge-multisport'),
@@ -4356,7 +4365,7 @@
       // Only the post's own author, or an admin, sees these - enforced
       // for real by the RLS policies too, this is just the matching UI.
       const canManage = (myUserId && myUserId === post.author_id) || currentUser.role === 'admin';
-      const canEditText = canManage && (post.media_type === 'Text' || post.media_type === 'Voice');
+      const canEditText = canManage; // author or admin can edit the caption/text on ANY post type - only the underlying media file itself can't be swapped this way
       const manageButtons = canManage ? `
         <div class="flex items-center gap-3 pt-1">
           ${canEditText ? `<button onclick="editProPost('${post.post_id}')" class="text-xs font-bold text-[var(--text-muted)] hover:theme-accent-text underline min-h-touch">Edit</button>` : ''}
