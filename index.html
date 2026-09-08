@@ -449,6 +449,12 @@
           </div>
         </div>
 
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider flex items-center gap-2">
+            <span>Pro Voice Stream</span>
+          </h3>
+          <button onclick="switchTab('tab-stream')" class="text-sm font-bold text-violet-light hover:text-violet-accent">See All</button>
+        </div>
         <div id="home-pro-voice-preview" class="space-y-3">
           <p class="text-sm text-[var(--text-muted)] text-center py-4">Log in and select a sport to see the latest Pro Voice posts.</p>
         </div>
@@ -930,6 +936,7 @@
           <div>
             <h3 class="text-base font-extrabold text-[var(--text-main)]">Mastering Ground Forces & Speed</h3>
             <p class="text-xs text-[var(--text-muted)] mt-1">Live 2-Hour Interactive Clinic with Ansel Cruz & Priya Shah.</p>
+            <p class="text-xs font-bold text-amber-400 mt-1.5">👥 For: Intermediate to advanced golfers (age 14+)</p>
           </div>
 
           <div class="bg-[var(--bg-app)] p-3 rounded-xl border border-[var(--border-subtle)] space-y-1.5 text-xs text-[var(--text-main)]">
@@ -987,6 +994,7 @@
               <div>
                 <div class="text-xs font-bold text-[var(--text-main)]">Short Game Clinic with Master Instructors</div>
                 <div class="text-sm text-[var(--text-muted)]">Interactive Online Certification</div>
+                <div class="text-sm font-bold text-amber-400 mt-0.5">👥 For: All skill levels, adult golfers</div>
               </div>
               <button onclick="triggerToast('Workshop details sent to email! 📬')" class="min-h-touch px-3 py-1.5 bg-[var(--bg-app)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] text-xs font-bold rounded-lg border border-[var(--border-subtle)]">
                 $129
@@ -997,6 +1005,7 @@
               <div>
                 <div class="text-xs font-bold text-[var(--text-main)]">Junior Athlete Certification</div>
                 <div class="text-sm text-[var(--text-muted)]">Sponsored by Athlete Development</div>
+                <div class="text-sm font-bold text-amber-400 mt-0.5">👥 For: Junior athletes, ages 8-17</div>
               </div>
               <button onclick="triggerToast('Workshop details sent to email! 📬')" class="min-h-touch px-3 py-1.5 bg-[var(--bg-app)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] text-xs font-bold rounded-lg border border-[var(--border-subtle)]">
                 $199
@@ -1050,51 +1059,67 @@
           </div>
         </div>
 
-        <div class="bg-[var(--bg-app)] p-3.5 rounded-2xl border border-[var(--border-subtle)] space-y-3">
-          <div class="text-sm font-bold text-[var(--text-main)] uppercase tracking-wider flex items-center justify-between">
-            <span class="flex items-center gap-1.5">
-              
-              <span>Display & Theme</span>
-            </span>
-            <span class="text-xs theme-accent-text font-bold">LIVE SYNC</span>
-          </div>
+        <div class="bg-[var(--bg-app)] p-3.5 rounded-2xl border border-[var(--border-subtle)] space-y-2">
+          <button type="button" onclick="toggleSettingsPanel()" class="w-full flex items-center justify-between text-sm font-bold text-[var(--text-main)] uppercase tracking-wider min-h-touch">
+            <span>⚙️ Settings</span>
+            <span id="settings-panel-chevron" class="text-[var(--text-muted)] transition-transform">▼</span>
+          </button>
 
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block text-sm font-bold text-[var(--text-muted)] mb-1">Appearance</label>
-              <div class="grid grid-cols-2 gap-1 bg-[var(--bg-surface)] p-1 rounded-xl border border-[var(--border-subtle)]">
-                <button type="button" id="btn-mode-dark" onclick="setThemeMode('dark', true)" class="min-h-touch py-1.5 px-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow">
-                  
-                  <span>Dark</span>
-                </button>
-                <button type="button" id="btn-mode-light" onclick="setThemeMode('light', true)" class="min-h-touch py-1.5 px-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5">
-                  
-                  <span>Light</span>
-                </button>
+          <div id="settings-panel-body" class="hidden space-y-3 pt-1">
+            <label class="flex items-center justify-between p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] cursor-pointer min-h-touch">
+              <span class="text-sm font-bold text-[var(--text-main)]">🔇 Mute Tap Sounds</span>
+              <input type="checkbox" id="settings-mute-sounds" onchange="setSoundMuted(this.checked)" class="w-5 h-5">
+            </label>
+            <label class="flex items-center justify-between p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] cursor-pointer min-h-touch">
+              <span class="text-sm font-bold text-[var(--text-main)]">🔔 Notifications</span>
+              <input type="checkbox" id="settings-notifications-enabled" checked onchange="setNotificationsEnabled(this.checked)" class="w-5 h-5">
+            </label>
+
+            <div class="text-sm font-bold text-[var(--text-main)] uppercase tracking-wider flex items-center justify-between pt-2 border-t border-[var(--border-subtle)]">
+              <span class="flex items-center gap-1.5">
+                
+                <span>Display & Theme</span>
+              </span>
+              <span class="text-xs theme-accent-text font-bold">LIVE SYNC</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-sm font-bold text-[var(--text-muted)] mb-1">Appearance</label>
+                <div class="grid grid-cols-2 gap-1 bg-[var(--bg-surface)] p-1 rounded-xl border border-[var(--border-subtle)]">
+                  <button type="button" id="btn-mode-dark" onclick="setThemeMode('dark', true)" class="min-h-touch py-1.5 px-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow">
+                    
+                    <span>Dark</span>
+                  </button>
+                  <button type="button" id="btn-mode-light" onclick="setThemeMode('light', true)" class="min-h-touch py-1.5 px-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5">
+                    
+                    <span>Light</span>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-bold text-[var(--text-muted)] mb-1">Color Palette</label>
+                <div class="grid grid-cols-2 gap-1 bg-[var(--bg-surface)] p-1 rounded-xl border border-[var(--border-subtle)]">
+                  <button type="button" id="btn-pal-emerald" onclick="setAccentPalette('emerald', true)" class="min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 text-emerald-400">
+                    <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                    <span class="text-sm">Emerald</span>
+                  </button>
+                  <button type="button" id="btn-pal-rose" onclick="setAccentPalette('rose', true)" class="min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 text-pink-400">
+                    <span class="w-3 h-3 rounded-full bg-pink-500 inline-block"></span>
+                    <span class="text-sm">Rose</span>
+                  </button>
+                </div>
               </div>
             </div>
 
             <div>
-              <label class="block text-sm font-bold text-[var(--text-muted)] mb-1">Color Palette</label>
-              <div class="grid grid-cols-2 gap-1 bg-[var(--bg-surface)] p-1 rounded-xl border border-[var(--border-subtle)]">
-                <button type="button" id="btn-pal-emerald" onclick="setAccentPalette('emerald', true)" class="min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 text-emerald-400">
-                  <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
-                  <span class="text-sm">Emerald</span>
-                </button>
-                <button type="button" id="btn-pal-rose" onclick="setAccentPalette('rose', true)" class="min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 text-pink-400">
-                  <span class="w-3 h-3 rounded-full bg-pink-500 inline-block"></span>
-                  <span class="text-sm">Rose</span>
-                </button>
+              <label class="block text-sm font-bold text-[var(--text-muted)] mb-1">Text Size</label>
+              <div class="grid grid-cols-3 gap-1 bg-[var(--bg-surface)] p-1 rounded-xl border border-[var(--border-subtle)]">
+                <button type="button" id="btn-font-sm" onclick="setFontScale(0.92, true)" class="min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all text-[var(--text-muted)]">Small</button>
+                <button type="button" id="btn-font-md" onclick="setFontScale(1, true)" class="min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all shadow">Default</button>
+                <button type="button" id="btn-font-lg" onclick="setFontScale(1.2, true)" class="min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all text-[var(--text-muted)]">Large</button>
               </div>
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-bold text-[var(--text-muted)] mb-1">Text Size</label>
-            <div class="grid grid-cols-3 gap-1 bg-[var(--bg-surface)] p-1 rounded-xl border border-[var(--border-subtle)]">
-              <button type="button" id="btn-font-sm" onclick="setFontScale(0.92, true)" class="min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all text-[var(--text-muted)]">Small</button>
-              <button type="button" id="btn-font-md" onclick="setFontScale(1, true)" class="min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all shadow">Default</button>
-              <button type="button" id="btn-font-lg" onclick="setFontScale(1.2, true)" class="min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all text-[var(--text-muted)]">Large</button>
             </div>
           </div>
         </div>
@@ -1173,6 +1198,7 @@
                 <option value="Industry Expert">Industry Expert</option>
                 <option value="Athlete">Athlete</option>
               </select>
+              <p class="text-xs text-[var(--text-muted)] mt-1">This submits a request for our team to review. It does not grant a verified badge — approval are added by an admin after review.</p>
               <p class="text-xs text-[var(--text-muted)] mt-1">This submits a request for our team to review. It does not grant a verified badge — approval, the checkmark, and your sport tag are added by an admin after review.</p>
             </div>
           </div>
@@ -1294,7 +1320,7 @@
           <span>Log Out</span>
         </button>
 
-        <p class="text-xs text-center text-[var(--text-muted)] pt-1">
+        <p id="profile-bottom-legal-links" class="text-xs text-center text-[var(--text-muted)] pt-1 hidden">
           <a href="privacy-policy.html" target="_blank" rel="noopener noreferrer" class="underline hover:text-[var(--text-main)]">Privacy Policy</a>
           <span class="px-1">·</span>
           <a href="terms-of-service.html" target="_blank" rel="noopener noreferrer" class="underline hover:text-[var(--text-main)]">Terms of Service</a>
@@ -1553,14 +1579,20 @@
         triggerToast(`Signup failed: ${error.message}`);
         return null;
       }
+      // Every new account starts as a plain fan with no title - the
+      // database itself now enforces this. If they picked a title on
+      // the signup form, that becomes a pending REQUEST right after
+      // account creation, not an immediate title.
       const { error: profileErr } = await supabaseClient.from("users").insert({
         user_id: data.user.id,
         display_name: displayName,
-        title: title || null,
       });
       if (profileErr) {
         triggerToast(`Profile creation failed: ${profileErr.message}`);
         return null;
+      }
+      if (title) {
+        await supabaseClient.from('title_requests').insert({ user_id: data.user.id, requested_title: title });
       }
       return data.user;
     }
@@ -2400,42 +2432,45 @@
       return text.slice(0, maxLength).trim() + '…';
     }
 
-    const BRIEF_TRUNCATE_LENGTH = 90; // roughly 2 lines - short briefs never get touched by this at all
+    const BRIEF_TRUNCATE_LENGTH = 60; // roughly 1 line - defaults to collapsed more often now, on purpose, to keep the app clean
     let briefBodyCache = {}; // avoids stuffing full text into HTML attributes just to toggle it back
 
-    function renderBriefCardsInto(container, briefs) {
+    function renderBriefCardsInto(container, briefs, scopeId) {
       container.innerHTML = '';
       briefs.forEach(brief => {
         const item = document.createElement('div');
-        // A brief is short enough to show in full right here already in
-        // MOST cases - only genuinely long ones get a Show more/less
-        // toggle, so this never adds clutter to the common short case.
+        // Briefs default to COLLAPSED - only a click reveals the rest,
+        // keeping the app as clean and low-clutter as possible. The
+        // scopeId keeps element IDs unique between Home's preview and
+        // the full News tab list, since the same brief can legitimately
+        // appear in both places at once.
         const hasSource = !!brief.source_url;
         item.className = `bg-[var(--bg-card)] p-2.5 rounded-xl border border-[var(--border-subtle)] hover:border-[var(--accent-main)] transition-colors${hasSource ? ' cursor-pointer' : ''}`;
         if (hasSource) item.onclick = () => window.open(brief.source_url, '_blank', 'noopener,noreferrer');
 
+        const cacheKey = `${scopeId}-${brief.brief_id}`;
         const isLong = brief.body.length > BRIEF_TRUNCATE_LENGTH;
         const truncated = isLong ? brief.body.slice(0, BRIEF_TRUNCATE_LENGTH).trim() + '…' : brief.body;
-        briefBodyCache[brief.brief_id] = brief.body;
+        briefBodyCache[cacheKey] = brief.body;
 
         item.innerHTML = `
           <div class="text-xs font-bold text-[var(--text-main)] flex items-center gap-2">
             <span class="w-1.5 h-1.5 rounded-full theme-accent-bg flex-shrink-0"></span>
             <span>${escapeHtml(brief.title)}</span>
           </div>
-          <p class="text-sm text-[var(--text-muted)] mt-1 pl-3" id="brief-body-${brief.brief_id}">${escapeHtml(truncated)}</p>
-          ${isLong ? `<button onclick="event.stopPropagation(); toggleBriefExpand('${brief.brief_id}', this)" class="text-xs font-bold theme-accent-text pl-3 mt-0.5">Show more</button>` : ''}
+          <p class="text-sm text-[var(--text-muted)] mt-1 pl-3" id="brief-body-${cacheKey}">${escapeHtml(truncated)}</p>
+          ${isLong ? `<button onclick="event.stopPropagation(); toggleBriefExpand('${cacheKey}', this)" class="text-xs font-bold theme-accent-text pl-3 mt-0.5">Show more</button>` : ''}
         `;
         container.appendChild(item);
       });
     }
 
-    function toggleBriefExpand(briefId, btn) {
-      const el = document.getElementById(`brief-body-${briefId}`);
+    function toggleBriefExpand(cacheKey, btn) {
+      const el = document.getElementById(`brief-body-${cacheKey}`);
       const expanded = btn.textContent === 'Show less';
       el.textContent = expanded
-        ? briefBodyCache[briefId].slice(0, BRIEF_TRUNCATE_LENGTH).trim() + '…'
-        : briefBodyCache[briefId];
+        ? briefBodyCache[cacheKey].slice(0, BRIEF_TRUNCATE_LENGTH).trim() + '…'
+        : briefBodyCache[cacheKey];
       btn.textContent = expanded ? 'Show more' : 'Show less';
     }
 
@@ -2469,7 +2504,7 @@
         return;
       }
 
-      renderBriefCardsInto(container, briefs);
+      renderBriefCardsInto(container, briefs, 'home');
     }
 
     // The News tab shows EVERY brief, not just the Home preview's top 3 -
@@ -2500,7 +2535,7 @@
         return;
       }
 
-      renderBriefCardsInto(container, briefs);
+      renderBriefCardsInto(container, briefs, 'newstab');
     }
 
     // Full News tab: loads every published article for the sport once,
@@ -2650,7 +2685,41 @@
       }
     }
 
+    // Per-device preferences - these are personal UI settings (not
+    // account data), so a plain browser localStorage value is the right
+    // place for them, same as any normal website's "remember my
+    // settings" behavior.
+    let soundMuted = localStorage.getItem('pref_sound_muted') === 'true';
+    let notificationsEnabled = localStorage.getItem('pref_notifications_enabled') !== 'false'; // defaults to true
+
+    function toggleSettingsPanel() {
+      const body = document.getElementById('settings-panel-body');
+      const chevron = document.getElementById('settings-panel-chevron');
+      body.classList.toggle('hidden');
+      chevron.style.transform = body.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+    }
+
+    function setSoundMuted(muted) {
+      soundMuted = muted;
+      localStorage.setItem('pref_sound_muted', muted ? 'true' : 'false');
+    }
+
+    function setNotificationsEnabled(enabled) {
+      notificationsEnabled = enabled;
+      localStorage.setItem('pref_notifications_enabled', enabled ? 'true' : 'false');
+    }
+
+    // Reflects the saved preferences into the two checkboxes once the
+    // settings panel exists in the DOM - called once at boot.
+    function initSettingsPanelState() {
+      const muteCb = document.getElementById('settings-mute-sounds');
+      const notifCb = document.getElementById('settings-notifications-enabled');
+      if (muteCb) muteCb.checked = soundMuted;
+      if (notifCb) notifCb.checked = notificationsEnabled;
+    }
+
     function playSfx(note, duration = "16n") {
+      if (soundMuted) return; // respects the user's Mute Tap Sounds preference before making any noise at all
       try {
         initAudio();
         if (synth && window.Tone) {
@@ -3011,6 +3080,7 @@
       const formEl = document.getElementById('profile-form');
       const overviewEl = document.getElementById('profile-overview-view');
       const titleEl = document.getElementById('profile-modal-title');
+      const bottomLegalLinks = document.getElementById('profile-bottom-legal-links');
 
       if (mode === 'signup') {
         signupTab.className = 'flex-1 py-1.5 rounded-lg text-xs font-bold transition-all theme-accent-bg shadow';
@@ -3018,12 +3088,17 @@
         formEl.classList.remove('hidden');
         overviewEl.classList.add('hidden');
         titleEl.innerText = "Edit Verified Pro Profile";
+        // The signup/login form already has its own "By continuing, you
+        // agree to..." consent line with these same two links - showing
+        // this second copy here too would just duplicate them.
+        if (bottomLegalLinks) bottomLegalLinks.classList.add('hidden');
       } else {
         viewTab.className = 'flex-1 py-1.5 rounded-lg text-xs font-bold transition-all theme-accent-bg shadow';
         signupTab.className = 'flex-1 py-1.5 rounded-lg text-xs font-bold transition-all text-[var(--text-muted)] hover:text-[var(--text-main)]';
         formEl.classList.add('hidden');
         overviewEl.classList.remove('hidden');
         titleEl.innerText = "Active Athlete Profile";
+        if (bottomLegalLinks) bottomLegalLinks.classList.remove('hidden');
       }
     }
 
@@ -3187,8 +3262,20 @@
           return;
         }
 
-        await supabaseClient.from('users').update({ display_name: nameVal, title: titleVal || null }).eq('user_id', session.user.id);
+        await supabaseClient.from('users').update({ display_name: nameVal }).eq('user_id', session.user.id);
         if (pendingPhotoFile) await uploadPendingPhoto(session.user.id);
+
+        // Title changes go through a request an admin must approve -
+        // the database itself now rejects a direct title update from a
+        // non-admin, so this only ever submits a request, never sets it.
+        if (titleVal && titleVal !== currentUser.title) {
+          const { error: reqError } = await supabaseClient.from('title_requests').insert({
+            user_id: session.user.id, requested_title: titleVal,
+          });
+          if (!reqError) {
+            triggerToast("Title request submitted! This submits a request for our team to review. It does not grant a verified badge — approval are added by an admin after review.");
+          }
+        }
 
         currentUser.name = nameVal;
         const welcomeNameEl = document.getElementById('welcome-username');
@@ -4557,6 +4644,7 @@
 
     window.onload = async function() {
       safeBootStep('setThemeMode', () => setThemeMode('dark', false));
+      safeBootStep('initSettingsPanelState', () => initSettingsPanelState());
       safeBootStep('setAccentPalette', () => setAccentPalette('emerald', false));
       safeBootStep('setFontScale', () => setFontScale(1, false));
       safeBootStep('switchTab', () => switchTab('tab-home'));
