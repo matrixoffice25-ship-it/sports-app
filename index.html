@@ -314,7 +314,7 @@
           <div onclick="switchTab('tab-lessons'); activateLessonsSubtab();" class="bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-subtle)] flex flex-col justify-between space-y-3 relative overflow-hidden cursor-pointer hover:border-[var(--accent-main)] transition-all">
             <div class="flex items-start justify-between">
               <div>
-                <span class="text-xs font-bold uppercase tracking-wider theme-accent-text theme-accent-subtle-bg px-2 py-0.5 rounded theme-accent-subtle-border border">Golf Lessons</span>
+                <span id="lessons-preview-eyebrow" class="text-xs font-bold uppercase tracking-wider theme-accent-text theme-accent-subtle-bg px-2 py-0.5 rounded theme-accent-subtle-border border">Golf Lessons</span>
                 <h3 id="lessons-preview-title" class="text-sm font-bold text-[var(--text-main)] mt-1">Swing Drills Progress</h3>
                 <p class="text-sm text-[var(--text-muted)]">ST-04 Lead Post Rotation Drill</p>
               </div>
@@ -332,7 +332,7 @@
           <div onclick="switchTab('tab-lessons'); activateFitnessSubtab();" class="bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-subtle)] flex flex-col justify-between space-y-3 relative overflow-hidden cursor-pointer hover:border-[var(--accent-main)] transition-all">
             <div>
               <div class="flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-violet-light bg-violet-accent/10 px-2 py-0.5 rounded border border-violet-accent/20">Golf Fitness</span>
+                <span id="fitness-preview-eyebrow" class="text-xs font-bold uppercase tracking-wider text-violet-light bg-violet-accent/10 px-2 py-0.5 rounded border border-violet-accent/20">Golf Fitness</span>
               </div>
               <h3 id="fitness-preview-title" class="text-sm font-bold text-[var(--text-main)] mt-1">Thoracic Hip Mobility</h3>
               <p class="text-sm text-[var(--text-muted)]">12 Min Joint Warmup</p>
@@ -1464,7 +1464,7 @@
     async function loadSportSwitcherOptions() {
       const listEl = document.getElementById('sport-switcher-list');
       const { data: sports } = await supabaseClient
-        .from('sport_verticals').select('sport_id, display_name').eq('is_active', true);
+        .from('sport_verticals').select('sport_id, display_name, admin_only').eq('is_active', true);
 
       const { data: { session } } = await supabaseClient.auth.getSession();
       let homeSportId = null;
@@ -1473,13 +1473,17 @@
         homeSportId = profile?.active_sport_id || null;
       }
 
+      const iAmAdmin = currentUser.role === 'admin';
+
       listEl.innerHTML = (sports || []).map(s => {
         const isCurrent = s.sport_id === currentSportId;
         const isHome = s.sport_id === homeSportId;
+        const isLockedForMe = s.admin_only && !iAmAdmin;
         return `
           <div class="p-2.5 flex items-center justify-between hover:bg-[var(--bg-card)] cursor-pointer ${isCurrent ? 'bg-[var(--bg-card)]' : ''}" onclick="selectBrowseSport('${s.sport_id}', '${s.display_name}')">
             <div class="flex items-center gap-1.5">
               <span class="text-xs font-bold text-[var(--text-main)]">${s.display_name}</span>
+              ${isLockedForMe ? '<span class="text-xs text-amber-400">🔒</span>' : ''}
               ${isHome ? '<span class="text-xs theme-accent-text">🏠 Home</span>' : ''}
             </div>
             ${isCurrent ? '<span class="theme-accent-text text-xs">✓</span>' : ''}
@@ -1494,6 +1498,13 @@
     // distinction the whole point-fairness and "no accidental switching"
     // design depends on.
     async function selectBrowseSport(sportId, displayName) {
+      const { data: sportCheck } = await supabaseClient.from('sport_verticals').select('admin_only').eq('sport_id', sportId).maybeSingle();
+      if (sportCheck?.admin_only && currentUser.role !== 'admin') {
+        triggerToast('This sport is still being set up - check back soon! 🔧');
+        document.getElementById('sport-switcher-panel').classList.add('hidden');
+        return;
+      }
+
       currentSportId = sportId;
       document.getElementById('sport-switcher-panel').classList.add('hidden');
       renderSportSwitcherLabel(displayName);
@@ -1547,6 +1558,8 @@
       // text itself in the Sports tab.
       setText('lessons-subtab-label', sport.lessons_tab_label);
       setText('fitness-subtab-label', sport.fitness_tab_label);
+      setText('lessons-preview-eyebrow', sport.lessons_tab_label);
+      setText('fitness-preview-eyebrow', sport.fitness_tab_label);
       setText('lessons-headline', sport.lessons_headline);
       setText('fitness-headline', sport.fitness_headline);
       setText('lessons-preview-title', sport.lessons_preview_title);
@@ -1842,31 +1855,29 @@
           ? `background-image: url('${sport.banner_image_url.replace(/'/g, "\\'")}'); background-size: cover; background-position: center;`
           : ''; // falls back to the card's own gradient background below when no banner is set
 
-        let ctaText, ctaAction, ctaClasses;
-        if (isLockedForMe) {
-          ctaText = '🔒 Being Built - Admin Only For Now';
-          ctaAction = `triggerToast('This sport is still being set up - check back soon! 🔧')`;
-          ctaClasses = 'bg-[var(--bg-card)] text-[var(--text-muted)] border border-[var(--border-subtle)] cursor-not-allowed';
-        } else {
-          ctaText = sport.cta_label || (isLaunched ? `ENTER ${sport.display_name.toUpperCase()}` : 'Request Early Access');
-          ctaAction = isLaunched
+        // admin_only is PURELY an access gate - it never changes what
+        // text shows on the card. The admin's own status badge and
+        // button text (set in the Sports tab) are used exactly as
+        // configured, whether the sport is locked or not. The ONLY
+        // thing that changes for a locked sport is what happens when a
+        // non-admin taps the button.
+        const ctaText = sport.cta_label || (isLaunched ? `ENTER ${sport.display_name.toUpperCase()}` : 'Request Early Access');
+        const ctaAction = isLockedForMe
+          ? `triggerToast('This sport is still being set up - check back soon! 🔧')`
+          : isLaunched
             ? `enterSport('${sport.slug}')`
             : `triggerToast('Reserved Early Access for ${escapeHtml(sport.display_name).replace(/'/g, "\\'")}! 🎉')`;
-          ctaClasses = isLaunched
-            ? 'theme-accent-bg shadow-lg hover:opacity-90'
-            : 'bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] border border-[var(--border-subtle)]';
-        }
+        const ctaClasses = isLaunched
+          ? 'theme-accent-bg shadow-lg hover:opacity-90'
+          : 'bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] border border-[var(--border-subtle)]';
 
         return `
           <div class="bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-card)] border-2 ${isCurrent ? 'theme-accent-subtle-border accent-glow-effect' : 'border-[var(--border-subtle)]'} rounded-2xl overflow-hidden shadow-xl space-y-0">
             <div class="relative h-32 w-full overflow-hidden ${sport.banner_image_url ? '' : 'bg-gradient-to-br from-[var(--accent-main)]/30 to-[var(--bg-surface)]'}" style="${bannerStyle}">
               <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-surface)] via-black/30 to-transparent"></div>
-              ${isLockedForMe ? `
-                <div class="absolute top-2.5 right-2.5 text-sm font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider shadow bg-slate-900/90 text-amber-400 border border-amber-500/30">
-                  🔒 Building
-                </div>
-              ` : sport.status_badge_text ? `
-                <div class="absolute top-2.5 right-2.5 text-sm font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider shadow ${isLaunched ? 'theme-accent-bg' : 'bg-slate-900/90 text-amber-400 border border-amber-500/30'}">
+              ${isLockedForMe ? '<div class="absolute top-2.5 right-2.5 text-lg">🔒</div>' : ''}
+              ${sport.status_badge_text ? `
+                <div class="absolute top-2.5 ${isLockedForMe ? 'right-10' : 'right-2.5'} text-sm font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider shadow ${isLaunched ? 'theme-accent-bg' : 'bg-slate-900/90 text-amber-400 border border-amber-500/30'}">
                   ${escapeHtml(sport.status_badge_text)}
                 </div>
               ` : ''}
