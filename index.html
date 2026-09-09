@@ -2607,6 +2607,16 @@
     // real articles, because the filter value is read directly off those
     // same articles' own category_slug field (no separate list to drift
     // out of sync and go "useless").
+    // Builds the News tab's tabs from the CURRENT sport's actual loaded
+    // articles - never from the global category table directly, and never
+    // adding any extra tab beyond the real topics you've actually tagged
+    // articles with. This guarantees three things at once: (1) a tab only
+    // ever appears if this sport has published content in it, (2) there
+    // is exactly ONE tab per topic - no duplicate "Featured" tab even if
+    // an article is both in a "Featured" category AND separately flagged
+    // is_featured, and (3) clicking a tab is guaranteed to match real
+    // articles, because the filter value is read directly off those same
+    // articles' own category_slug field.
     function buildNewsCategoryChips() {
       const chipsEl = document.getElementById('news-category-chips');
       if (!chipsEl) return;
@@ -2624,13 +2634,10 @@
       const nonCoverArticles = cachedNewsArticles.filter(a => !a.is_cover_story);
       const presentSlugs = [...new Set(nonCoverArticles.map(a => a.category_slug).filter(Boolean))]
         .sort((a, b) => sortOrderFor(a) - sortOrderFor(b));
-      const hasFeatured = nonCoverArticles.some(a => a.is_featured);
 
       // Keep whatever filter was already selected if it's still valid for
       // this sport's content; otherwise fall back to "All News".
-      const stillValid = currentNewsCategoryFilter === 'all'
-        || (currentNewsCategoryFilter === 'featured' && hasFeatured)
-        || presentSlugs.includes(currentNewsCategoryFilter);
+      const stillValid = currentNewsCategoryFilter === 'all' || presentSlugs.includes(currentNewsCategoryFilter);
       if (!stillValid) currentNewsCategoryFilter = 'all';
 
       const chipClass = (isActive) => `news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold flex-shrink-0 transition-all ${isActive ? 'theme-accent-bg' : 'bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-main)]'}`;
@@ -2639,9 +2646,6 @@
       chips += presentSlugs.map(slug =>
         `<button data-slug="${escapeHtml(slug)}" onclick="filterNewsCategory('${slug}', this)" class="${chipClass(currentNewsCategoryFilter === slug)}">${escapeHtml(labelFor(slug))}</button>`
       ).join('');
-      if (hasFeatured) {
-        chips += `<button data-slug="featured" onclick="filterNewsCategory('featured', this)" class="${chipClass(currentNewsCategoryFilter === 'featured')}">${escapeHtml(labelFor('featured'))}</button>`;
-      }
       chipsEl.innerHTML = chips;
     }
 
@@ -2834,7 +2838,6 @@
       const visible = cachedNewsArticles.filter(a => {
         if (a.is_cover_story) return false; // already shown above, don't duplicate in the list
         if (currentNewsCategoryFilter === 'all') return true;
-        if (currentNewsCategoryFilter === 'featured') return a.is_featured;
         return a.category_slug === currentNewsCategoryFilter;
       });
 
