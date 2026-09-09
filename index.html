@@ -713,7 +713,7 @@
             <div class="flex items-center space-x-2">
               
               <div>
-                <div class="text-xs font-bold text-amber-400">⭐ Recommended for your SwingType</div>
+                <div id="gear-recommendation-title" class="text-xs font-bold text-amber-400">⭐ Recommended for your SwingType</div>
                 <div id="gear-recommendation-subtitle" class="text-sm text-[var(--text-muted)]">Not yet assessed</div>
               </div>
             </div>
@@ -755,7 +755,7 @@
           </div>
 
           <div id="gear-not-assessed-notice" class="bg-[var(--bg-app)] border border-dashed border-[var(--border-subtle)] p-4 rounded-xl text-center">
-            <p class="text-xs text-[var(--text-muted)]">Personalized gear matches unlock once your SwingType assessment is complete.</p>
+            <p id="gear-not-assessed-notice-text" class="text-xs text-[var(--text-muted)]">Personalized gear matches unlock once your SwingType assessment is complete.</p>
           </div>
 
           <div class="pt-1">
@@ -1532,7 +1532,7 @@
       if (!sportId) return;
       const { data: sport } = await supabaseClient
         .from('sport_verticals')
-        .select('lessons_tab_label, fitness_tab_label, lessons_headline, fitness_headline, lessons_preview_title, fitness_preview_title')
+        .select('lessons_tab_label, fitness_tab_label, lessons_headline, fitness_headline, lessons_preview_title, fitness_preview_title, assessment_label')
         .eq('sport_id', sportId)
         .maybeSingle();
       if (!sport) return;
@@ -1551,6 +1551,17 @@
       setText('fitness-headline', sport.fitness_headline);
       setText('lessons-preview-title', sport.lessons_preview_title);
       setText('fitness-preview-title', sport.fitness_preview_title);
+
+      // FIX for a real reported bug: "SwingType" (a golf-specific term)
+      // was hardcoded in two extra spots that never updated at all,
+      // regardless of sport - not just missing an edit UI, genuinely
+      // dead/static text.
+      const assessmentLabel = sport.assessment_label || 'Skill Profile';
+      setText('overview-assessment-label', assessmentLabel);
+      const gearTitleEl = document.getElementById('gear-recommendation-title');
+      if (gearTitleEl) gearTitleEl.innerText = `⭐ Recommended for your ${assessmentLabel}`;
+      const gearNoticeEl = document.getElementById('gear-not-assessed-notice-text');
+      if (gearNoticeEl) gearNoticeEl.innerText = `Personalized gear matches unlock once your ${assessmentLabel} assessment is complete.`;
     }
 
     async function setActiveSport(sportId) {
@@ -1808,7 +1819,7 @@
 
       const { data: sports, error } = await supabaseClient
         .from('sport_verticals')
-        .select('sport_id, slug, display_name, banner_image_url, status_badge_text, is_launched, cta_label')
+        .select('sport_id, slug, display_name, banner_image_url, status_badge_text, is_launched, cta_label, admin_only')
         .eq('is_active', true)
         .order('display_name', { ascending: true });
 
@@ -1821,26 +1832,40 @@
         return;
       }
 
+      const iAmAdmin = currentUser.role === 'admin';
+
       container.innerHTML = sports.map(sport => {
         const isCurrent = sport.sport_id === currentSportId;
         const isLaunched = sport.is_launched !== false;
+        const isLockedForMe = sport.admin_only && !iAmAdmin;
         const bannerStyle = sport.banner_image_url
           ? `background-image: url('${sport.banner_image_url.replace(/'/g, "\\'")}'); background-size: cover; background-position: center;`
           : ''; // falls back to the card's own gradient background below when no banner is set
 
-        const ctaText = sport.cta_label || (isLaunched ? `ENTER ${sport.display_name.toUpperCase()}` : 'Request Early Access');
-        const ctaAction = isLaunched
-          ? `enterSport('${sport.slug}')`
-          : `triggerToast('Reserved Early Access for ${escapeHtml(sport.display_name).replace(/'/g, "\\'")}! 🎉')`;
-        const ctaClasses = isLaunched
-          ? 'theme-accent-bg shadow-lg hover:opacity-90'
-          : 'bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] border border-[var(--border-subtle)]';
+        let ctaText, ctaAction, ctaClasses;
+        if (isLockedForMe) {
+          ctaText = '🔒 Being Built - Admin Only For Now';
+          ctaAction = `triggerToast('This sport is still being set up - check back soon! 🔧')`;
+          ctaClasses = 'bg-[var(--bg-card)] text-[var(--text-muted)] border border-[var(--border-subtle)] cursor-not-allowed';
+        } else {
+          ctaText = sport.cta_label || (isLaunched ? `ENTER ${sport.display_name.toUpperCase()}` : 'Request Early Access');
+          ctaAction = isLaunched
+            ? `enterSport('${sport.slug}')`
+            : `triggerToast('Reserved Early Access for ${escapeHtml(sport.display_name).replace(/'/g, "\\'")}! 🎉')`;
+          ctaClasses = isLaunched
+            ? 'theme-accent-bg shadow-lg hover:opacity-90'
+            : 'bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] border border-[var(--border-subtle)]';
+        }
 
         return `
           <div class="bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-card)] border-2 ${isCurrent ? 'theme-accent-subtle-border accent-glow-effect' : 'border-[var(--border-subtle)]'} rounded-2xl overflow-hidden shadow-xl space-y-0">
             <div class="relative h-32 w-full overflow-hidden ${sport.banner_image_url ? '' : 'bg-gradient-to-br from-[var(--accent-main)]/30 to-[var(--bg-surface)]'}" style="${bannerStyle}">
               <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-surface)] via-black/30 to-transparent"></div>
-              ${sport.status_badge_text ? `
+              ${isLockedForMe ? `
+                <div class="absolute top-2.5 right-2.5 text-sm font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider shadow bg-slate-900/90 text-amber-400 border border-amber-500/30">
+                  🔒 Building
+                </div>
+              ` : sport.status_badge_text ? `
                 <div class="absolute top-2.5 right-2.5 text-sm font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider shadow ${isLaunched ? 'theme-accent-bg' : 'bg-slate-900/90 text-amber-400 border border-amber-500/30'}">
                   ${escapeHtml(sport.status_badge_text)}
                 </div>
@@ -1870,12 +1895,17 @@
     async function enterSport(slug) {
       const { data: sport, error } = await supabaseClient
         .from('sport_verticals')
-        .select('sport_id')
+        .select('sport_id, admin_only, display_name')
         .eq('slug', slug)
         .single();
 
       if (error || !sport) {
         triggerToast('Could not load that sport right now.');
+        return;
+      }
+
+      if (sport.admin_only && currentUser.role !== 'admin') {
+        triggerToast('This sport is still being set up - check back soon! 🔧');
         return;
       }
 
@@ -3488,7 +3518,7 @@
       // any reason, the person is still fully logged in, they just won't
       // see a sport name/label until this resolves.
       let sportName = null;
-      let assessmentLabel = 'SwingType';
+      let assessmentLabel = 'Skill Profile';
       let effectiveSportId = profile?.active_sport_id;
 
       if (!effectiveSportId) {
@@ -3528,7 +3558,7 @@
             .single();
           if (sport) {
             sportName = sport.display_name;
-            assessmentLabel = sport.assessment_label || 'SwingType';
+            assessmentLabel = sport.assessment_label || 'Skill Profile';
           }
         } catch (e) {
           console.error('Sport lookup failed (non-fatal):', e);
@@ -3564,10 +3594,11 @@
       const overviewTitleEl = document.getElementById('overview-user-title');
       if (overviewTitleEl) overviewTitleEl.innerText = badgeText;
 
-      // SwingType (or whatever the active sport calls its assessment) —
-      // no fake result shown until Segment 1/2 actually produces one.
-      const labelEl = document.getElementById('overview-assessment-label');
-      if (labelEl) labelEl.innerText = assessmentLabel;
+      // Note: the assessment label itself (previously re-applied here)
+      // is now handled once, correctly, by loadSportSpecificLabels()
+      // above - this used to duplicate that with a stale golf-specific
+      // fallback that ran AFTER the correct value and silently
+      // overwrote it back to "SwingType" on every login.
 
       // Daily login point always goes to the user's HOME sport specifically
       // (server-side decides this - see award_daily_login_point()), keeping
