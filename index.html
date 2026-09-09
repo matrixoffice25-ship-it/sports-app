@@ -312,30 +312,28 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div onclick="switchTab('tab-lessons'); activateLessonsSubtab();" class="bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-subtle)] flex flex-col justify-between space-y-3 relative overflow-hidden cursor-pointer hover:border-[var(--accent-main)] transition-all">
-            <div class="flex items-start justify-between">
-              <div>
-                <span id="lessons-preview-eyebrow" class="text-xs font-bold uppercase tracking-wider theme-accent-text theme-accent-subtle-bg px-2 py-0.5 rounded theme-accent-subtle-border border">Golf Lessons</span>
-                <h3 id="lessons-preview-title" class="text-sm font-bold text-[var(--text-main)] mt-1">Swing Drills Progress</h3>
-                <p class="text-sm text-[var(--text-muted)]">ST-04 Lead Post Rotation Drill</p>
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <span id="lessons-preview-eyebrow" class="text-xs font-bold uppercase tracking-wider theme-accent-text theme-accent-subtle-bg px-2 py-0.5 rounded theme-accent-subtle-border border">Lessons</span>
+                <h3 id="lessons-preview-title" class="text-sm font-bold text-[var(--text-main)] mt-1">Drills Progress</h3>
+                <p id="lessons-preview-subtitle" class="text-sm text-[var(--text-muted)] hidden"></p>
               </div>
-              <div class="relative w-14 h-14 flex items-center justify-center">
-                <svg class="w-14 h-14 transform -rotate-90">
-                  <circle cx="28" cy="28" r="22" stroke="currentColor" stroke-width="4" class="text-[var(--border-subtle)]" fill="transparent"/>
-                  <circle id="drill-progress-circle" cx="28" cy="28" r="22" stroke="var(--accent-main)" stroke-width="4" class="transition-all duration-500" fill="transparent" stroke-dasharray="138" stroke-dashoffset="48"/>
-                </svg>
-                <span id="drill-percent-text" class="absolute text-sm font-black text-[var(--text-main)]">65%</span>
-              </div>
+              <!-- Replaces the old fake progress gauge - a sponsor's logo,
+                   fully editable/uploadable from the admin dashboard's
+                   Sponsors tab (placement key: lessons_card_logo). -->
+              <div onclick="event.stopPropagation()" id="sponsor-logo-lessons-card" class="flex-shrink-0"></div>
             </div>
             <div onclick="event.stopPropagation()" id="sponsor-banner-lessons-card"></div>
           </div>
 
           <div onclick="switchTab('tab-lessons'); activateFitnessSubtab();" class="bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-subtle)] flex flex-col justify-between space-y-3 relative overflow-hidden cursor-pointer hover:border-[var(--accent-main)] transition-all">
-            <div>
-              <div class="flex items-center justify-between">
-                <span id="fitness-preview-eyebrow" class="text-xs font-bold uppercase tracking-wider text-violet-light bg-violet-accent/10 px-2 py-0.5 rounded border border-violet-accent/20">Golf Fitness</span>
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <span id="fitness-preview-eyebrow" class="text-xs font-bold uppercase tracking-wider text-violet-light bg-violet-accent/10 px-2 py-0.5 rounded border border-violet-accent/20">Fitness</span>
+                <h3 id="fitness-preview-title" class="text-sm font-bold text-[var(--text-main)] mt-1">Mobility & Fitness</h3>
+                <p id="fitness-preview-subtitle" class="text-sm text-[var(--text-muted)] hidden"></p>
               </div>
-              <h3 id="fitness-preview-title" class="text-sm font-bold text-[var(--text-main)] mt-1">Thoracic Hip Mobility</h3>
-              <p class="text-sm text-[var(--text-muted)]">12 Min Joint Warmup</p>
+              <div onclick="event.stopPropagation()" id="sponsor-logo-fitness-card" class="flex-shrink-0"></div>
             </div>
             <div onclick="event.stopPropagation()" id="sponsor-banner-fitness-card"></div>
           </div>
@@ -1230,7 +1228,12 @@
               <span class="text-[var(--text-muted)] font-medium">Broadcast Note (300 Char Max)</span>
               <span id="composer-char-count" class="font-mono text-emerald-light font-bold">0 / 300</span>
             </div>
-            <textarea id="composer-text" rows="3" maxlength="300" oninput="updateCharCount(this)" placeholder="Type your thoughts here..." class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent resize-none"></textarea>
+            <textarea id="composer-text" rows="3" maxlength="300" oninput="updateCharCount(this); detectMentionTyping(this);" placeholder="Type your thoughts here... use @ to mention a verified pro" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 text-xs text-[var(--text-main)] placeholder-[var(--text-faint)] focus:outline-none focus:border-violet-accent resize-none"></textarea>
+            <!-- Verified-only @mention suggestions - the ONLY cross-sport
+                 interaction in the whole app: a verified user broadcasting
+                 in one sport can still @mention a verified user from any
+                 other sport. Everything else stays strictly per-sport. -->
+            <div id="mention-suggestions" class="hidden space-y-1 bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-1.5"></div>
           </div>
 
           <!-- PHOTO PANE -->
@@ -1543,7 +1546,7 @@
       if (!sportId) return;
       const { data: sport } = await supabaseClient
         .from('sport_verticals')
-        .select('lessons_tab_label, fitness_tab_label, lessons_headline, fitness_headline, lessons_preview_title, fitness_preview_title, assessment_label')
+        .select('lessons_tab_label, fitness_tab_label, lessons_headline, fitness_headline, lessons_preview_title, fitness_preview_title, lessons_preview_subtitle, fitness_preview_subtitle, assessment_label')
         .eq('sport_id', sportId)
         .maybeSingle();
       if (!sport) return;
@@ -1564,6 +1567,24 @@
       setText('fitness-headline', sport.fitness_headline);
       setText('lessons-preview-title', sport.lessons_preview_title);
       setText('fitness-preview-title', sport.fitness_preview_title);
+
+      // FIX: the descriptive line under each Command Center card title
+      // ("ST-04 Lead Post Rotation Drill" / "12 Min Joint Warmup") used
+      // to be hard-typed straight into the HTML with no id at all - it
+      // could never change no matter what sport was active. It's now a
+      // real per-sport field, editable in the Sports tab exactly like
+      // the title above it. If a sport hasn't set one yet, the line is
+      // hidden rather than showing fake/borrowed text from another sport.
+      const lessonsSubtitleEl = document.getElementById('lessons-preview-subtitle');
+      if (lessonsSubtitleEl) {
+        lessonsSubtitleEl.innerText = sport.lessons_preview_subtitle || '';
+        lessonsSubtitleEl.classList.toggle('hidden', !sport.lessons_preview_subtitle);
+      }
+      const fitnessSubtitleEl = document.getElementById('fitness-preview-subtitle');
+      if (fitnessSubtitleEl) {
+        fitnessSubtitleEl.innerText = sport.fitness_preview_subtitle || '';
+        fitnessSubtitleEl.classList.toggle('hidden', !sport.fitness_preview_subtitle);
+      }
 
       // FIX for a real reported bug: "SwingType" (a golf-specific term)
       // was hardcoded in two extra spots that never updated at all,
@@ -2161,6 +2182,8 @@
       { key: 'news_footer_banner', kind: 'banner', label: 'News — banner at the bottom of the tab' },
       { key: 'lessons_card_banner', kind: 'banner', label: 'Command Center — Golf Lessons card ad' },
       { key: 'fitness_card_banner', kind: 'banner', label: 'Command Center — Golf Fitness card ad' },
+      { key: 'lessons_card_logo', kind: 'badge', variant: 'corner-logo', label: 'Command Center — Lessons card logo (top-right corner)' },
+      { key: 'fitness_card_logo', kind: 'badge', variant: 'corner-logo', label: 'Command Center — Fitness card logo (top-right corner)' },
       { key: 'home_footer_banner', kind: 'banner', label: 'Command Center — banner at the bottom of the tab' },
       { key: 'stream_header_badge', kind: 'badge', variant: 'pill', label: 'Pro Voice Stream — header badge' },
       { key: 'polls_header_badge', kind: 'badge', variant: 'pill', label: 'Home — Community Poll card badge' },
@@ -2243,6 +2266,13 @@
           <span class="text-xs text-[var(--text-muted)] block font-mono text-right">${escapeHtml(sp.eyebrow_label || 'POWERED BY')}</span>
           ${logo}
         `;
+      } else if (def.variant === 'corner-logo') {
+        // Command Center Lessons/Fitness cards: a plain sponsor logo in a
+        // compact square box - this replaced the old fake progress gauge,
+        // so it's sized to sit in exactly the same spot (56x56px).
+        el.innerHTML = sp.logo_image_url
+          ? `<img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="w-14 h-14 rounded-xl object-contain bg-[var(--bg-app)] border border-[var(--border-subtle)] p-1.5">`
+          : `<div class="w-14 h-14 rounded-xl bg-[var(--bg-app)] border border-[var(--border-subtle)] flex items-center justify-center p-1.5">${pulseLogoSvg(sp.logo_text, sp.logo_color, 'h-6')}</div>`;
       } else if (def.variant === 'pill') {
         // Pro Voice Stream / Polls / Multi-Sport: a small bordered pill
         // with logo + label.
@@ -2279,8 +2309,9 @@
       // full-width) from the card-style banners used elsewhere, so it
       // gets its own layout - but pulls from the exact same data fields.
       if (def.variant === 'strip') {
+        const stripMaxH = sp.banner_max_height_px || 64;
         el.innerHTML = sp.banner_image_url
-          ? `<img src="${sp.banner_image_url}" alt="" onerror="this.style.display='none'" class="w-full block cursor-pointer" ${ctaAttr} style="max-height:64px; object-fit:cover;">`
+          ? `<img src="${sp.banner_image_url}" alt="" onerror="this.style.display='none'" class="w-full block cursor-pointer" ${ctaAttr} style="max-height:${stripMaxH}px; object-fit:cover;">`
           : `
             <div class="bg-gradient-to-r from-red-950/90 via-slate-900 to-red-950/90 border-b border-red-500/30 px-5 py-3 flex items-center justify-between shadow-md cursor-pointer" ${ctaAttr}>
               <div class="flex items-center space-x-3">
@@ -2294,11 +2325,15 @@
       }
 
       // A full custom banner image replaces the generated card layout
-      // entirely - the whole thing becomes one clickable creative,
-      // exactly like a real ad unit an agency would hand over as a
-      // finished image rather than text fields to assemble.
+      // entirely. FIX: this had no height cap at all, so an uploaded
+      // photo rendered at its native size and could dwarf every other
+      // banner in the app (which are all compact, logo+text cards). Now
+      // every uploaded banner is capped to a consistent height - admins
+      // can adjust it per placement with the "Banner display height"
+      // field in the Sponsors tab.
       if (sp.banner_image_url) {
-        el.innerHTML = `<img src="${sp.banner_image_url}" alt="" onerror="this.style.display='none'" class="w-full rounded-xl cursor-pointer" ${ctaAttr}>`;
+        const maxH = sp.banner_max_height_px || 140; // default matches the app's normal banner scale
+        el.innerHTML = `<img src="${sp.banner_image_url}" alt="" onerror="this.style.display='none'" class="w-full rounded-xl cursor-pointer object-cover" style="max-height:${maxH}px;" ${ctaAttr}>`;
         return;
       }
 
@@ -2425,6 +2460,8 @@
         renderSponsorBanner('news_footer_banner', 'sponsor-banner-news-footer'),
         renderSponsorBanner('lessons_card_banner', 'sponsor-banner-lessons-card'),
         renderSponsorBanner('fitness_card_banner', 'sponsor-banner-fitness-card'),
+        renderSponsorBadge('lessons_card_logo', 'sponsor-logo-lessons-card'),
+        renderSponsorBadge('fitness_card_logo', 'sponsor-logo-fitness-card'),
         renderSponsorBanner('lessons_tab_header_banner', 'sponsor-banner-lessons-tab-header'),
         renderSponsorBanner('fitness_tab_header_banner', 'sponsor-banner-fitness-tab-header'),
         renderSponsorBanner('home_footer_banner', 'sponsor-banner-home-footer'),
@@ -2444,7 +2481,6 @@
     let currentAudience = 'Public';
     let currentMediaFormat = 'Text';
     let xpPoints = 1450;
-    let drillProgress = 65;
     let synth = null;
 
     let currentThemeMode = 'dark';
@@ -2548,6 +2584,12 @@
     let cachedNewsArticles = [];   // every published article for the current sport, loaded once per News tab visit
     let currentNewsCategoryFilter = 'all';
 
+    // Loads the (global) label/sort_order lookup table only - no chips are
+    // rendered here anymore. Rendering chips straight off this table was
+    // the bug: it lists every category ever created across every sport, so
+    // a Golf-only category showed up as a tab under Pickleball, Tennis,
+    // etc. too, with nothing behind it for that sport. See
+    // buildNewsCategoryChips() below for the fix.
     async function loadNewsCategories() {
       const { data, error } = await supabaseClient
         .from('news_categories')
@@ -2555,15 +2597,52 @@
         .eq('is_active', true)
         .order('sort_order', { ascending: true });
       cachedCategories = error ? [] : (data || []);
+    }
 
+    // Builds the News tab's tabs from the CURRENT sport's actual loaded
+    // articles - never from the global category table directly. This
+    // guarantees two things at once: (1) a tab only ever appears if this
+    // sport has published content in it (no more golf-only tabs bleeding
+    // into other sports), and (2) clicking a tab is guaranteed to match
+    // real articles, because the filter value is read directly off those
+    // same articles' own category_slug field (no separate list to drift
+    // out of sync and go "useless").
+    function buildNewsCategoryChips() {
       const chipsEl = document.getElementById('news-category-chips');
       if (!chipsEl) return;
-      currentNewsCategoryFilter = 'all';
-      const allChip = `<button data-slug="all" onclick="filterNewsCategory('all', this)" class="news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold theme-accent-bg flex-shrink-0 transition-all">All News</button>`;
-      const rest = cachedCategories.map(c =>
-        `<button data-slug="${escapeHtml(c.slug)}" onclick="filterNewsCategory('${c.slug}', this)" class="news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-main)] flex-shrink-0 transition-all">${escapeHtml(c.label)}</button>`
+
+      const labelFor = (slug) => {
+        const c = cachedCategories.find(cat => cat.slug === slug);
+        if (c) return c.label;
+        return slug.replace(/[-_]/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase());
+      };
+      const sortOrderFor = (slug) => {
+        const c = cachedCategories.find(cat => cat.slug === slug);
+        return c ? c.sort_order : 999;
+      };
+
+      const nonCoverArticles = cachedNewsArticles.filter(a => !a.is_cover_story);
+      const presentSlugs = [...new Set(nonCoverArticles.map(a => a.category_slug).filter(Boolean))]
+        .sort((a, b) => sortOrderFor(a) - sortOrderFor(b));
+      const hasFeatured = nonCoverArticles.some(a => a.is_featured);
+
+      // Keep whatever filter was already selected if it's still valid for
+      // this sport's content; otherwise fall back to "All News".
+      const stillValid = currentNewsCategoryFilter === 'all'
+        || (currentNewsCategoryFilter === 'featured' && hasFeatured)
+        || presentSlugs.includes(currentNewsCategoryFilter);
+      if (!stillValid) currentNewsCategoryFilter = 'all';
+
+      const chipClass = (isActive) => `news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold flex-shrink-0 transition-all ${isActive ? 'theme-accent-bg' : 'bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-main)]'}`;
+
+      let chips = `<button data-slug="all" onclick="filterNewsCategory('all', this)" class="${chipClass(currentNewsCategoryFilter === 'all')}">All News</button>`;
+      chips += presentSlugs.map(slug =>
+        `<button data-slug="${escapeHtml(slug)}" onclick="filterNewsCategory('${slug}', this)" class="${chipClass(currentNewsCategoryFilter === slug)}">${escapeHtml(labelFor(slug))}</button>`
       ).join('');
-      chipsEl.innerHTML = allChip + rest;
+      if (hasFeatured) {
+        chips += `<button data-slug="featured" onclick="filterNewsCategory('featured', this)" class="${chipClass(currentNewsCategoryFilter === 'featured')}">${escapeHtml(labelFor('featured'))}</button>`;
+      }
+      chipsEl.innerHTML = chips;
     }
 
     // Home Command Center: only the newest few, so the dashboard stays
@@ -2715,6 +2794,7 @@
       }
 
       cachedNewsArticles = articles || [];
+      buildNewsCategoryChips();
       renderNewsTabFromCache();
     }
 
@@ -2777,10 +2857,7 @@
 
     function filterNewsCategory(cat, btn) {
       currentNewsCategoryFilter = cat;
-      document.querySelectorAll('.news-cat-chip').forEach(el => {
-        el.className = 'news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-main)] flex-shrink-0 transition-all';
-      });
-      btn.className = 'news-cat-chip min-h-touch px-3 py-1.5 rounded-xl text-xs font-extrabold theme-accent-bg flex-shrink-0 transition-all';
+      buildNewsCategoryChips(); // rebuilds chip styling from the same source of truth, so the active tab always matches what's actually filtered
       playSfx("F4", "16n");
       renderNewsTabFromCache();
     }
@@ -3008,23 +3085,6 @@
       if (tabId === 'tab-news') loadNewsTab();
     }
 
-
-    function incrementDrillProgress() {
-      if (drillProgress < 100) {
-        drillProgress += 15;
-        if (drillProgress > 100) drillProgress = 100;
-
-        const circle = document.getElementById('drill-progress-circle');
-        const totalLength = 138;
-        const offset = totalLength - (totalLength * drillProgress / 100);
-        circle.style.strokeDashoffset = offset;
-
-        document.getElementById('drill-percent-text').innerText = drillProgress + '%';
-        triggerToast('Logged Swing Drill! Progress ' + drillProgress + '%');
-      } else {
-        triggerToast('Daily Swing Drills 100% Completed! ⛳');
-      }
-    }
 
     function playAudioPreview() {
       playSfx("E5", "4n");
@@ -3700,6 +3760,108 @@
       select.innerHTML = (sports || []).map(s =>
         `<option value="${s.sport_id}" ${s.sport_id === currentSportId ? 'selected' : ''}>${s.display_name}</option>`
       ).join('');
+
+      loadVerifiedUsersForMentions();
+    }
+
+    // ============================================================
+    // @MENTIONS - the one deliberate cross-sport interaction in the app.
+    // A verified user broadcasting in ANY sport's Pro Voice can @mention
+    // any OTHER verified user, regardless of that person's own sport.
+    // Every other segment stays strictly siloed per sport by design; this
+    // is the single, intentional exception.
+    // ============================================================
+    let cachedVerifiedUsers = []; // {user_id, display_name} - loaded once per composer session
+    let mentionTokenStart = null; // where the "@partial" the user is typing starts, so we can replace just that part
+
+    async function loadVerifiedUsersForMentions() {
+      const { data, error } = await supabaseClient
+        .from('users')
+        .select('user_id, display_name')
+        .in('role', ['verified', 'inner_circle', 'admin'])
+        .order('display_name', { ascending: true });
+      cachedVerifiedUsers = error ? [] : (data || []);
+    }
+
+    function detectMentionTyping(textarea) {
+      const suggestionsEl = document.getElementById('mention-suggestions');
+      const cursor = textarea.selectionStart;
+      const textBeforeCursor = textarea.value.slice(0, cursor);
+      const atIndex = textBeforeCursor.lastIndexOf('@');
+
+      // Only treat it as an in-progress mention if the "@" starts a word
+      // (start of message, or preceded by whitespace) and there's no
+      // space typed between the "@" and the cursor yet.
+      const isWordStart = atIndex === 0 || /\s/.test(textBeforeCursor[atIndex - 1] || '');
+      const partial = atIndex >= 0 ? textBeforeCursor.slice(atIndex + 1) : '';
+      const validMentionInProgress = atIndex >= 0 && isWordStart && !/\s/.test(partial);
+
+      if (!validMentionInProgress || !cachedVerifiedUsers.length) {
+        suggestionsEl.classList.add('hidden');
+        suggestionsEl.innerHTML = '';
+        mentionTokenStart = null;
+        return;
+      }
+
+      mentionTokenStart = atIndex;
+      const matches = cachedVerifiedUsers
+        .filter(u => u.display_name && u.display_name.toLowerCase().includes(partial.toLowerCase()))
+        .slice(0, 5);
+
+      if (!matches.length) {
+        suggestionsEl.classList.add('hidden');
+        suggestionsEl.innerHTML = '';
+        return;
+      }
+
+      suggestionsEl.innerHTML = matches.map(u => `
+        <button type="button" onclick="insertMention('${escapeHtml(u.display_name).replace(/'/g, "\\'")}')" class="w-full min-h-touch text-left px-2.5 py-2 rounded-lg text-xs font-bold text-[var(--text-main)] hover:bg-[var(--bg-card)] flex items-center gap-2">
+          <span class="theme-accent-text">✓</span> ${escapeHtml(u.display_name)}
+        </button>
+      `).join('');
+      suggestionsEl.classList.remove('hidden');
+    }
+
+    function insertMention(displayName) {
+      const textarea = document.getElementById('composer-text');
+      if (mentionTokenStart === null) return;
+      const cursor = textarea.selectionStart;
+      const before = textarea.value.slice(0, mentionTokenStart);
+      const after = textarea.value.slice(cursor);
+      const inserted = `@${displayName} `;
+      textarea.value = before + inserted + after;
+
+      const newCursor = before.length + inserted.length;
+      textarea.focus();
+      textarea.setSelectionRange(newCursor, newCursor);
+
+      document.getElementById('mention-suggestions').classList.add('hidden');
+      document.getElementById('mention-suggestions').innerHTML = '';
+      mentionTokenStart = null;
+      updateCharCount(textarea);
+    }
+
+    // Matches "@Full Display Name" against the list of verified users
+    // loaded for this composer session, longest name first so a two-word
+    // name isn't cut off mid-match by a shorter one-word name.
+    function resolveMentionedUserIds(text) {
+      if (!text || !cachedVerifiedUsers.length) return [];
+      const sortedNames = [...cachedVerifiedUsers].sort((a, b) => b.display_name.length - a.display_name.length);
+      const found = new Set();
+      sortedNames.forEach(u => {
+        const pattern = new RegExp(`@${u.display_name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`);
+        if (pattern.test(text)) found.add(u.user_id);
+      });
+      return [...found];
+    }
+
+    // Decorative highlighting on render - the actual mention is only ever
+    // created by picking a real verified user from the composer's own
+    // suggestion list, so this just needs to make an "@Name" pattern in
+    // already-escaped text visually stand out.
+    function linkifyMentions(rawText) {
+      const escaped = escapeHtml(rawText || '');
+      return escaped.replace(/@([A-Za-z0-9_.]+(?:\s[A-Za-z0-9_.]+)?)/g, '<span class="text-violet-light font-bold">@$1</span>');
     }
     function closeComposerModal() {
       document.getElementById('composer-modal').classList.add('hidden');
@@ -4202,6 +4364,7 @@
         media_url: mediaUrl,
         audience: currentAudience === 'Public' ? 'public' : 'inner_circle',
         thumbnail_url: thumbnailUrl,
+        mentioned_user_ids: resolveMentionedUserIds(bodyText),
       });
 
       if (error) {
@@ -4491,9 +4654,9 @@
 
       let mediaHtml = '';
       if (post.media_type === 'Text' && post.body_text) {
-        mediaHtml = `<p class="text-xs text-[var(--text-main)] leading-relaxed">"${post.body_text}"</p>`;
+        mediaHtml = `<p class="text-xs text-[var(--text-main)] leading-relaxed">"${linkifyMentions(post.body_text)}"</p>`;
       } else if (post.media_type === 'Photo' && post.media_url) {
-        const photoCaption = post.body_text ? `<p class="text-xs font-bold text-[var(--text-main)] mb-2">${post.body_text}</p>` : '';
+        const photoCaption = post.body_text ? `<p class="text-xs font-bold text-[var(--text-main)] mb-2">${linkifyMentions(post.body_text)}</p>` : '';
         mediaHtml = `${photoCaption}<img src="${post.media_url}" class="w-full aspect-video object-cover rounded-xl">`;
       } else if (post.media_type === 'Video' && post.media_url) {
         // post.media_url stores the direct R2 public URL, served through
@@ -4504,7 +4667,7 @@
         // Worker), which correctly derives its Content-Type from the
         // file extension - confirmed fixed after the Worker previously
         // defaulted unrecognized files to video/mp4, mislabeling images.
-        const videoCaption = post.body_text ? `<p class="text-xs font-bold text-[var(--text-main)] mb-2">${post.body_text}</p>` : '';
+        const videoCaption = post.body_text ? `<p class="text-xs font-bold text-[var(--text-main)] mb-2">${linkifyMentions(post.body_text)}</p>` : '';
         const posterAttr = post.thumbnail_url ? `poster="${post.thumbnail_url}"` : '';
         mediaHtml = `${videoCaption}<video controls playsinline webkit-playsinline preload="metadata" ${posterAttr} class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${post.media_url}"></video>`;
       } else if (post.media_type === 'Voice' && post.media_url) {
