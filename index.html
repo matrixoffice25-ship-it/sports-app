@@ -2532,18 +2532,89 @@
     // tab, nothing hardcoded left in the page.
     // ============================================================
 
-    // --- Deterministic scoring matrix. DO NOT ALTER. ---
+    // --- Deterministic scoring matrix. DO NOT ALTER. Source: SwingType
+    // developer handoff spec v0.1 (Terry Rowles), Section 2. Profile number
+    // is derived from A1 (fold) + A2 (post) ONLY - A3/A4/A5 never change it. ---
     const SWINGTYPE_FOLD_MAP = { TOP: 0, SIDE: 3, UNDER: 6 };
     const SWINGTYPE_POST_MAP = { FRONT: 1, CENTER: 2, REAR: 3 };
     function calculateSwingBlueprint(a1, a2) {
       return SWINGTYPE_FOLD_MAP[a1] + SWINGTYPE_POST_MAP[a2]; // 1..9
     }
+    const SWINGTYPE_FOLD_LABEL = { TOP: 'On Top', SIDE: 'Side On', UNDER: 'Under' };
+    const SWINGTYPE_POST_LABEL = { FRONT: 'Front Post', CENTER: 'Center Post', REAR: 'Rear Post' };
+
+    // Pro comparison per profile (spec Section 2 - marked OPEN: "intended
+    // design is a list of comparable players per profile... store as array").
+    // Seeded with the single name the spec gives for each; admin can add
+    // more via a comma-separated CMS field (swingtype_profile_<n>_pros).
+    const SWINGTYPE_DEFAULT_PROS = {
+      1: 'Bryson DeChambeau', 2: 'Rory McIlroy', 3: 'Ludvig Åberg',
+      4: 'Hideki Matsuyama', 5: 'Tiger Woods', 6: 'Jordan Spieth',
+      7: 'Zach Johnson', 8: 'Xander Schauffele', 9: 'Min Woo Lee',
+    };
+    function swingtypeProNames(profileId) {
+      const raw = stLabel(`swingtype_profile_${profileId}_pros`, SWINGTYPE_DEFAULT_PROS[profileId] || '');
+      return raw.split(',').map(s => s.trim()).filter(Boolean);
+    }
+
+    // Stance alignment - additive score (spec Section 4). A2's REAR
+    // contribution is explicitly marked OPEN in the spec ("has never been
+    // specified") and defaults to 0 - it is NOT invented here, only stubbed
+    // exactly as the spec states, and is editable in the admin the moment
+    // Terry supplies a real number.
+    const SWINGTYPE_ALIGN_DEFAULTS = {
+      a4: { A_LONGUP: 2, A_SAME: 0, A_SHORTUP: -2 },
+      a5: { ER_HIGH: 2, ER_MID: 0, ER_LOW: -2 },
+      a2: { FRONT: -1, CENTER: 0, REAR: 0 }, // REAR: OPEN per spec Section 7 item 1
+    };
+    function swingtypeAlignWeight(assessmentKey, code) {
+      const v = stLabel(`swingtype_align_${assessmentKey}_${code}`, undefined);
+      const fallback = SWINGTYPE_ALIGN_DEFAULTS[assessmentKey][code];
+      return v === undefined ? fallback : parseFloat(v);
+    }
+    function calculateSwingAlignmentScore(a2, a4, a5) {
+      return swingtypeAlignWeight('a4', a4) + swingtypeAlignWeight('a5', a5) + swingtypeAlignWeight('a2', a2);
+    }
+    function swingtypeAlignmentLabel(score) {
+      if (score <= -3) return 'Closed';
+      if (score <= -1) return 'Slightly closed';
+      if (score === 0) return 'Square / neutral';
+      if (score <= 2) return 'Slightly open';
+      return 'Open';
+    }
+
+    // Output rules (spec Section 3) - "data, not code, so they can be
+    // edited without a release." Every default string below is copied
+    // verbatim from the handoff spec. A5's "natural depth" row is marked
+    // OPEN in the spec ("wording to be supplied") and is deliberately left
+    // blank rather than invented - the report shows a clear pending notice
+    // instead of fabricated copy.
+    const SWINGTYPE_OUTPUT_DEFAULTS = {
+      // Driven by A1 - arm fold
+      address_posture:      { TOP: 'T posture', SIDE: 'Neutral posture', UNDER: 'K posture' },
+      pivot_top_backswing:  { TOP: 'Centred', SIDE: 'Neutral', UNDER: 'Behind the ball' },
+      lead_hand_grip:       { TOP: 'Stronger', SIDE: 'Neutral', UNDER: 'Weaker' },
+      trail_hand_grip:      { TOP: 'Weaker / more on top', SIDE: 'Neutral / side on', UNDER: 'Stronger / more under' },
+      handle_height:        { TOP: 'Groin (lower)', SIDE: 'Belt buckle', UNDER: 'Belly button (higher)' },
+      // Driven by A2 - post
+      stance_width:         { FRONT: 'Slightly narrower', CENTER: 'Medium', REAR: 'Slightly wider' },
+      foot_flare:           { FRONT: 'Lead foot flared, trail foot square', CENTER: 'Both feet flared', REAR: 'Trail foot flared more' },
+      // Driven by A3 - wingspan vs height
+      distance_from_ball:   { W_LONG: 'Further', W_SAME: 'Neutral', W_SHORT: 'Closer' },
+      posture_height:       { W_LONG: 'More hip bend', W_SAME: 'Neutral', W_SHORT: 'Taller' },
+      // Driven by A5 - shoulder ER (OPEN in spec - blank on purpose)
+      natural_depth:        { ER_HIGH: '', ER_MID: '', ER_LOW: '' },
+    };
+    function swingtypeOutput(fieldKey, code) {
+      const fallback = (SWINGTYPE_OUTPUT_DEFAULTS[fieldKey] || {})[code] || '';
+      return stLabel(`swingtype_out_${fieldKey}_${code}`, fallback);
+    }
 
     let swingtypeLabels = {};
-    let swingtypeUserState = { purchased: false, assessed: false, profileId: null, retakesUsed: 0 };
+    let swingtypeUserState = { purchased: false, assessed: false, profileId: null, retakesUsed: 0, freeAccess: false, accessSource: null, a1: null, a2: null, a3: null, a4: null, a5: null, alignmentScore: null };
     let swingtypeStep = 1;
-    const SWINGTYPE_TOTAL_STEPS = 5;
-    let swingtypeAnswers = { a1: null, a2: null };
+    const SWINGTYPE_TOTAL_STEPS = 8; // Intro, A1, A2, A3, A4, A5, Calculating, Report
+    let swingtypeAnswers = { a1: null, a2: null, a3: null, a4: null, a5: null };
 
     function stLabel(key, fallback) {
       const v = swingtypeLabels[key];
@@ -2612,13 +2683,13 @@
     async function loadSwingtypeUserState(sportId) {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session || !sportId) {
-        swingtypeUserState = { purchased: false, assessed: false, profileId: null, retakesUsed: 0 };
+        swingtypeUserState = { purchased: false, assessed: false, profileId: null, retakesUsed: 0, freeAccess: false, accessSource: null, a1: null, a2: null, a3: null, a4: null, a5: null, alignmentScore: null };
         renderSwingtypeCommandCenter();
         return;
       }
       const { data } = await supabaseClient
         .from('user_sport_profiles')
-        .select('assessment_purchased, assessment_profile_id, assessment_completed_at, assessment_retakes_used')
+        .select('assessment_purchased, assessment_profile_id, assessment_completed_at, assessment_retakes_used, assessment_free_access, assessment_access_source, assessment_a1, assessment_a2, assessment_a3, assessment_a4, assessment_a5, assessment_alignment_score')
         .eq('user_id', session.user.id)
         .eq('sport_id', sportId)
         .maybeSingle();
@@ -2627,6 +2698,14 @@
         assessed: !!(data && data.assessment_profile_id),
         profileId: data?.assessment_profile_id || null,
         retakesUsed: data?.assessment_retakes_used || 0,
+        freeAccess: !!(data && data.assessment_free_access),
+        accessSource: data?.assessment_access_source || null,
+        a1: data?.assessment_a1 || null,
+        a2: data?.assessment_a2 || null,
+        a3: data?.assessment_a3 || null,
+        a4: data?.assessment_a4 || null,
+        a5: data?.assessment_a5 || null,
+        alignmentScore: data?.assessment_alignment_score ?? null,
       };
       renderSwingtypeCommandCenter();
     }
@@ -2641,8 +2720,12 @@
       if (!assessed) return;
 
       const id = swingtypeUserState.profileId;
-      const title = stLabel(`swingtype_profile_${id}_title`, `Profile ${id}`);
-      const subtitle = stLabel(`swingtype_profile_${id}_subtitle`, '');
+      // Identity is deterministic (fold + post), never admin-editable text -
+      // per spec Section 2/5: "Profile number, fold + post label". Only the
+      // pro-comparison list is editable content (spec Section 2, OPEN item 3).
+      const title = `Profile ${id} — ${SWINGTYPE_FOLD_LABEL[swingtypeUserState.a1] || ''} + ${SWINGTYPE_POST_LABEL[swingtypeUserState.a2] || ''}`;
+      const pros = swingtypeProNames(id);
+      const subtitle = pros.length ? `Comparable to: ${pros.join(', ')}` : '';
       const ccTitleEl = document.getElementById('cc-swing-profile-title');
       const ccSubEl = document.getElementById('cc-swing-profile-subtitle');
       if (ccTitleEl) ccTitleEl.textContent = title;
@@ -2657,6 +2740,7 @@
       const blocksEl = document.getElementById('les-curriculum-blocks');
       if (blocksEl) {
         blocksEl.innerHTML = `
+          <button onclick="openSwingtypeReport()" class="w-full py-2.5 rounded-xl font-black text-xs touch-target bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-main)] mb-1">View Full SwingType Report</button>
           <div class="bg-[var(--bg-app)]/70 border border-[var(--border-subtle)] rounded-xl p-3.5 space-y-2.5 shadow">
             <div class="flex items-center justify-between">
               <span class="bg-purple-950/80 border border-purple-500/40 text-purple-300 text-[10px] font-black uppercase px-2 py-0.5 rounded-md">Lesson 1</span>
@@ -2709,28 +2793,84 @@
       }
     }
 
+    // Single place that actually flips assessment_purchased on for the
+    // current user/sport, whatever the reason. 'source' is purely for
+    // admin visibility/analytics (paid vs admin vs granted vs code).
+    async function markSwingtypeUnlocked(source) {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session || !currentSportId) return false;
+      const { error } = await supabaseClient.from('user_sport_profiles').upsert(
+        { user_id: session.user.id, sport_id: currentSportId, assessment_purchased: true, assessment_access_source: source },
+        { onConflict: 'user_id,sport_id' }
+      );
+      if (error) { triggerToast(`Could not unlock: ${error.message}`); return false; }
+      swingtypeUserState.purchased = true;
+      swingtypeUserState.accessSource = source;
+      return true;
+    }
+
+    // Every logged-in admin gets the assessment free, always - no code or
+    // grant needed. This is checked live (currentUser.role), never cached,
+    // so revoking admin elsewhere in the app takes effect immediately here too.
+    function swingtypeHasFreeEntitlement() {
+      return currentUser.role === 'admin' || swingtypeUserState.freeAccess === true;
+    }
+
     async function openSwingtypeAssessment() {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) { triggerToast('Log in first to start your SwingType assessment.'); return; }
-      if (!swingtypeUserState.purchased) {
-        const ok = await unlockSwingtypeFee();
-        if (!ok) return;
-        swingtypeUserState.purchased = true;
-        await supabaseClient.from('user_sport_profiles').upsert(
-          { user_id: session.user.id, sport_id: currentSportId, assessment_purchased: true },
-          { onConflict: 'user_id,sport_id' }
-        );
-      }
-      swingtypeStep = 1;
-      swingtypeAnswers = { a1: null, a2: null };
+
       document.getElementById('swingtype-modal').classList.remove('hidden');
+      swingtypeAnswers = { a1: null, a2: null, a3: null, a4: null, a5: null };
+
+      if (swingtypeUserState.purchased) {
+        swingtypeStep = 1;
+        renderSwingtypeStep();
+        return;
+      }
+      if (swingtypeHasFreeEntitlement()) {
+        const source = currentUser.role === 'admin' ? 'admin' : 'granted';
+        await markSwingtypeUnlocked(source);
+        swingtypeStep = 1;
+        renderSwingtypeStep();
+        return;
+      }
+      // Neither purchased nor free - show the unlock gate (pay or redeem a code).
+      swingtypeStep = 0;
       renderSwingtypeStep();
     }
 
-    async function retakeSwingtypeAssessment() {
-      // Already purchased (non-consumable) - retaking is free, just tracked.
+    async function paySwingtypeFee() {
+      const ok = await unlockSwingtypeFee();
+      if (!ok) return;
+      await markSwingtypeUnlocked('paid');
       swingtypeStep = 1;
-      swingtypeAnswers = { a1: null, a2: null };
+      renderSwingtypeStep();
+    }
+
+    async function redeemSwingtypeAccessCode() {
+      const input = document.getElementById('swingtype-access-code-input');
+      const code = (input?.value || '').trim();
+      if (!code) { triggerToast('Enter an access code first.'); return; }
+      try {
+        const { data, error } = await supabaseClient.rpc('redeem_assessment_code', { p_code: code, p_sport_id: currentSportId });
+        if (error) throw new Error(error.message);
+        if (!data) { triggerToast('That code is invalid, expired, or already used.'); return; }
+        swingtypeUserState.purchased = true;
+        swingtypeUserState.accessSource = 'code';
+        triggerToast('Access code redeemed! 🎟️');
+        swingtypeStep = 1;
+        renderSwingtypeStep();
+      } catch (err) {
+        console.error('redeemSwingtypeAccessCode failed:', err);
+        triggerToast('Could not redeem that code right now - please try again.');
+      }
+    }
+
+    async function retakeSwingtypeAssessment() {
+      // Already purchased/entitled (non-consumable) - retaking is free, just tracked.
+      swingtypeStep = 1;
+      swingtypeAnswers = { a1: null, a2: null, a3: null, a4: null, a5: null };
       document.getElementById('swingtype-modal').classList.remove('hidden');
       renderSwingtypeStep();
     }
@@ -2751,76 +2891,209 @@
       </button>`;
     }
 
+    // Builds the Section 1-5 report exactly per spec Section 5 - each
+    // section tagged with which assessment(s) produced it, so "the golfer
+    // sees the reasoning, not a horoscope." Reused both right after
+    // finishing (step 8) and later via "View Full SwingType Report".
+    function buildSwingtypeReportHtml(a1, a2, a3, a4, a5) {
+      const profileId = calculateSwingBlueprint(a1, a2);
+      const pros = swingtypeProNames(profileId);
+      const alignScore = calculateSwingAlignmentScore(a2, a4, a5);
+      const alignLabel = swingtypeAlignmentLabel(alignScore);
+      const frontInstruction = (alignScore < 0 && a2 === 'FRONT')
+        ? stLabel('swingtype_align_front_negative_instruction', 'Trail foot back about 2 inches.')
+        : '';
+      const naturalDepth = swingtypeOutput('natural_depth', a5);
+
+      const sectionTag = (codes) => `<span class="text-[9px] font-bold uppercase tracking-wider text-[var(--text-faint)]">Source: ${codes}</span>`;
+      const row = (label, value) => value ? `<div class="flex items-center justify-between gap-3 py-1 border-b border-[var(--border-subtle)]/50 last:border-0"><span class="text-[11px] text-[var(--text-muted)]">${escapeHtml(label)}</span><span class="text-xs font-bold text-[var(--text-main)] text-right">${escapeHtml(value)}</span></div>` : '';
+
+      return `
+        <div class="space-y-4 text-left">
+          <div class="text-center space-y-1 pb-2 border-b border-[var(--border-subtle)]">
+            <div class="text-2xl">✅</div>
+            <h3 class="text-base font-black theme-accent-text">Profile ${profileId} — ${SWINGTYPE_FOLD_LABEL[a1]} + ${SWINGTYPE_POST_LABEL[a2]}</h3>
+            ${pros.length ? `<p class="text-xs text-[var(--text-muted)]">Comparable to: ${escapeHtml(pros.join(', '))}</p>` : ''}
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex items-center justify-between"><span class="text-xs font-black text-[var(--text-main)]">Section 2 — Grip &amp; Hands</span>${sectionTag('A1')}</div>
+            ${row('Lead hand grip', swingtypeOutput('lead_hand_grip', a1))}
+            ${row('Trail hand grip', swingtypeOutput('trail_hand_grip', a1))}
+            ${row('Handle height', swingtypeOutput('handle_height', a1))}
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex items-center justify-between"><span class="text-xs font-black text-[var(--text-main)]">Section 3 — Posture &amp; Geometry</span>${sectionTag('A1, A3')}</div>
+            ${row('Address posture', swingtypeOutput('address_posture', a1))}
+            ${row('Distance from ball', swingtypeOutput('distance_from_ball', a3))}
+            ${row('Posture height', swingtypeOutput('posture_height', a3))}
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex items-center justify-between"><span class="text-xs font-black text-[var(--text-main)]">Section 4 — Stance &amp; Ground</span>${sectionTag('A2, A4, A5')}</div>
+            ${row('Stance width', swingtypeOutput('stance_width', a2))}
+            ${row('Foot flare', swingtypeOutput('foot_flare', a2))}
+            ${row('Stance alignment', `${alignLabel} (${alignScore >= 0 ? '+' : ''}${alignScore})`)}
+            ${frontInstruction ? `<p class="text-[11px] text-amber-400 pt-1">⚠ ${escapeHtml(frontInstruction)}</p>` : ''}
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex items-center justify-between"><span class="text-xs font-black text-[var(--text-main)]">Section 5 — Motion &amp; Depth</span>${sectionTag('A1, A5')}</div>
+            ${row('Top of backswing pivot', swingtypeOutput('pivot_top_backswing', a1))}
+            ${naturalDepth ? row('Natural depth', naturalDepth) : `<p class="text-[11px] text-[var(--text-faint)] italic">Natural depth guidance for this shoulder-mobility level is pending from the coaching team.</p>`}
+          </div>
+        </div>`;
+    }
+
+    // Read-only reopen of a completed report, e.g. from "View Full
+    // SwingType Report" on the Lessons tab - uses the raw stored answers,
+    // not just the profile number, since A3/A4/A5 drive report content
+    // that the profile number alone can't reconstruct.
+    function openSwingtypeReport() {
+      const s = swingtypeUserState;
+      if (!s.assessed || !s.a1 || !s.a2) { triggerToast('Complete your SwingType assessment first.'); return; }
+      document.getElementById('swingtype-modal').classList.remove('hidden');
+      document.getElementById('swingtype-step-badge').textContent = 'Your Report';
+      document.getElementById('swingtype-progress-bar').style.width = '100%';
+      document.getElementById('swingtype-back-btn').classList.add('hidden');
+      document.getElementById('swingtype-modal-body').innerHTML = buildSwingtypeReportHtml(s.a1, s.a2, s.a3, s.a4, s.a5);
+    }
+
     function renderSwingtypeStep() {
-      document.getElementById('swingtype-step-badge').textContent = `Step ${swingtypeStep} of ${SWINGTYPE_TOTAL_STEPS}`;
-      document.getElementById('swingtype-progress-bar').style.width = (swingtypeStep / SWINGTYPE_TOTAL_STEPS * 100) + '%';
-      document.getElementById('swingtype-back-btn').classList.toggle('hidden', swingtypeStep === 1);
+      const badgeEl = document.getElementById('swingtype-step-badge');
+      const progressEl = document.getElementById('swingtype-progress-bar');
+      document.getElementById('swingtype-back-btn').classList.add('hidden'); // re-shown below only mid-flow
       const body = document.getElementById('swingtype-modal-body');
+
+      if (swingtypeStep === 0) {
+        badgeEl.textContent = 'Unlock Access';
+        progressEl.style.width = '0%';
+        body.innerHTML = `
+          <div class="space-y-3">
+            <h3 class="text-sm font-black text-[var(--text-main)]">${escapeHtml(stLabel('swingtype_cc_title', 'Discover Your Biomechanical SwingType'))}</h3>
+            <p class="text-xs text-[var(--text-muted)]">${escapeHtml(stLabel('swingtype_cc_price', '$19.00 One-Time'))} — or use an access code below.</p>
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-[var(--text-main)]">Have an access code?</label>
+              <div class="flex gap-2">
+                <input id="swingtype-access-code-input" placeholder="ACCESS CODE" class="flex-1 min-h-touch px-3 rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-main)] text-xs uppercase tracking-wider">
+                <button onclick="redeemSwingtypeAccessCode()" class="px-4 rounded-xl font-black text-xs touch-target bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-main)]">Redeem</button>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-[10px] text-[var(--text-faint)] uppercase tracking-wider">
+              <div class="flex-1 h-px bg-[var(--border-subtle)]"></div>or<div class="flex-1 h-px bg-[var(--border-subtle)]"></div>
+            </div>
+            <button onclick="paySwingtypeFee()" class="w-full py-3.5 rounded-2xl font-black text-sm touch-target theme-accent-bg shadow-lg">Pay ${escapeHtml(stLabel('swingtype_cc_price', '$19.00'))} &amp; Continue</button>
+          </div>`;
+        return;
+      }
+
+      badgeEl.textContent = `Step ${swingtypeStep} of ${SWINGTYPE_TOTAL_STEPS}`;
+      progressEl.style.width = (swingtypeStep / SWINGTYPE_TOTAL_STEPS * 100) + '%';
+      document.getElementById('swingtype-back-btn').classList.toggle('hidden', swingtypeStep === 1);
 
       if (swingtypeStep === 1) {
         body.innerHTML = `
           <div class="space-y-3">
             <h3 class="text-sm font-black text-[var(--text-main)]">${escapeHtml(stLabel('swingtype_intro_title', 'Discover Your Biomechanical SwingType'))}</h3>
-            <p class="text-xs text-[var(--text-muted)]">${escapeHtml(stLabel('swingtype_intro_body', 'This screen maps your natural movement to one of 9 deterministic profiles.'))}</p>
+            <p class="text-xs text-[var(--text-muted)]">${escapeHtml(stLabel('swingtype_intro_body', 'Five short questions map your natural movement to one of 9 deterministic profiles, plus a full setup report.'))}</p>
             ${renderSwingtypeVideoBlock('intro', 'Intro video guide')}
             <button onclick="swingtypeStepNext()" class="w-full py-3 rounded-xl font-black text-xs touch-target theme-accent-bg">${escapeHtml(stLabel('swingtype_intro_cta', 'Begin Assessment'))}</button>
           </div>`;
       } else if (swingtypeStep === 2) {
+        // A1 - Arm fold
         body.innerHTML = `
           <div class="space-y-3">
-            <h4 class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(stLabel('swingtype_q1_title', 'Q1: On your backswing, where do your arms fold?'))}</h4>
-            ${renderSwingtypeVideoBlock('q1', 'Fold-position video guide')}
+            <h4 class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(stLabel('swingtype_q1_title', "Take your golf posture. With your hands together, move your hands away from the target, allowing your trail arm to fold in a relaxed, natural manner. How does your elbow move relative to the seam of your shirt?"))}</h4>
+            ${renderSwingtypeVideoBlock('q1', 'Arm fold video guide')}
             <div class="space-y-2">
-              ${swingtypeOptionBtn(stLabel('swingtype_q1_opt_top_label', 'A. On Top'), stLabel('swingtype_q1_opt_top_sub', 'Flat/on-plane arm fold'), "chooseSwingtypeA1('TOP')")}
-              ${swingtypeOptionBtn(stLabel('swingtype_q1_opt_side_label', 'B. To the Side'), stLabel('swingtype_q1_opt_side_sub', 'Across the chest'), "chooseSwingtypeA1('SIDE')")}
-              ${swingtypeOptionBtn(stLabel('swingtype_q1_opt_under_label', 'C. Underneath'), stLabel('swingtype_q1_opt_under_sub', 'Steep, under the plane'), "chooseSwingtypeA1('UNDER')")}
+              ${swingtypeOptionBtn(stLabel('swingtype_q1_opt_TOP_label', 'On Top'), stLabel('swingtype_q1_opt_TOP_sub', 'The elbow moves behind your shirt seam.'), "chooseSwingtypeA1('TOP')")}
+              ${swingtypeOptionBtn(stLabel('swingtype_q1_opt_SIDE_label', 'Side On'), stLabel('swingtype_q1_opt_SIDE_sub', 'The elbow moves to your shirt seam.'), "chooseSwingtypeA1('SIDE')")}
+              ${swingtypeOptionBtn(stLabel('swingtype_q1_opt_UNDER_label', 'Under'), stLabel('swingtype_q1_opt_UNDER_sub', 'The elbow stays in front of your shirt seam.'), "chooseSwingtypeA1('UNDER')")}
             </div>
           </div>`;
       } else if (swingtypeStep === 3) {
+        // A2 - Lower body post (spec order: Rear, Center, Front)
         body.innerHTML = `
           <div class="space-y-3">
-            <h4 class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(stLabel('swingtype_q2_title', 'Q2: Where does your lead hip sit at impact?'))}</h4>
-            ${renderSwingtypeVideoBlock('q2', 'Hip-post video guide')}
+            <h4 class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(stLabel('swingtype_q2_title', 'If you think of your pelvis like a gate and your hips like gate posts, how does your pelvis turn look?'))}</h4>
+            ${renderSwingtypeVideoBlock('q2', 'Lower body post video guide')}
             <div class="space-y-2">
-              ${swingtypeOptionBtn(stLabel('swingtype_q2_opt_front_label', 'A. Front Post'), stLabel('swingtype_q2_opt_front_sub', 'Cleared ahead of the ball'), "chooseSwingtypeA2('FRONT')")}
-              ${swingtypeOptionBtn(stLabel('swingtype_q2_opt_center_label', 'B. Center Post'), stLabel('swingtype_q2_opt_center_sub', 'Stacked over the ball'), "chooseSwingtypeA2('CENTER')")}
-              ${swingtypeOptionBtn(stLabel('swingtype_q2_opt_rear_label', 'C. Rear Post'), stLabel('swingtype_q2_opt_rear_sub', 'Hanging back'), "chooseSwingtypeA2('REAR')")}
+              ${swingtypeOptionBtn(stLabel('swingtype_q2_opt_REAR_label', 'Rear Post'), stLabel('swingtype_q2_opt_REAR_sub', 'You rotate around your trail hip joint.'), "chooseSwingtypeA2('REAR')")}
+              ${swingtypeOptionBtn(stLabel('swingtype_q2_opt_CENTER_label', 'Center Post'), stLabel('swingtype_q2_opt_CENTER_sub', 'You have a centered pivot; the pelvis rotates in the center of your stance.'), "chooseSwingtypeA2('CENTER')")}
+              ${swingtypeOptionBtn(stLabel('swingtype_q2_opt_FRONT_label', 'Front Post'), stLabel('swingtype_q2_opt_FRONT_sub', 'Your pelvis rotates around your lead hip.'), "chooseSwingtypeA2('FRONT')")}
             </div>
           </div>`;
       } else if (swingtypeStep === 4) {
-        const id = calculateSwingBlueprint(swingtypeAnswers.a1, swingtypeAnswers.a2);
+        // A3 - Wingspan vs height
+        body.innerHTML = `
+          <div class="space-y-3">
+            <h4 class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(stLabel('swingtype_q3_title', 'How does your total wingspan (fingertip to fingertip) compare to your overall height?'))}</h4>
+            ${renderSwingtypeVideoBlock('q3', 'Wingspan video guide')}
+            <div class="space-y-2">
+              ${swingtypeOptionBtn(stLabel('swingtype_q3_opt_W_LONG_label', 'Longer Wingspan'), stLabel('swingtype_q3_opt_W_LONG_sub', ''), "chooseSwingtypeA3('W_LONG')")}
+              ${swingtypeOptionBtn(stLabel('swingtype_q3_opt_W_SAME_label', 'Same'), stLabel('swingtype_q3_opt_W_SAME_sub', ''), "chooseSwingtypeA3('W_SAME')")}
+              ${swingtypeOptionBtn(stLabel('swingtype_q3_opt_W_SHORT_label', 'Shorter Wingspan'), stLabel('swingtype_q3_opt_W_SHORT_sub', ''), "chooseSwingtypeA3('W_SHORT')")}
+            </div>
+          </div>`;
+      } else if (swingtypeStep === 5) {
+        // A4 - Upper arm vs lower arm
+        body.innerHTML = `
+          <div class="space-y-3">
+            <h4 class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(stLabel('swingtype_q4_title', 'How does the length of your upper arm (shoulder to elbow) compare to your lower arm (forearm)?'))}</h4>
+            ${renderSwingtypeVideoBlock('q4', 'Arm length video guide')}
+            <div class="space-y-2">
+              ${swingtypeOptionBtn(stLabel('swingtype_q4_opt_A_LONGUP_label', 'Longer Upper vs Lower'), stLabel('swingtype_q4_opt_A_LONGUP_sub', 'Shoulder to elbow is longer than elbow to knuckle.'), "chooseSwingtypeA4('A_LONGUP')")}
+              ${swingtypeOptionBtn(stLabel('swingtype_q4_opt_A_SAME_label', 'Same Upper vs Lower'), stLabel('swingtype_q4_opt_A_SAME_sub', 'Shoulder to elbow is approximately the same as elbow to knuckle.'), "chooseSwingtypeA4('A_SAME')")}
+              ${swingtypeOptionBtn(stLabel('swingtype_q4_opt_A_SHORTUP_label', 'Shorter Upper vs Lower'), stLabel('swingtype_q4_opt_A_SHORTUP_sub', 'Elbow to knuckle is longer than shoulder to elbow.'), "chooseSwingtypeA4('A_SHORTUP')")}
+            </div>
+          </div>`;
+      } else if (swingtypeStep === 6) {
+        // A5 - Trail shoulder external rotation
+        body.innerHTML = `
+          <div class="space-y-3">
+            <h4 class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(stLabel('swingtype_q5_title', 'How much external rotation is available in your trail shoulder?'))}</h4>
+            ${renderSwingtypeVideoBlock('q5', 'Shoulder mobility video guide')}
+            <div class="space-y-2">
+              ${swingtypeOptionBtn(stLabel('swingtype_q5_opt_ER_HIGH_label', 'More than 90°'), stLabel('swingtype_q5_opt_ER_HIGH_sub', 'Arm bent 90°, forearm rotates past vertical easily.'), "chooseSwingtypeA5('ER_HIGH')")}
+              ${swingtypeOptionBtn(stLabel('swingtype_q5_opt_ER_MID_label', '90°'), stLabel('swingtype_q5_opt_ER_MID_sub', 'Forearm stops perfectly vertical (pointing up).'), "chooseSwingtypeA5('ER_MID')")}
+              ${swingtypeOptionBtn(stLabel('swingtype_q5_opt_ER_LOW_label', 'Less than 90°'), stLabel('swingtype_q5_opt_ER_LOW_sub', 'Forearm stops before reaching a vertical position.'), "chooseSwingtypeA5('ER_LOW')")}
+            </div>
+          </div>`;
+      } else if (swingtypeStep === 7) {
         body.innerHTML = `
           <div class="space-y-3 text-center py-4">
             <div class="text-3xl">⛳</div>
             <p class="text-xs text-[var(--text-muted)]">Calculating your Blueprint…</p>
           </div>`;
-        setTimeout(() => { swingtypeStep = 5; renderSwingtypeStep(); }, 600);
+        setTimeout(() => { swingtypeStep = 8; renderSwingtypeStep(); }, 600);
         return;
-      } else if (swingtypeStep === 5) {
-        const id = calculateSwingBlueprint(swingtypeAnswers.a1, swingtypeAnswers.a2);
+      } else if (swingtypeStep === 8) {
         document.getElementById('swingtype-back-btn').classList.add('hidden');
-        const title = stLabel(`swingtype_profile_${id}_title`, `Profile ${id}`);
-        const subtitle = stLabel(`swingtype_profile_${id}_subtitle`, '');
-        body.innerHTML = `
-          <div class="space-y-3 text-center py-2">
-            <div class="text-3xl">✅</div>
-            <h3 class="text-base font-black theme-accent-text">${escapeHtml(title)}</h3>
-            <p class="text-xs text-[var(--text-muted)]">${escapeHtml(subtitle)}</p>
-            <button onclick="finishSwingtypeAssessment(${id})" class="w-full py-3 rounded-xl font-black text-xs touch-target theme-accent-bg">Unlock My Lessons ➔</button>
-          </div>`;
+        const { a1, a2, a3, a4, a5 } = swingtypeAnswers;
+        const profileId = calculateSwingBlueprint(a1, a2);
+        body.innerHTML = buildSwingtypeReportHtml(a1, a2, a3, a4, a5) +
+          `<button onclick="finishSwingtypeAssessment(${profileId})" class="w-full py-3 rounded-xl font-black text-xs touch-target theme-accent-bg mt-3">Unlock My Lessons ➔</button>`;
       }
     }
     function chooseSwingtypeA1(v) { swingtypeAnswers.a1 = v; swingtypeStepNext(); }
     function chooseSwingtypeA2(v) { swingtypeAnswers.a2 = v; swingtypeStepNext(); }
+    function chooseSwingtypeA3(v) { swingtypeAnswers.a3 = v; swingtypeStepNext(); }
+    function chooseSwingtypeA4(v) { swingtypeAnswers.a4 = v; swingtypeStepNext(); }
+    function chooseSwingtypeA5(v) { swingtypeAnswers.a5 = v; swingtypeStepNext(); }
 
     async function finishSwingtypeAssessment(profileId) {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session || !currentSportId) { triggerToast('Something went wrong saving your profile - please retry.'); return; }
+      const { a1, a2, a3, a4, a5 } = swingtypeAnswers;
+      const alignmentScore = calculateSwingAlignmentScore(a2, a4, a5);
       const { error } = await supabaseClient.from('user_sport_profiles').upsert({
         user_id: session.user.id,
         sport_id: currentSportId,
         assessment_purchased: true,
         assessment_profile_id: profileId,
+        assessment_a1: a1, assessment_a2: a2, assessment_a3: a3, assessment_a4: a4, assessment_a5: a5,
+        assessment_alignment_score: alignmentScore,
         assessment_completed_at: new Date().toISOString(),
         assessment_retakes_used: (swingtypeUserState.retakesUsed || 0) + (swingtypeUserState.assessed ? 1 : 0),
       }, { onConflict: 'user_id,sport_id' });
