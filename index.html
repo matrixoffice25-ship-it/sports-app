@@ -2725,7 +2725,7 @@
       // pro-comparison list is editable content (spec Section 2, OPEN item 3).
       const title = `Profile ${id} — ${SWINGTYPE_FOLD_LABEL[swingtypeUserState.a1] || ''} + ${SWINGTYPE_POST_LABEL[swingtypeUserState.a2] || ''}`;
       const pros = swingtypeProNames(id);
-      const subtitle = pros.length ? `Comparable to: ${pros.join(', ')}` : '';
+      const subtitle = pros.length ? `You move like ${pros.join(', ')}` : '';
       const ccTitleEl = document.getElementById('cc-swing-profile-title');
       const ccSubEl = document.getElementById('cc-swing-profile-subtitle');
       if (ccTitleEl) ccTitleEl.textContent = title;
@@ -2812,7 +2812,13 @@
     // Every logged-in admin gets the assessment free, always - no code or
     // grant needed. This is checked live (currentUser.role), never cached,
     // so revoking admin elsewhere in the app takes effect immediately here too.
+    //
+    // TESTING MODE: swingtype_open_access_all_users is a single admin-toggled
+    // switch (Admin Dashboard > SwingType > Free Access Management) that,
+    // while on, gives EVERY user free access - for pre-launch testing only.
+    // Turn it off before going live so the $19 fee actually applies again.
     function swingtypeHasFreeEntitlement() {
+      if (stLabel('swingtype_open_access_all_users', 'false') === 'true') return true;
       return currentUser.role === 'admin' || swingtypeUserState.freeAccess === true;
     }
 
@@ -2891,10 +2897,12 @@
       </button>`;
     }
 
-    // Builds the Section 1-5 report exactly per spec Section 5 - each
-    // section tagged with which assessment(s) produced it, so "the golfer
-    // sees the reasoning, not a horoscope." Reused both right after
-    // finishing (step 8) and later via "View Full SwingType Report".
+    // Builds the user-facing report. Layout follows the approved sample
+    // (identity card + short readable paragraphs) - the earlier
+    // section-by-section/"Source: A1, A2" breakdown was for OUR internal
+    // reasoning only and was never meant to reach the user. Every value
+    // used below is copied verbatim from the spec's output rules
+    // (swingtypeOutput()) - nothing here is invented golf-coaching prose.
     function buildSwingtypeReportHtml(a1, a2, a3, a4, a5) {
       const profileId = calculateSwingBlueprint(a1, a2);
       const pros = swingtypeProNames(profileId);
@@ -2905,43 +2913,37 @@
         : '';
       const naturalDepth = swingtypeOutput('natural_depth', a5);
 
-      const sectionTag = (codes) => `<span class="text-[9px] font-bold uppercase tracking-wider text-[var(--text-faint)]">Source: ${codes}</span>`;
-      const row = (label, value) => value ? `<div class="flex items-center justify-between gap-3 py-1 border-b border-[var(--border-subtle)]/50 last:border-0"><span class="text-[11px] text-[var(--text-muted)]">${escapeHtml(label)}</span><span class="text-xs font-bold text-[var(--text-main)] text-right">${escapeHtml(value)}</span></div>` : '';
+      const clause = (label, value) => value ? `${escapeHtml(label)}: ${escapeHtml(value)}.` : '';
+
+      const paragraph1 = [
+        clause('Lead hand grip', swingtypeOutput('lead_hand_grip', a1)),
+        clause('Trail hand grip', swingtypeOutput('trail_hand_grip', a1)),
+        clause('Handle height', swingtypeOutput('handle_height', a1)),
+        clause('Address posture', swingtypeOutput('address_posture', a1)),
+        clause('Top of backswing pivot', swingtypeOutput('pivot_top_backswing', a1)),
+      ].filter(Boolean).join(' ');
+
+      const paragraph2 = [
+        clause('Stance width', swingtypeOutput('stance_width', a2)),
+        clause('Foot flare', swingtypeOutput('foot_flare', a2)),
+        clause('Distance from ball', swingtypeOutput('distance_from_ball', a3)),
+        clause('Posture height', swingtypeOutput('posture_height', a3)),
+        clause('Stance alignment', `${alignLabel} (${alignScore >= 0 ? '+' : ''}${alignScore})`),
+      ].filter(Boolean).join(' ');
 
       return `
         <div class="space-y-4 text-left">
-          <div class="text-center space-y-1 pb-2 border-b border-[var(--border-subtle)]">
-            <div class="text-2xl">✅</div>
-            <h3 class="text-base font-black theme-accent-text">Profile ${profileId} — ${SWINGTYPE_FOLD_LABEL[a1]} + ${SWINGTYPE_POST_LABEL[a2]}</h3>
-            ${pros.length ? `<p class="text-xs text-[var(--text-muted)]">Comparable to: ${escapeHtml(pros.join(', '))}</p>` : ''}
+          <div class="rounded-2xl p-4 space-y-1" style="background:var(--accent-subtle); border:1px solid var(--accent-border);">
+            <span class="text-xs font-bold uppercase tracking-wider" style="color:var(--accent-light)">Your Swing Model</span>
+            <h3 class="text-2xl font-black" style="color:var(--accent-light)">Profile ${profileId}</h3>
+            <p class="text-sm font-bold" style="color:var(--accent-light)">${escapeHtml(SWINGTYPE_FOLD_LABEL[a1])} · ${escapeHtml(SWINGTYPE_POST_LABEL[a2])}</p>
+            ${pros.length ? `<div class="pt-2 mt-2 border-t" style="border-color:var(--accent-border)"><p class="text-sm font-bold" style="color:var(--accent-light)">You move like ${escapeHtml(pros.join(', '))}</p></div>` : ''}
           </div>
-
-          <div class="space-y-1">
-            <div class="flex items-center justify-between"><span class="text-xs font-black text-[var(--text-main)]">Section 2 — Grip &amp; Hands</span>${sectionTag('A1')}</div>
-            ${row('Lead hand grip', swingtypeOutput('lead_hand_grip', a1))}
-            ${row('Trail hand grip', swingtypeOutput('trail_hand_grip', a1))}
-            ${row('Handle height', swingtypeOutput('handle_height', a1))}
-          </div>
-
-          <div class="space-y-1">
-            <div class="flex items-center justify-between"><span class="text-xs font-black text-[var(--text-main)]">Section 3 — Posture &amp; Geometry</span>${sectionTag('A1, A3')}</div>
-            ${row('Address posture', swingtypeOutput('address_posture', a1))}
-            ${row('Distance from ball', swingtypeOutput('distance_from_ball', a3))}
-            ${row('Posture height', swingtypeOutput('posture_height', a3))}
-          </div>
-
-          <div class="space-y-1">
-            <div class="flex items-center justify-between"><span class="text-xs font-black text-[var(--text-main)]">Section 4 — Stance &amp; Ground</span>${sectionTag('A2, A4, A5')}</div>
-            ${row('Stance width', swingtypeOutput('stance_width', a2))}
-            ${row('Foot flare', swingtypeOutput('foot_flare', a2))}
-            ${row('Stance alignment', `${alignLabel} (${alignScore >= 0 ? '+' : ''}${alignScore})`)}
-            ${frontInstruction ? `<p class="text-[11px] text-amber-400 pt-1">⚠ ${escapeHtml(frontInstruction)}</p>` : ''}
-          </div>
-
-          <div class="space-y-1">
-            <div class="flex items-center justify-between"><span class="text-xs font-black text-[var(--text-main)]">Section 5 — Motion &amp; Depth</span>${sectionTag('A1, A5')}</div>
-            ${row('Top of backswing pivot', swingtypeOutput('pivot_top_backswing', a1))}
-            ${naturalDepth ? row('Natural depth', naturalDepth) : `<p class="text-[11px] text-[var(--text-faint)] italic">Natural depth guidance for this shoulder-mobility level is pending from the coaching team.</p>`}
+          <div class="space-y-3 text-sm text-[var(--text-main)] leading-relaxed">
+            ${paragraph1 ? `<p>${paragraph1}</p>` : ''}
+            ${paragraph2 ? `<p>${paragraph2}</p>` : ''}
+            ${frontInstruction ? `<p class="text-amber-400 text-xs">⚠ ${escapeHtml(frontInstruction)}</p>` : ''}
+            ${naturalDepth ? `<p>Natural depth: ${escapeHtml(naturalDepth)}.</p>` : `<p class="text-[var(--text-faint)] text-xs italic">Natural depth guidance for this shoulder-mobility level is pending from the coaching team.</p>`}
           </div>
         </div>`;
     }
@@ -3031,9 +3033,9 @@
             <h4 class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(stLabel('swingtype_q3_title', 'How does your total wingspan (fingertip to fingertip) compare to your overall height?'))}</h4>
             ${renderSwingtypeVideoBlock('q3', 'Wingspan video guide')}
             <div class="space-y-2">
-              ${swingtypeOptionBtn(stLabel('swingtype_q3_opt_W_LONG_label', 'Longer Wingspan'), stLabel('swingtype_q3_opt_W_LONG_sub', ''), "chooseSwingtypeA3('W_LONG')")}
-              ${swingtypeOptionBtn(stLabel('swingtype_q3_opt_W_SAME_label', 'Same'), stLabel('swingtype_q3_opt_W_SAME_sub', ''), "chooseSwingtypeA3('W_SAME')")}
-              ${swingtypeOptionBtn(stLabel('swingtype_q3_opt_W_SHORT_label', 'Shorter Wingspan'), stLabel('swingtype_q3_opt_W_SHORT_sub', ''), "chooseSwingtypeA3('W_SHORT')")}
+              ${swingtypeOptionBtn(stLabel('swingtype_q3_opt_W_LONG_label', 'Longer Wingspan'), stLabel('swingtype_q3_opt_W_LONG_sub', 'Your wingspan reaches further than your height.'), "chooseSwingtypeA3('W_LONG')")}
+              ${swingtypeOptionBtn(stLabel('swingtype_q3_opt_W_SAME_label', 'Same'), stLabel('swingtype_q3_opt_W_SAME_sub', 'Your wingspan is about equal to your height.'), "chooseSwingtypeA3('W_SAME')")}
+              ${swingtypeOptionBtn(stLabel('swingtype_q3_opt_W_SHORT_label', 'Shorter Wingspan'), stLabel('swingtype_q3_opt_W_SHORT_sub', 'Your wingspan is shorter than your height.'), "chooseSwingtypeA3('W_SHORT')")}
             </div>
           </div>`;
       } else if (swingtypeStep === 5) {
