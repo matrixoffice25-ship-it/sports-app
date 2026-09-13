@@ -310,6 +310,49 @@
           </div>
         </div>
 
+        <!-- ================================================================= -->
+        <!-- SWINGTYPE COMMAND CENTER CARD (Segment 1 gate)
+             Deterministic, Supabase-backed. Two mutually-exclusive states:
+             unassessed (Door 1) vs assessed (Swing DNA banner). Toggled by
+             renderSwingtypeCommandCenter() based on the user's real row in
+             user_sport_profiles - never hardcoded. All copy is CMS-driven
+             from app_content_labels (key prefix swingtype_*), editable in
+             the Admin Dashboard > SwingType tab. -->
+        <!-- ================================================================= -->
+        <div id="cc-swing-unassessed" class="hidden bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border border-amber-500/40 shadow-xl space-y-3.5">
+          <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2.5">
+            <div class="flex items-center gap-2">
+              <span class="text-base">🧬</span>
+              <span id="cc-swing-eyebrow" class="text-xs font-black uppercase tracking-wider text-amber-400">Swing Profile Requirement</span>
+            </div>
+            <span id="cc-swing-price" class="text-[11px] font-extrabold bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2.5 py-0.5 rounded-lg whitespace-nowrap ml-2">$19.00 One-Time</span>
+          </div>
+          <div class="space-y-1.5">
+            <h3 id="cc-swing-title" class="text-base font-black text-[var(--text-main)] leading-snug">Discover Your Biomechanical SwingType</h3>
+            <p id="cc-swing-body" class="text-xs text-[var(--text-muted)] leading-relaxed">To ensure every lesson and drill is tailored to your natural body mechanics, complete your physical movement assessment before booking or purchasing golf coaching.</p>
+          </div>
+          <button onclick="openSwingtypeAssessment()" class="w-full py-3.5 px-4 rounded-2xl font-black text-sm touch-target theme-accent-bg shadow-lg hover:brightness-105 transition-all flex items-center justify-center gap-2">
+            <span id="cc-swing-cta">Unlock &amp; Start Assessment</span><span>➔</span>
+          </button>
+        </div>
+
+        <div id="cc-swing-assessed" class="hidden border border-[var(--accent-border)] rounded-2xl p-4 bg-[var(--bg-app)] shadow-2xl space-y-2.5">
+          <div class="flex items-center gap-2">
+            <span class="text-sm">⛳</span>
+            <span class="text-xs font-black uppercase tracking-wider theme-accent-text">Swing DNA Active</span>
+          </div>
+          <div class="flex items-center justify-between gap-3 pt-0.5">
+            <div class="min-w-0">
+              <h3 id="cc-swing-profile-title" class="text-base sm:text-lg font-black text-[var(--text-main)] truncate">—</h3>
+              <p id="cc-swing-profile-subtitle" class="text-xs text-[var(--text-muted)] font-medium truncate">—</p>
+            </div>
+            <button onclick="switchTab('tab-lessons'); activateLessonsSubtab();" class="flex-shrink-0 px-4 py-2.5 rounded-xl font-black text-xs touch-target theme-accent-bg shadow-md flex items-center gap-1.5">
+              <span>Open Lessons</span><span>➔</span>
+            </button>
+          </div>
+          <button onclick="retakeSwingtypeAssessment()" id="cc-swing-retake-label" class="text-xs text-[var(--text-muted)] hover:text-[var(--text-main)] underline font-semibold">Retake Screen</button>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div onclick="switchTab('tab-lessons'); activateLessonsSubtab();" class="bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-subtle)] flex flex-col justify-between space-y-3 relative overflow-hidden cursor-pointer hover:border-[var(--accent-main)] transition-all">
             <div class="flex items-start justify-between gap-2">
@@ -448,65 +491,62 @@
 
         <!-- SUB-VIEW 1: GOLF LESSONS -->
         <div id="subcontent-lessons" class="space-y-4">
-          
+
           <div id="sponsor-banner-lessons-tab-header"></div>
-          <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
+
+          <!-- GATE (Door 2): shown until SwingType has been purchased/assessed -->
+          <div id="les-gate-card" class="hidden bg-[var(--bg-surface)] p-4 sm:p-5 rounded-2xl border border-[var(--border-subtle)] shadow-2xl space-y-4">
             <div class="flex items-center justify-between">
-              <div>
-                <span class="text-xs font-bold theme-accent-text uppercase tracking-wider theme-accent-subtle-bg px-2 py-0.5 rounded theme-accent-subtle-border border">Diagnostic Assessment</span>
-                <h3 id="lessons-headline" class="text-sm font-bold text-[var(--text-main)] mt-1">15-Min Swing Diagnostic</h3>
+              <div class="flex items-center gap-2">
+                <span class="text-amber-400 text-base">⚠️</span>
+                <span id="les-gate-eyebrow" class="text-xs font-black uppercase tracking-wider text-amber-400">Coaching Prerequisite</span>
               </div>
-              <span class="text-xs text-amber-400 font-bold bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">Step 2 of 4</span>
+              <span id="les-gate-price" class="text-[11px] font-extrabold text-amber-300 bg-amber-500/15 border border-amber-500/30 px-3 py-1 rounded-full ml-2">$19.00 Assessment</span>
             </div>
-
-            <div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-[var(--border-subtle)] flex flex-col items-center justify-center group">
-              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10"></div>
-              <canvas id="quiz-canvas-video" class="w-full h-full object-cover opacity-80"></canvas>
-
-              <div class="absolute z-20 flex flex-col items-center text-center p-3">
-                <button id="quiz-play-btn" onclick="toggleVideoPlayback()" class="w-12 h-12 rounded-full theme-accent-bg flex items-center justify-center text-xs font-black shadow-lg hover:scale-110 transition-transform mb-2">PLAY</button>
-                <div class="text-xs font-bold text-white">ST-04 Lead Shoulder Plane Analysis</div>
-                <div class="text-sm text-[var(--text-muted)]">Tap to play the coaching demonstration</div>
+            <div class="space-y-1.5">
+              <h3 id="les-gate-title" class="text-base sm:text-lg font-black text-[var(--text-main)] leading-snug">SwingType Required Prior to Lessons</h3>
+              <p id="les-gate-body" class="text-xs sm:text-sm text-[var(--text-muted)] leading-relaxed">We don't teach one-size-fits-all golf. Before taking your first lesson or practice track, you must verify your unique SwingType so coaching drills match your natural movement.</p>
+            </div>
+            <div class="bg-[var(--bg-card-subtle)] p-3.5 rounded-xl border border-[var(--border-subtle)] space-y-2.5">
+              <span class="text-xs font-bold text-[var(--text-main)] block">Two-Tier Pricing Architecture:</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div class="p-2.5 rounded-xl bg-[var(--bg-app)]/60 border border-amber-500/40 space-y-0.5">
+                  <span class="text-xs font-bold text-amber-400 block">1. SwingType Test</span>
+                  <span id="les-gate-tier1-sub" class="text-[11px] text-[var(--text-muted)] block">One-time diagnostic ($19)</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-[var(--bg-app)]/40 border border-[var(--border-subtle)] space-y-0.5">
+                  <span class="text-xs font-bold text-[var(--text-main)] block">2. Tailored Lessons</span>
+                  <span id="les-gate-tier2-sub" class="text-[11px] text-[var(--text-muted)] block">Subscription or à la carte</span>
+                </div>
               </div>
             </div>
+            <button onclick="openSwingtypeAssessment()" class="w-full py-3.5 px-4 rounded-2xl font-black text-xs sm:text-sm touch-target bg-[#FBBF24] hover:bg-amber-400 text-slate-950 shadow-xl transition-all flex items-center justify-center gap-2">
+              <span id="les-gate-cta">Get Your SwingType Assessment</span><span>➔</span>
+            </button>
+          </div>
 
-            <div class="pt-2">
-              <h4 class="text-xs font-bold text-[var(--text-main)] mb-1">Q: What is your primary miss under pressure?</h4>
-              <p class="text-sm text-[var(--text-muted)]">Select your typical ball flight so we can tailor your drill sequence.</p>
+          <!-- ASSESSED: prescribed curriculum, driven by profile_<1-9>_* CMS labels -->
+          <div id="les-assessed-wrap" class="hidden space-y-3">
+            <div class="border border-[var(--accent-border)] rounded-2xl p-3 bg-[var(--bg-app)] flex items-center justify-between shadow-lg">
+              <div class="flex items-center gap-2.5">
+                <span class="w-3 h-3 rounded-full theme-accent-bg flex-shrink-0"></span>
+                <div>
+                  <span class="text-[10px] font-black uppercase tracking-wider theme-accent-text block">Profile Active</span>
+                  <span id="les-assessed-profile-title" class="text-xs font-black text-[var(--text-main)] block">—</span>
+                </div>
+              </div>
+              <button onclick="retakeSwingtypeAssessment()" id="les-retake-label" class="text-xs text-[var(--text-muted)] hover:text-[var(--text-main)] underline font-semibold ml-2">Retake Screen</button>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <button onclick="selectQuizOption(this)" class="quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
-                <div>
-                  <div class="text-xs font-bold text-[var(--text-main)] group-hover:theme-accent-text">A. High Push Fade</div>
-                  <div class="text-sm text-[var(--text-muted)]">Face slightly open to path</div>
-                </div>
-                <div class="quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
-              </button>
-              <button onclick="selectQuizOption(this)" class="quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
-                <div>
-                  <div class="text-xs font-bold text-[var(--text-main)] group-hover:theme-accent-text">B. Low Hook / Pull</div>
-                  <div class="text-sm text-[var(--text-muted)]">Hands flipping through impact</div>
-                </div>
-                <div class="quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
-              </button>
-              <button onclick="selectQuizOption(this)" class="quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
-                <div>
-                  <div class="text-xs font-bold text-[var(--text-main)] group-hover:theme-accent-text">C. Heavy / Fat Iron</div>
-                  <div class="text-sm text-[var(--text-muted)]">Weight hanging on trail foot</div>
-                </div>
-                <div class="quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
-              </button>
-              <button onclick="selectQuizOption(this)" class="quiz-option-card min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between group">
-                <div>
-                  <div class="text-xs font-bold text-[var(--text-main)] group-hover:theme-accent-text">D. High Thin Block</div>
-                  <div class="text-sm text-[var(--text-muted)]">Spine angle lifting early</div>
-                </div>
-                <div class="quiz-check w-5 h-5 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-xs text-transparent">✓</div>
-              </button>
+            <div class="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-2xl">
+              <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2.5">
+                <span class="text-xs font-black uppercase tracking-wider text-[var(--text-muted)]">Prescribed Curriculum</span>
+                <span id="les-curric-price" class="text-xs font-black theme-accent-text">$49/mo Active</span>
+              </div>
+              <div id="les-curriculum-blocks" class="space-y-3.5"></div>
             </div>
           </div>
-          
+
           <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all mt-4" onclick="triggerToast('Loading Recovery Guide! 💓')">
             <div class="flex items-center space-x-3">
               <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white flex-shrink-0">
@@ -1322,6 +1362,36 @@
     </div>
 
 
+    <!-- ================================================================= -->
+    <!-- SWINGTYPE ASSESSMENT MODAL (Segment 1) — 5-step deterministic
+         diagnostic. Scoring uses the locked foldMap/postMap matrix only;
+         no AI/RAG anywhere in this flow. All question/option/video/price
+         text is CMS-driven (app_content_labels, key prefix swingtype_*).
+         Videos: YouTube iframes get playsinline=1&rel=0; any direct MP4
+         <video> tag carries playsinline webkit-playsinline controls
+         preload="metadata" for iOS App Store compliance. -->
+    <!-- ================================================================= -->
+    <div id="swingtype-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all">
+      <div class="w-full max-w-md bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-t-3xl sm:rounded-3xl p-5 space-y-4 shadow-2xl relative animate-slide-up max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black uppercase tracking-wider text-amber-400">Diagnostic Assessment</span>
+          <div class="flex items-center gap-2">
+            <span id="swingtype-step-badge" class="text-xs text-amber-400 font-bold bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">Step 1 of 5</span>
+            <button onclick="closeSwingtypeAssessment()" class="w-8 h-8 rounded-full bg-[var(--bg-card)] text-[var(--text-muted)] flex items-center justify-center hover:text-[var(--text-main)] transition-colors" title="Close">✕</button>
+          </div>
+        </div>
+        <div class="w-full h-1.5 rounded-full bg-[var(--bg-card)] overflow-hidden">
+          <div id="swingtype-progress-bar" class="h-full theme-accent-bg transition-all" style="width:20%"></div>
+        </div>
+
+        <div id="swingtype-modal-body"></div>
+
+        <div class="flex gap-2 pt-1">
+          <button id="swingtype-back-btn" onclick="swingtypeStepBack()" class="hidden flex-1 py-3 rounded-xl font-bold text-xs touch-target bg-[var(--bg-card)] text-[var(--text-main)] border border-[var(--border-subtle)]">Back</button>
+        </div>
+      </div>
+    </div>
+
     <!-- TOAST NOTIFICATION CONTAINER -->
     <div id="toast-container" class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none w-11/12 max-w-xs transition-all duration-300 opacity-0 translate-y-[-10px]">
       <div id="toast-message" class="theme-accent-bg text-xs font-extrabold py-2.5 px-4 rounded-xl shadow-2xl border border-white/20 text-center flex items-center justify-center gap-2">
@@ -1521,6 +1591,7 @@
       loadMediaEmbed('gear', 'gear-iframe');
       loadEducationEventsFrontend();
       loadSportSpecificLabels(sportId);
+      loadSwingtypeUserState(sportId);
     }
 
     // Explicit action only - a user must deliberately choose to change
@@ -1644,6 +1715,7 @@
       loadMediaEmbed('gear', 'gear-iframe');
       loadEducationEventsFrontend();
       loadSportSpecificLabels(sportId);
+      loadSwingtypeUserState(sportId);
     }
 
     async function loadEducationEventsFrontend() {
@@ -2448,6 +2520,317 @@
       setIfPresent('gear-title-label', 'gear_title');
     }
 
+    // ============================================================
+    // SEGMENT 1: SWINGTYPE ASSESSMENT ENGINE
+    // Replaces the old 1-question mock quiz. Everything below is real:
+    // scoring is a locked deterministic matrix (no AI/RAG, 0ms, $0 LLM
+    // cost, no injury-liability hallucination risk), state is a real
+    // row in user_sport_profiles, and every string is CMS-driven from
+    // app_content_labels (key prefix swingtype_*) via the exact same
+    // key-value pattern loadContentLabels() already uses above - no new
+    // table shape, fully editable from the Admin Dashboard > SwingType
+    // tab, nothing hardcoded left in the page.
+    // ============================================================
+
+    // --- Deterministic scoring matrix. DO NOT ALTER. ---
+    const SWINGTYPE_FOLD_MAP = { TOP: 0, SIDE: 3, UNDER: 6 };
+    const SWINGTYPE_POST_MAP = { FRONT: 1, CENTER: 2, REAR: 3 };
+    function calculateSwingBlueprint(a1, a2) {
+      return SWINGTYPE_FOLD_MAP[a1] + SWINGTYPE_POST_MAP[a2]; // 1..9
+    }
+
+    let swingtypeLabels = {};
+    let swingtypeUserState = { purchased: false, assessed: false, profileId: null, retakesUsed: 0 };
+    let swingtypeStep = 1;
+    const SWINGTYPE_TOTAL_STEPS = 5;
+    let swingtypeAnswers = { a1: null, a2: null };
+
+    function stLabel(key, fallback) {
+      const v = swingtypeLabels[key];
+      return (v === undefined || v === null || v === '') ? fallback : v;
+    }
+
+    async function loadSwingtypeLabels() {
+      const { data, error } = await supabaseClient.from('app_content_labels').select('label_key, value').like('label_key', 'swingtype_%');
+      if (!error && data) {
+        swingtypeLabels = {};
+        data.forEach(row => swingtypeLabels[row.label_key] = row.value);
+      }
+      renderSwingtypeStaticText();
+    }
+
+    function renderSwingtypeStaticText() {
+      const setT = (id, key, fallback) => { const el = document.getElementById(id); if (el) el.textContent = stLabel(key, fallback); };
+      setT('cc-swing-eyebrow', 'swingtype_cc_eyebrow', 'Swing Profile Requirement');
+      setT('cc-swing-price', 'swingtype_cc_price', '$19.00 One-Time');
+      setT('cc-swing-title', 'swingtype_cc_title', 'Discover Your Biomechanical SwingType');
+      setT('cc-swing-body', 'swingtype_cc_body', 'To ensure every lesson and drill is tailored to your natural body mechanics, complete your physical movement assessment before booking or purchasing golf coaching.');
+      setT('cc-swing-cta', 'swingtype_cc_cta', 'Unlock & Start Assessment');
+      setT('cc-swing-retake-label', 'swingtype_retake_label', 'Retake Screen');
+      setT('les-gate-eyebrow', 'swingtype_gate_eyebrow', 'Coaching Prerequisite');
+      setT('les-gate-price', 'swingtype_gate_price', '$19.00 Assessment');
+      setT('les-gate-title', 'swingtype_gate_title', 'SwingType Required Prior to Lessons');
+      setT('les-gate-body', 'swingtype_gate_body', "We don't teach one-size-fits-all golf. Before taking your first lesson or practice track, you must verify your unique SwingType so coaching drills match your natural movement.");
+      setT('les-gate-tier1-sub', 'swingtype_gate_tier1_sub', 'One-time diagnostic ($19)');
+      setT('les-gate-tier2-sub', 'swingtype_gate_tier2_sub', 'Subscription or à la carte');
+      setT('les-gate-cta', 'swingtype_gate_cta', 'Get Your SwingType Assessment');
+      setT('les-retake-label', 'swingtype_retake_label', 'Retake Screen');
+      setT('les-curric-price', 'swingtype_curric_price', '$49/mo Active');
+    }
+
+    // Renders a CMS-driven video block for a given key prefix (e.g. 'intro', 'q1', 'q2').
+    // YouTube: playsinline=1&rel=0 in the iframe src.
+    // Direct upload (Cloudflare R2 or any host): playsinline webkit-playsinline
+    // controls preload="metadata" on the <video> tag - required for iOS, or the
+    // OS forces fullscreen and breaks the assessment UI mid-flow.
+    function renderSwingtypeVideoBlock(prefix, fallbackLabel) {
+      const type = stLabel(`swingtype_${prefix}_video_type`, '');
+      const url = stLabel(`swingtype_${prefix}_video_url`, '');
+      if (type === 'youtube' && url) {
+        const idMatch = url.match(/(?:v=|\/embed\/|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+        const videoId = idMatch ? idMatch[1] : url;
+        return `<div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-[var(--border-subtle)]">
+          <iframe class="w-full h-full" src="https://www.youtube.com/embed/${encodeURIComponent(videoId)}?playsinline=1&rel=0" title="${escapeHtml(fallbackLabel)}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>`;
+      }
+      if (type === 'upload' && url) {
+        return `<div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-[var(--border-subtle)]">
+          <video class="w-full h-full object-cover" src="${escapeHtml(url)}" playsinline webkit-playsinline controls preload="metadata"></video>
+        </div>`;
+      }
+      return `<div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-[var(--border-subtle)] flex items-center justify-center">
+        <span class="text-xs text-[var(--text-muted)]">${escapeHtml(fallbackLabel)}</span>
+      </div>`;
+    }
+
+    // Real state, per (user, sport) - fetched from user_sport_profiles.
+    // Columns required on that table: assessment_purchased (bool),
+    // assessment_profile_id (int 1-9), assessment_completed_at (timestamptz),
+    // assessment_retakes_used (int). Generic column names (not "swing_"
+    // prefixed) so the exact same 7-segment engine replicates to Tennis
+    // or Basketball without a schema change - only the CMS copy differs.
+    async function loadSwingtypeUserState(sportId) {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session || !sportId) {
+        swingtypeUserState = { purchased: false, assessed: false, profileId: null, retakesUsed: 0 };
+        renderSwingtypeCommandCenter();
+        return;
+      }
+      const { data } = await supabaseClient
+        .from('user_sport_profiles')
+        .select('assessment_purchased, assessment_profile_id, assessment_completed_at, assessment_retakes_used')
+        .eq('user_id', session.user.id)
+        .eq('sport_id', sportId)
+        .maybeSingle();
+      swingtypeUserState = {
+        purchased: !!(data && data.assessment_purchased),
+        assessed: !!(data && data.assessment_profile_id),
+        profileId: data?.assessment_profile_id || null,
+        retakesUsed: data?.assessment_retakes_used || 0,
+      };
+      renderSwingtypeCommandCenter();
+    }
+
+    function renderSwingtypeCommandCenter() {
+      const assessed = swingtypeUserState.assessed;
+      const toggle = (id, show) => { const el = document.getElementById(id); if (el) el.classList.toggle('hidden', !show); };
+      toggle('cc-swing-unassessed', !assessed);
+      toggle('cc-swing-assessed', assessed);
+      toggle('les-gate-card', !assessed);
+      toggle('les-assessed-wrap', assessed);
+      if (!assessed) return;
+
+      const id = swingtypeUserState.profileId;
+      const title = stLabel(`swingtype_profile_${id}_title`, `Profile ${id}`);
+      const subtitle = stLabel(`swingtype_profile_${id}_subtitle`, '');
+      const ccTitleEl = document.getElementById('cc-swing-profile-title');
+      const ccSubEl = document.getElementById('cc-swing-profile-subtitle');
+      if (ccTitleEl) ccTitleEl.textContent = title;
+      if (ccSubEl) ccSubEl.textContent = subtitle;
+      const lesTitleEl = document.getElementById('les-assessed-profile-title');
+      if (lesTitleEl) lesTitleEl.textContent = title;
+
+      const l1Title = stLabel(`swingtype_profile_${id}_lesson1_title`, 'Lesson 1');
+      const l1Body = stLabel(`swingtype_profile_${id}_lesson1_body`, '');
+      const l2Title = stLabel(`swingtype_profile_${id}_lesson2_title`, 'Lesson 2');
+      const l2Body = stLabel(`swingtype_profile_${id}_lesson2_body`, '');
+      const blocksEl = document.getElementById('les-curriculum-blocks');
+      if (blocksEl) {
+        blocksEl.innerHTML = `
+          <div class="bg-[var(--bg-app)]/70 border border-[var(--border-subtle)] rounded-xl p-3.5 space-y-2.5 shadow">
+            <div class="flex items-center justify-between">
+              <span class="bg-purple-950/80 border border-purple-500/40 text-purple-300 text-[10px] font-black uppercase px-2 py-0.5 rounded-md">Lesson 1</span>
+              <span class="text-xs font-bold theme-accent-text">Unlocked ✓</span>
+            </div>
+            <div class="space-y-0.5">
+              <h4 class="text-xs sm:text-sm font-black text-[var(--text-main)]">${escapeHtml(l1Title)}</h4>
+              <p class="text-[11px] text-[var(--text-muted)]">${escapeHtml(l1Body)}</p>
+            </div>
+            <button onclick="triggerToast('Loading Lesson 1 video…')" class="w-full py-2.5 rounded-xl font-black text-xs touch-target theme-accent-bg transition-all shadow">Start Lesson 1 Video</button>
+          </div>
+          <div class="bg-[var(--bg-app)]/70 border border-[var(--border-subtle)] rounded-xl p-3.5 space-y-1.5 shadow">
+            <div class="flex items-center justify-between">
+              <span class="bg-purple-950/80 border border-purple-500/40 text-purple-300 text-[10px] font-black uppercase px-2 py-0.5 rounded-md">Lesson 2</span>
+              <span class="text-xs font-bold theme-accent-text">Unlocked ✓</span>
+            </div>
+            <div class="space-y-0.5">
+              <h4 class="text-xs sm:text-sm font-black text-[var(--text-main)]">${escapeHtml(l2Title)}</h4>
+              <p class="text-[11px] text-[var(--text-muted)]">${escapeHtml(l2Body)}</p>
+            </div>
+          </div>`;
+      }
+    }
+
+    // --- Payment handler ---
+    // Mirrors the app's existing checkEntitlement() convention (same
+    // SUPABASE_URL/functions/v1/... call shape, same Bearer session
+    // token) rather than bolting on a separate ad-hoc payment path.
+    // NOTE: the 'purchase-swingtype-assessment' edge function itself
+    // (Stripe on PWA / RevenueCat-IAP on native via Capacitor.isNativePlatform())
+    // is server-side work this file can only call, not implement - it needs
+    // your real Stripe/RevenueCat product IDs wired in on the backend.
+    async function unlockSwingtypeFee() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) { triggerToast('Log in first to purchase your SwingType assessment.'); return false; }
+      try {
+        const isNative = (typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform && Capacitor.isNativePlatform());
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/purchase-swingtype-assessment`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sport_id: currentSportId, platform: isNative ? 'iap' : 'stripe' }),
+        });
+        const result = await res.json();
+        if (!res.ok || !result.success) { triggerToast(result.message || 'Payment could not be completed.'); return false; }
+        return true;
+      } catch (err) {
+        console.error('unlockSwingtypeFee failed:', err);
+        triggerToast('Payment service unavailable - please try again.');
+        return false;
+      }
+    }
+
+    async function openSwingtypeAssessment() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) { triggerToast('Log in first to start your SwingType assessment.'); return; }
+      if (!swingtypeUserState.purchased) {
+        const ok = await unlockSwingtypeFee();
+        if (!ok) return;
+        swingtypeUserState.purchased = true;
+        await supabaseClient.from('user_sport_profiles').upsert(
+          { user_id: session.user.id, sport_id: currentSportId, assessment_purchased: true },
+          { onConflict: 'user_id,sport_id' }
+        );
+      }
+      swingtypeStep = 1;
+      swingtypeAnswers = { a1: null, a2: null };
+      document.getElementById('swingtype-modal').classList.remove('hidden');
+      renderSwingtypeStep();
+    }
+
+    async function retakeSwingtypeAssessment() {
+      // Already purchased (non-consumable) - retaking is free, just tracked.
+      swingtypeStep = 1;
+      swingtypeAnswers = { a1: null, a2: null };
+      document.getElementById('swingtype-modal').classList.remove('hidden');
+      renderSwingtypeStep();
+    }
+
+    function closeSwingtypeAssessment() {
+      document.getElementById('swingtype-modal').classList.add('hidden');
+    }
+
+    function swingtypeStepBack() {
+      if (swingtypeStep > 1) { swingtypeStep--; renderSwingtypeStep(); }
+    }
+    function swingtypeStepNext() { swingtypeStep++; renderSwingtypeStep(); }
+
+    function swingtypeOptionBtn(label, sub, onclick) {
+      return `<button onclick="${onclick}" class="w-full min-h-touch p-3 bg-[var(--bg-card)] hover:bg-[var(--border-subtle)]/50 border border-[var(--border-subtle)] rounded-xl text-left transition-all flex items-center justify-between">
+        <div><div class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(label)}</div><div class="text-[11px] text-[var(--text-muted)]">${escapeHtml(sub)}</div></div>
+        <div class="w-5 h-5 rounded-full border border-[var(--border-subtle)]"></div>
+      </button>`;
+    }
+
+    function renderSwingtypeStep() {
+      document.getElementById('swingtype-step-badge').textContent = `Step ${swingtypeStep} of ${SWINGTYPE_TOTAL_STEPS}`;
+      document.getElementById('swingtype-progress-bar').style.width = (swingtypeStep / SWINGTYPE_TOTAL_STEPS * 100) + '%';
+      document.getElementById('swingtype-back-btn').classList.toggle('hidden', swingtypeStep === 1);
+      const body = document.getElementById('swingtype-modal-body');
+
+      if (swingtypeStep === 1) {
+        body.innerHTML = `
+          <div class="space-y-3">
+            <h3 class="text-sm font-black text-[var(--text-main)]">${escapeHtml(stLabel('swingtype_intro_title', 'Discover Your Biomechanical SwingType'))}</h3>
+            <p class="text-xs text-[var(--text-muted)]">${escapeHtml(stLabel('swingtype_intro_body', 'This screen maps your natural movement to one of 9 deterministic profiles.'))}</p>
+            ${renderSwingtypeVideoBlock('intro', 'Intro video guide')}
+            <button onclick="swingtypeStepNext()" class="w-full py-3 rounded-xl font-black text-xs touch-target theme-accent-bg">${escapeHtml(stLabel('swingtype_intro_cta', 'Begin Assessment'))}</button>
+          </div>`;
+      } else if (swingtypeStep === 2) {
+        body.innerHTML = `
+          <div class="space-y-3">
+            <h4 class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(stLabel('swingtype_q1_title', 'Q1: On your backswing, where do your arms fold?'))}</h4>
+            ${renderSwingtypeVideoBlock('q1', 'Fold-position video guide')}
+            <div class="space-y-2">
+              ${swingtypeOptionBtn(stLabel('swingtype_q1_opt_top_label', 'A. On Top'), stLabel('swingtype_q1_opt_top_sub', 'Flat/on-plane arm fold'), "chooseSwingtypeA1('TOP')")}
+              ${swingtypeOptionBtn(stLabel('swingtype_q1_opt_side_label', 'B. To the Side'), stLabel('swingtype_q1_opt_side_sub', 'Across the chest'), "chooseSwingtypeA1('SIDE')")}
+              ${swingtypeOptionBtn(stLabel('swingtype_q1_opt_under_label', 'C. Underneath'), stLabel('swingtype_q1_opt_under_sub', 'Steep, under the plane'), "chooseSwingtypeA1('UNDER')")}
+            </div>
+          </div>`;
+      } else if (swingtypeStep === 3) {
+        body.innerHTML = `
+          <div class="space-y-3">
+            <h4 class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(stLabel('swingtype_q2_title', 'Q2: Where does your lead hip sit at impact?'))}</h4>
+            ${renderSwingtypeVideoBlock('q2', 'Hip-post video guide')}
+            <div class="space-y-2">
+              ${swingtypeOptionBtn(stLabel('swingtype_q2_opt_front_label', 'A. Front Post'), stLabel('swingtype_q2_opt_front_sub', 'Cleared ahead of the ball'), "chooseSwingtypeA2('FRONT')")}
+              ${swingtypeOptionBtn(stLabel('swingtype_q2_opt_center_label', 'B. Center Post'), stLabel('swingtype_q2_opt_center_sub', 'Stacked over the ball'), "chooseSwingtypeA2('CENTER')")}
+              ${swingtypeOptionBtn(stLabel('swingtype_q2_opt_rear_label', 'C. Rear Post'), stLabel('swingtype_q2_opt_rear_sub', 'Hanging back'), "chooseSwingtypeA2('REAR')")}
+            </div>
+          </div>`;
+      } else if (swingtypeStep === 4) {
+        const id = calculateSwingBlueprint(swingtypeAnswers.a1, swingtypeAnswers.a2);
+        body.innerHTML = `
+          <div class="space-y-3 text-center py-4">
+            <div class="text-3xl">⛳</div>
+            <p class="text-xs text-[var(--text-muted)]">Calculating your Blueprint…</p>
+          </div>`;
+        setTimeout(() => { swingtypeStep = 5; renderSwingtypeStep(); }, 600);
+        return;
+      } else if (swingtypeStep === 5) {
+        const id = calculateSwingBlueprint(swingtypeAnswers.a1, swingtypeAnswers.a2);
+        document.getElementById('swingtype-back-btn').classList.add('hidden');
+        const title = stLabel(`swingtype_profile_${id}_title`, `Profile ${id}`);
+        const subtitle = stLabel(`swingtype_profile_${id}_subtitle`, '');
+        body.innerHTML = `
+          <div class="space-y-3 text-center py-2">
+            <div class="text-3xl">✅</div>
+            <h3 class="text-base font-black theme-accent-text">${escapeHtml(title)}</h3>
+            <p class="text-xs text-[var(--text-muted)]">${escapeHtml(subtitle)}</p>
+            <button onclick="finishSwingtypeAssessment(${id})" class="w-full py-3 rounded-xl font-black text-xs touch-target theme-accent-bg">Unlock My Lessons ➔</button>
+          </div>`;
+      }
+    }
+    function chooseSwingtypeA1(v) { swingtypeAnswers.a1 = v; swingtypeStepNext(); }
+    function chooseSwingtypeA2(v) { swingtypeAnswers.a2 = v; swingtypeStepNext(); }
+
+    async function finishSwingtypeAssessment(profileId) {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session || !currentSportId) { triggerToast('Something went wrong saving your profile - please retry.'); return; }
+      const { error } = await supabaseClient.from('user_sport_profiles').upsert({
+        user_id: session.user.id,
+        sport_id: currentSportId,
+        assessment_purchased: true,
+        assessment_profile_id: profileId,
+        assessment_completed_at: new Date().toISOString(),
+        assessment_retakes_used: (swingtypeUserState.retakesUsed || 0) + (swingtypeUserState.assessed ? 1 : 0),
+      }, { onConflict: 'user_id,sport_id' });
+      if (error) { triggerToast(`Could not save your profile: ${error.message}`); return; }
+      await loadSwingtypeUserState(currentSportId);
+      closeSwingtypeAssessment();
+      triggerToast('SwingType saved! Your lessons are unlocked. ⛳');
+      playSfx("A5", "8n");
+    }
+
     // Every sponsor container div exists in the DOM at all times (tabs
     // are just hidden/shown with CSS, never removed) - so refreshing
     // every slot here, once per sport change, keeps every tab correct
@@ -3045,7 +3428,6 @@
       if (triggerSound) {
         playSfx("A5", "16n");
       }
-      if (window.drawQuizCanvas) window.drawQuizCanvas();
     }
 
     function setFontScale(scale, triggerSound = false) {
@@ -3125,22 +3507,6 @@
 
     function activateLessonsSubtab() {
       toggleLessonsSubtab('lessons');
-    }
-
-    function selectQuizOption(card) {
-      document.querySelectorAll('.quiz-option-card').forEach(el => {
-        el.classList.remove('border-[var(--accent-main)]', 'theme-accent-subtle-bg');
-        el.querySelector('.quiz-check').classList.remove('theme-accent-bg');
-        el.querySelector('.quiz-check').classList.add('text-transparent');
-      });
-
-      card.classList.add('border-[var(--accent-main)]', 'theme-accent-subtle-bg');
-      const check = card.querySelector('.quiz-check');
-      check.classList.remove('text-transparent');
-      check.classList.add('theme-accent-bg');
-
-      playSfx("A4", "16n");
-      triggerToast('Diagnosis saved! Prescribed ST-04 drills updated.');
     }
 
     function selectFitnessQuizOption(card) {
@@ -3624,6 +3990,7 @@
         refreshAllSponsorPlacements();
         loadEducationEventsFrontend();
         loadSportSpecificLabels(effectiveSportId);
+        loadSwingtypeUserState(effectiveSportId);
         try {
           const { data: sport } = await supabaseClient
             .from('sport_verticals')
@@ -4768,76 +5135,11 @@
       loadHomeProVoicePreview();
     }
 
-    function initQuizCanvas() {
-      const canvas = document.getElementById('quiz-canvas-video');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      // Some browsers/extensions (canvas-fingerprinting protection in
-      // privacy-hardened browsers, certain ad blockers) can return null
-      // here instead of a real context. This is purely decorative, so
-      // just skip it rather than let it take anything else down.
-      if (!ctx) return;
-      let angle = 0;
-
-      function draw() {
-        canvas.width = canvas.clientWidth;
-        canvas.height = canvas.clientHeight;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        const cx = canvas.width / 2;
-        const cy = canvas.height / 2;
-
-        const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-main').trim() || '#10B981';
-
-        ctx.strokeStyle = accentColor;
-        ctx.lineWidth = 3;
-
-        ctx.beginPath();
-        ctx.arc(cx, cy - 30, 12, 0, Math.PI * 2);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(cx, cy - 18);
-        ctx.lineTo(cx + 10, cy + 30);
-        ctx.stroke();
-
-        const shoulderLength = 40;
-        const rad = (angle * Math.PI) / 180;
-        const x1 = cx + Math.cos(rad) * shoulderLength;
-        const y1 = cy + Math.sin(rad) * shoulderLength;
-        const x2 = cx - Math.cos(rad) * shoulderLength;
-        const y2 = cy - Math.sin(rad) * shoulderLength;
-
-        ctx.strokeStyle = '#7C3AED';
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
-
-        angle = (angle + 1) % 360;
-        requestAnimationFrame(draw);
-      }
-      window.drawQuizCanvas = draw;
-      draw();
-    }
-
-    let isVideoPlaying = false;
-    function toggleVideoPlayback() {
-      isVideoPlaying = !isVideoPlaying;
-      const btn = document.getElementById('quiz-play-btn');
-      if (isVideoPlaying) {
-        btn.innerText = 'PAUSE';
-        triggerToast("Playing Coaching Demonstration 🎥");
-      } else {
-        btn.innerText = 'PLAY';
-      }
-    }
-
     function initFitnessQuizCanvas() {
       const canvas = document.getElementById('fitness-quiz-canvas-video');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
-      if (!ctx) return; // see initQuizCanvas above for why this can legitimately be null
+      if (!ctx) return; // decorative canvas context can legitimately come back null in some browsers/extensions
       let angle = 0;
 
       function draw() {
@@ -4937,7 +5239,6 @@
       safeBootStep('setAccentPalette', () => setAccentPalette('emerald', false));
       safeBootStep('setFontScale', () => setFontScale(1, false));
       safeBootStep('switchTab', () => switchTab('tab-home'));
-      safeBootStep('initQuizCanvas', () => initQuizCanvas());
       safeBootStep('initFitnessQuizCanvas', () => initFitnessQuizCanvas());
       safeBootStep('validatePasswordRules', () => validatePasswordRules());
       // Note: Education tab content (loadEducationEventsFrontend / loadMyRegistrations)
@@ -4965,7 +5266,7 @@
         try {
           const { data: golfSport } = await supabaseClient
             .from('sport_verticals').select('sport_id').eq('slug', 'golf').single();
-          if (golfSport) { currentSportId = golfSport.sport_id; loadSportSpecificLabels(currentSportId); }
+          if (golfSport) { currentSportId = golfSport.sport_id; loadSportSpecificLabels(currentSportId); loadSwingtypeUserState(currentSportId); }
         } catch (e) {
           console.error('Could not default guest to Golf (non-fatal):', e);
         }
@@ -4983,6 +5284,7 @@
       safeBootStep('loadPodcastEmbed', () => loadMediaEmbed('podcast', 'podcast-iframe'));
       safeBootStep('loadGearEmbed', () => loadMediaEmbed('gear', 'gear-iframe'));
       safeBootStep('loadContentLabels', () => loadContentLabels());
+      safeBootStep('loadSwingtypeLabels', () => loadSwingtypeLabels());
       safeBootStep('renderSportSwitcherLabel', () => renderSportSwitcherLabel());
 
       // Register the service worker - makes the app installable and gives
