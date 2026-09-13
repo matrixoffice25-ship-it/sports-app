@@ -319,13 +319,13 @@
              from app_content_labels (key prefix swingtype_*), editable in
              the Admin Dashboard > SwingType tab. -->
         <!-- ================================================================= -->
-        <div id="cc-swing-unassessed" class="hidden bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border border-amber-500/40 shadow-xl space-y-3.5">
+        <div id="cc-swing-unassessed" class="hidden bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border border-violet-500/40 shadow-xl space-y-3.5">
           <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2.5">
             <div class="flex items-center gap-2">
               <span class="text-base">🧬</span>
-              <span id="cc-swing-eyebrow" class="text-xs font-black uppercase tracking-wider text-amber-400">Swing Profile Requirement</span>
+              <span id="cc-swing-eyebrow" class="text-xs font-black uppercase tracking-wider text-violet-300">Swing Profile Requirement</span>
             </div>
-            <span id="cc-swing-price" class="text-[11px] font-extrabold bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2.5 py-0.5 rounded-lg whitespace-nowrap ml-2">$19.00 One-Time</span>
+            <span id="cc-swing-price" class="text-[11px] font-extrabold bg-violet-500/15 text-violet-300 border border-violet-500/30 px-2.5 py-0.5 rounded-lg whitespace-nowrap ml-2">$19.00 One-Time</span>
           </div>
           <div class="space-y-1.5">
             <h3 id="cc-swing-title" class="text-base font-black text-[var(--text-main)] leading-snug">Discover Your Biomechanical SwingType</h3>
@@ -498,10 +498,10 @@
           <div id="les-gate-card" class="hidden bg-[var(--bg-surface)] p-4 sm:p-5 rounded-2xl border border-[var(--border-subtle)] shadow-2xl space-y-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <span class="text-amber-400 text-base">⚠️</span>
-                <span id="les-gate-eyebrow" class="text-xs font-black uppercase tracking-wider text-amber-400">Coaching Prerequisite</span>
+                <span class="text-violet-400 text-base">🔒</span>
+                <span id="les-gate-eyebrow" class="text-xs font-black uppercase tracking-wider text-violet-300">Coaching Prerequisite</span>
               </div>
-              <span id="les-gate-price" class="text-[11px] font-extrabold text-amber-300 bg-amber-500/15 border border-amber-500/30 px-3 py-1 rounded-full ml-2">$19.00 Assessment</span>
+              <span id="les-gate-price" class="text-[11px] font-extrabold text-violet-300 bg-violet-500/15 border border-violet-500/30 px-3 py-1 rounded-full ml-2">$19.00 Assessment</span>
             </div>
             <div class="space-y-1.5">
               <h3 id="les-gate-title" class="text-base sm:text-lg font-black text-[var(--text-main)] leading-snug">SwingType Required Prior to Lessons</h3>
@@ -510,8 +510,8 @@
             <div class="bg-[var(--bg-card-subtle)] p-3.5 rounded-xl border border-[var(--border-subtle)] space-y-2.5">
               <span class="text-xs font-bold text-[var(--text-main)] block">Two-Tier Pricing Architecture:</span>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div class="p-2.5 rounded-xl bg-[var(--bg-app)]/60 border border-amber-500/40 space-y-0.5">
-                  <span class="text-xs font-bold text-amber-400 block">1. SwingType Test</span>
+                <div class="p-2.5 rounded-xl bg-[var(--bg-app)]/60 border border-violet-500/40 space-y-0.5">
+                  <span class="text-xs font-bold text-violet-300 block">1. SwingType Test</span>
                   <span id="les-gate-tier1-sub" class="text-[11px] text-[var(--text-muted)] block">One-time diagnostic ($19)</span>
                 </div>
                 <div class="p-2.5 rounded-xl bg-[var(--bg-app)]/40 border border-[var(--border-subtle)] space-y-0.5">
@@ -520,7 +520,7 @@
                 </div>
               </div>
             </div>
-            <button onclick="openSwingtypeAssessment()" class="w-full py-3.5 px-4 rounded-2xl font-black text-xs sm:text-sm touch-target bg-[#FBBF24] hover:bg-amber-400 text-slate-950 shadow-xl transition-all flex items-center justify-center gap-2">
+            <button onclick="openSwingtypeAssessment()" class="w-full py-3.5 px-4 rounded-2xl font-black text-xs sm:text-sm touch-target bg-gradient-to-r from-violet-500 to-violet-600 hover:brightness-105 text-white shadow-xl transition-all flex items-center justify-center gap-2">
               <span id="les-gate-cta">Get Your SwingType Assessment</span><span>➔</span>
             </button>
           </div>
@@ -1374,9 +1374,9 @@
     <div id="swingtype-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all">
       <div class="w-full max-w-md bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-t-3xl sm:rounded-3xl p-5 space-y-4 shadow-2xl relative animate-slide-up max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-black uppercase tracking-wider text-amber-400">Diagnostic Assessment</span>
+          <span class="text-xs font-black uppercase tracking-wider text-violet-300">Diagnostic Assessment</span>
           <div class="flex items-center gap-2">
-            <span id="swingtype-step-badge" class="text-xs text-amber-400 font-bold bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">Step 1 of 5</span>
+            <span id="swingtype-step-badge" class="text-xs text-violet-300 font-bold bg-violet-500/10 px-2.5 py-1 rounded-full border border-violet-500/20">Step 1 of 5</span>
             <button onclick="closeSwingtypeAssessment()" class="w-8 h-8 rounded-full bg-[var(--bg-card)] text-[var(--text-muted)] flex items-center justify-center hover:text-[var(--text-main)] transition-colors" title="Close">✕</button>
           </div>
         </div>
@@ -2331,24 +2331,36 @@
       if (!sp) { el.innerHTML = ''; return; }
 
       const logo = sponsorLogoHtml(sp, 'h-3.5', 22);
+      // If the admin uploaded a logo/photo and left the label blank, the
+      // image fills the WHOLE badge instead of sharing space with a
+      // separate "eyebrow" text line - lets a full logo mark (e.g. a
+      // "Powered by X" lockup that's already baked into the image) stand
+      // on its own instead of getting a redundant second label next to it.
+      const imageFillsWholeSlot = !sp.eyebrow_label && sp.logo_image_url;
 
       if (def.variant === 'stacked') {
         // News magazine header: "POWERED BY" stacked above the logo.
-        el.innerHTML = `
+        el.innerHTML = imageFillsWholeSlot
+          ? `<img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="h-9 w-auto max-w-[130px] object-contain inline-block">`
+          : `
           <span class="text-xs text-[var(--text-muted)] block font-mono text-right">${escapeHtml(sp.eyebrow_label || 'POWERED BY')}</span>
           ${logo}
         `;
       } else if (def.variant === 'corner-logo') {
-        // Command Center Lessons/Fitness cards: a plain sponsor logo in a
-        // compact square box - this replaced the old fake progress gauge,
-        // so it's sized to sit in exactly the same spot (56x56px).
+        // Command Center Lessons/Fitness cards: a sponsor logo/photo in a
+        // compact square box, sized to sit in exactly the same spot
+        // (56x56px). object-cover so an uploaded photo fills the entire
+        // square edge-to-edge rather than being letterboxed with padding.
         el.innerHTML = sp.logo_image_url
-          ? `<img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="w-14 h-14 rounded-xl object-contain bg-[var(--bg-app)] border border-[var(--border-subtle)] p-1.5">`
+          ? `<img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="w-14 h-14 rounded-xl object-cover bg-[var(--bg-app)] border border-[var(--border-subtle)]">`
           : `<div class="w-14 h-14 rounded-xl bg-[var(--bg-app)] border border-[var(--border-subtle)] flex items-center justify-center p-1.5">${pulseLogoSvg(sp.logo_text, sp.logo_color, 'h-6')}</div>`;
       } else if (def.variant === 'pill') {
         // Pro Voice Stream / Polls / Multi-Sport: a small bordered pill
-        // with logo + label.
-        el.innerHTML = `
+        // with logo + label - or, with no label set, just the image sized
+        // to the same pill footprint.
+        el.innerHTML = imageFillsWholeSlot
+          ? `<img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="h-8 rounded-xl object-contain">`
+          : `
           <div class="flex items-center gap-1 bg-red-950/40 border border-red-500/30 px-2 py-1 rounded-xl">
             ${sponsorLogoHtml(sp, 'h-3', 18)}
             <span class="text-xs font-bold text-red-300 uppercase">${escapeHtml(sp.eyebrow_label || 'Supporter')}</span>
@@ -2356,8 +2368,11 @@
         `;
       } else {
         // 'header' variant - Equipment/Podcast: eyebrow label above the
-        // logo, right-aligned in the card header.
-        el.innerHTML = `
+        // logo, right-aligned in the card header - or just a larger image
+        // alone when there's no label to pair it with.
+        el.innerHTML = imageFillsWholeSlot
+          ? `<img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="h-10 w-auto max-w-[150px] object-contain inline-block">`
+          : `
           <div class="text-right">
             <span class="text-xs font-mono text-[var(--text-muted)] block uppercase">${escapeHtml(sp.eyebrow_label || '')}</span>
             ${logo}
@@ -2873,7 +2888,20 @@
       }
     }
 
+    // Retake limit - configurable from Admin > SwingType > Testing & Access
+    // Controls. "Unlimited" is meant for pre-launch testing; the numeric
+    // max (default 3) is what applies once that's turned off.
+    function swingtypeRetakesRemaining() {
+      if (stLabel('swingtype_unlimited_retakes', 'false') === 'true') return Infinity;
+      const max = parseInt(stLabel('swingtype_max_retakes', '3'), 10) || 3;
+      return max - (swingtypeUserState.retakesUsed || 0);
+    }
+
     async function retakeSwingtypeAssessment() {
+      if (swingtypeRetakesRemaining() <= 0) {
+        triggerToast("You've used all your free retakes for this assessment. Contact support if you need another.");
+        return;
+      }
       // Already purchased/entitled (non-consumable) - retaking is free, just tracked.
       swingtypeStep = 1;
       swingtypeAnswers = { a1: null, a2: null, a3: null, a4: null, a5: null };
@@ -2942,7 +2970,7 @@
           <div class="space-y-3 text-sm text-[var(--text-main)] leading-relaxed">
             ${paragraph1 ? `<p>${paragraph1}</p>` : ''}
             ${paragraph2 ? `<p>${paragraph2}</p>` : ''}
-            ${frontInstruction ? `<p class="text-amber-400 text-xs">⚠ ${escapeHtml(frontInstruction)}</p>` : ''}
+            ${frontInstruction ? `<p class="text-rose-400 text-xs">⚠ ${escapeHtml(frontInstruction)}</p>` : ''}
             ${naturalDepth ? `<p>Natural depth: ${escapeHtml(naturalDepth)}.</p>` : `<p class="text-[var(--text-faint)] text-xs italic">Natural depth guidance for this shoulder-mobility level is pending from the coaching team.</p>`}
           </div>
         </div>`;
