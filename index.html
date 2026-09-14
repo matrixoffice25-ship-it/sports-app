@@ -755,42 +755,15 @@
                 <div id="gear-recommendation-subtitle" class="text-sm text-[var(--text-muted)]">Not yet assessed</div>
               </div>
             </div>
-            <button onclick="triggerToast('Filters updated')" class="min-h-touch text-sm text-[var(--text-muted)] underline">Reset</button>
+            <button id="gear-reset-btn" onclick="handleGearRecommendationReset()" class="min-h-touch text-sm text-[var(--text-muted)] underline">Take Assessment</button>
           </div>
 
-          <div id="gear-match-cards" class="space-y-2 hidden">
-            <div class="bg-[var(--bg-card)] p-3 rounded-xl border border-[var(--border-subtle)] flex items-center justify-between">
-              <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-lg overflow-hidden border border-slate-700 bg-slate-800 flex-shrink-0">
-                  <img src="https://images.unsplash.com/photo-1593111774240-d529f12cf4bb?w=100&auto=format&fit=crop&q=80" alt="Golf Shaft" class="w-full h-full object-cover">
-                </div>
-                <div>
-                  <div class="text-xs font-bold text-[var(--text-main)]">Fujikura Ventus Blue TR 6X</div>
-                  <div class="text-sm text-[var(--text-muted)]">Official Shaft Partner: Tour Spec Stiff Tip</div>
-                </div>
-              </div>
-              <div class="text-right">
-                <div class="text-xs font-black theme-accent-text">98% Match</div>
-                <div class="text-xs text-[var(--text-muted)]">Stiffness</div>
-              </div>
-            </div>
-
-            <div class="bg-[var(--bg-card)] p-3 rounded-xl border border-[var(--border-subtle)] flex items-center justify-between">
-              <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-lg overflow-hidden border border-slate-700 bg-slate-800 flex-shrink-0">
-                  <img src="https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=100&auto=format&fit=crop&q=80" alt="Driver Head" class="w-full h-full object-cover">
-                </div>
-                <div>
-                  <div class="text-xs font-bold text-[var(--text-main)]">Titleist TSR3 9.0° Driver Head</div>
-                  <div class="text-sm text-[var(--text-muted)]">Hardware Fitting Partner: CG Heel Bias</div>
-                </div>
-              </div>
-              <div class="text-right">
-                <div class="text-xs font-black theme-accent-text">94% Match</div>
-                <div class="text-xs text-[var(--text-muted)]">Optimal Launch</div>
-              </div>
-            </div>
-          </div>
+          <!-- Populated live by renderGearRecommendations() from
+               swingtype_profile_<n>_gear1_*/gear2_* CMS fields - no
+               hardcoded product names, photos, or match percentages.
+               Real brand names/photos here need to be true, or App
+               Store/Play Store review will flag them as misleading. -->
+          <div id="gear-match-cards" class="space-y-2 hidden"></div>
 
           <div id="gear-not-assessed-notice" class="bg-[var(--bg-app)] border border-dashed border-[var(--border-subtle)] p-4 rounded-xl text-center">
             <p id="gear-not-assessed-notice-text" class="text-xs text-[var(--text-muted)]">Personalized gear matches unlock once your SwingType assessment is complete.</p>
@@ -2323,6 +2296,15 @@
       triggerToast(`Opening ${sponsorName || 'sponsor'} offer…`);
     }
 
+    // Builds an inline size style from admin-set badge_width_px/badge_height_px,
+    // falling back to a given default. Bigger defaults than before across the
+    // board per feedback that every sponsor badge read as too small.
+    function badgeSizeStyle(sp, defaultW, defaultH) {
+      const w = sp.badge_width_px || defaultW;
+      const h = sp.badge_height_px || defaultH;
+      return `width:${w}px; height:${h}px;`;
+    }
+
     async function renderSponsorBadge(key, containerId, explicitSportId) {
       const el = document.getElementById(containerId);
       if (!el) return;
@@ -2340,29 +2322,31 @@
 
       if (def.variant === 'stacked') {
         // News magazine header: "POWERED BY" stacked above the logo.
+        const s = badgeSizeStyle(sp, 140, 40);
         el.innerHTML = imageFillsWholeSlot
-          ? `<img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="h-9 w-auto max-w-[130px] object-contain inline-block">`
+          ? `<img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="object-contain inline-block" style="${s} max-width:100%;">`
           : `
           <span class="text-xs text-[var(--text-muted)] block font-mono text-right">${escapeHtml(sp.eyebrow_label || 'POWERED BY')}</span>
           ${logo}
         `;
       } else if (def.variant === 'corner-logo') {
-        // Command Center Lessons/Fitness cards: a sponsor logo/photo in a
-        // compact square box, sized to sit in exactly the same spot
-        // (56x56px). object-cover so an uploaded photo fills the entire
-        // square edge-to-edge rather than being letterboxed with padding.
+        // Command Center Lessons/Fitness cards: a sponsor logo/photo box,
+        // object-cover so an uploaded photo fills it edge-to-edge rather
+        // than being letterboxed. Bigger default (80px) than before (56px).
+        const s = badgeSizeStyle(sp, 80, 80);
         el.innerHTML = sp.logo_image_url
-          ? `<img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="w-14 h-14 rounded-xl object-cover bg-[var(--bg-app)] border border-[var(--border-subtle)]">`
-          : `<div class="w-14 h-14 rounded-xl bg-[var(--bg-app)] border border-[var(--border-subtle)] flex items-center justify-center p-1.5">${pulseLogoSvg(sp.logo_text, sp.logo_color, 'h-6')}</div>`;
+          ? `<img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="rounded-xl object-cover bg-[var(--bg-app)] border border-[var(--border-subtle)]" style="${s}">`
+          : `<div class="rounded-xl bg-[var(--bg-app)] border border-[var(--border-subtle)] flex items-center justify-center p-1.5" style="${s}">${pulseLogoSvg(sp.logo_text, sp.logo_color, 'h-6')}</div>`;
       } else if (def.variant === 'pill') {
-        // Pro Voice Stream / Polls / Multi-Sport: a small bordered pill
-        // with logo + label - or, with no label set, just the image sized
-        // to the same pill footprint.
+        // Pro Voice Stream / Polls / Multi-Sport: a bordered pill with
+        // logo + label - or, with no label set, just the image at its
+        // configured (or default, bigger-than-before) size.
+        const s = badgeSizeStyle(sp, 120, 36);
         el.innerHTML = imageFillsWholeSlot
-          ? `<img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="h-8 rounded-xl object-contain">`
+          ? `<img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="rounded-xl object-contain" style="${s}">`
           : `
-          <div class="flex items-center gap-1 bg-red-950/40 border border-red-500/30 px-2 py-1 rounded-xl">
-            ${sponsorLogoHtml(sp, 'h-3', 18)}
+          <div class="flex items-center gap-1.5 bg-red-950/40 border border-red-500/30 px-2.5 py-1.5 rounded-xl">
+            ${sponsorLogoHtml(sp, 'h-4', 24)}
             <span class="text-xs font-bold text-red-300 uppercase">${escapeHtml(sp.eyebrow_label || 'Supporter')}</span>
           </div>
         `;
@@ -2370,8 +2354,9 @@
         // 'header' variant - Equipment/Podcast: eyebrow label above the
         // logo, right-aligned in the card header - or just a larger image
         // alone when there's no label to pair it with.
+        const s = badgeSizeStyle(sp, 160, 44);
         el.innerHTML = imageFillsWholeSlot
-          ? `<img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="h-10 w-auto max-w-[150px] object-contain inline-block">`
+          ? `<img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="object-contain inline-block" style="${s} max-width:100%;">`
           : `
           <div class="text-right">
             <span class="text-xs font-mono text-[var(--text-muted)] block uppercase">${escapeHtml(sp.eyebrow_label || '')}</span>
@@ -2379,6 +2364,13 @@
           </div>
         `;
       }
+    }
+
+    // Wraps banner markup with an admin-configurable max-width. Leave
+    // banner_max_width_px unset for the normal full-width behavior.
+    function withBannerWidth(sp, innerHtml) {
+      if (!sp.banner_max_width_px) return innerHtml;
+      return `<div style="max-width:${sp.banner_max_width_px}px; margin:0 auto;">${innerHtml}</div>`;
     }
 
     async function renderSponsorBanner(key, containerId, explicitSportId) {
@@ -2398,8 +2390,8 @@
       if (def.variant === 'strip') {
         const stripMaxH = sp.banner_max_height_px || 64;
         el.innerHTML = sp.banner_image_url
-          ? `<img src="${sp.banner_image_url}" alt="" onerror="this.style.display='none'" class="w-full block cursor-pointer" ${ctaAttr} style="max-height:${stripMaxH}px; object-fit:cover;">`
-          : `
+          ? withBannerWidth(sp, `<img src="${sp.banner_image_url}" alt="" onerror="this.style.display='none'" class="w-full block cursor-pointer" ${ctaAttr} style="max-height:${stripMaxH}px; object-fit:cover;">`)
+          : withBannerWidth(sp, `
             <div class="bg-gradient-to-r from-red-950/90 via-slate-900 to-red-950/90 border-b border-red-500/30 px-5 py-3 flex items-center justify-between shadow-md cursor-pointer" ${ctaAttr}>
               <div class="flex items-center space-x-3">
                 ${sponsorLogoHtml(sp, 'h-6', 34)}
@@ -2407,24 +2399,21 @@
               </div>
               <span class="text-sm font-mono font-bold text-red-300 bg-red-500/25 px-2 py-1 rounded border border-red-500/40">SPONSORED</span>
             </div>
-          `;
+          `);
         return;
       }
 
       // A full custom banner image replaces the generated card layout
-      // entirely. FIX: this had no height cap at all, so an uploaded
-      // photo rendered at its native size and could dwarf every other
-      // banner in the app (which are all compact, logo+text cards). Now
-      // every uploaded banner is capped to a consistent height - admins
-      // can adjust it per placement with the "Banner display height"
-      // field in the Sponsors tab.
+      // entirely. Height is capped so an uploaded photo never dwarfs the
+      // rest of the app; width is optional (blank = full width) - both
+      // adjustable per placement from the Sponsors tab.
       if (sp.banner_image_url) {
         const maxH = sp.banner_max_height_px || 140; // default matches the app's normal banner scale
-        el.innerHTML = `<img src="${sp.banner_image_url}" alt="" onerror="this.style.display='none'" class="w-full rounded-xl cursor-pointer object-cover" style="max-height:${maxH}px;" ${ctaAttr}>`;
+        el.innerHTML = withBannerWidth(sp, `<img src="${sp.banner_image_url}" alt="" onerror="this.style.display='none'" class="w-full rounded-xl cursor-pointer object-cover" style="max-height:${maxH}px;" ${ctaAttr}>`);
         return;
       }
 
-      el.innerHTML = `
+      el.innerHTML = withBannerWidth(sp, `
         <div class="bg-gradient-to-r from-red-950/40 via-[var(--bg-app)] to-[var(--bg-surface)] p-3 rounded-xl border border-red-500/30 space-y-2">
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-2">
@@ -2440,7 +2429,7 @@
             <span>${escapeHtml(sp.cta_label || 'Learn More')}</span>
           </button>
         </div>
-      `;
+      `);
     }
 
     // Shows & Gear: both the Podcast and Equipment/Gear video iframes
@@ -2732,6 +2721,7 @@
       toggle('cc-swing-assessed', assessed);
       toggle('les-gate-card', !assessed);
       toggle('les-assessed-wrap', assessed);
+      renderGearRecommendations();
       if (!assessed) return;
 
       const id = swingtypeUserState.profileId;
@@ -2778,6 +2768,75 @@
             </div>
           </div>`;
       }
+    }
+
+    // Shows & Gear tab - "Recommended for your SwingType". Previously this
+    // whole block was dead: the match cards were permanently hidden with
+    // fabricated match percentages and real brand names glued to generic
+    // stock photos (an App Store/Play Store misleading-content risk), and
+    // "Reset" was a fake toast. Now it's driven entirely by real state
+    // (swingtypeUserState) and real CMS content (swingtype_profile_<n>_gear*),
+    // same editable pattern as the lesson curriculum. Blank fields mean the
+    // admin hasn't filled that profile in yet - shown as "coming soon",
+    // never invented.
+    function renderGearRecommendations() {
+      const subtitleEl = document.getElementById('gear-recommendation-subtitle');
+      const cardsEl = document.getElementById('gear-match-cards');
+      const noticeEl = document.getElementById('gear-not-assessed-notice');
+      const noticeTextEl = document.getElementById('gear-not-assessed-notice-text');
+      const resetBtn = document.getElementById('gear-reset-btn');
+      if (!subtitleEl || !cardsEl || !noticeEl) return;
+
+      if (!swingtypeUserState.assessed) {
+        subtitleEl.textContent = 'Not yet assessed';
+        cardsEl.classList.add('hidden');
+        cardsEl.innerHTML = '';
+        noticeEl.classList.remove('hidden');
+        noticeTextEl.textContent = stLabel('swingtype_gear_notice_unassessed', 'Personalized gear matches unlock once your SwingType assessment is complete.');
+        if (resetBtn) resetBtn.textContent = 'Take Assessment';
+        return;
+      }
+
+      const id = swingtypeUserState.profileId;
+      subtitleEl.textContent = `Profile ${id} — ${SWINGTYPE_FOLD_LABEL[swingtypeUserState.a1] || ''} + ${SWINGTYPE_POST_LABEL[swingtypeUserState.a2] || ''}`;
+      if (resetBtn) resetBtn.textContent = 'Retake';
+
+      const items = [1, 2].map(n => ({
+        name: stLabel(`swingtype_profile_${id}_gear${n}_name`, ''),
+        sub: stLabel(`swingtype_profile_${id}_gear${n}_sub`, ''),
+        match: stLabel(`swingtype_profile_${id}_gear${n}_match_label`, ''),
+        image: stLabel(`swingtype_profile_${id}_gear${n}_image_url`, ''),
+      })).filter(g => g.name);
+
+      if (!items.length) {
+        cardsEl.classList.add('hidden');
+        cardsEl.innerHTML = '';
+        noticeEl.classList.remove('hidden');
+        noticeTextEl.textContent = stLabel('swingtype_gear_notice_empty', 'Gear picks for your profile are coming soon.');
+        return;
+      }
+
+      noticeEl.classList.add('hidden');
+      cardsEl.classList.remove('hidden');
+      cardsEl.innerHTML = items.map(g => `
+        <div class="bg-[var(--bg-card)] p-3 rounded-xl border border-[var(--border-subtle)] flex items-center justify-between gap-2">
+          <div class="flex items-center space-x-3 min-w-0">
+            <div class="w-10 h-10 rounded-lg overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-app)] flex-shrink-0">
+              ${g.image ? `<img src="${escapeHtml(g.image)}" alt="" onerror="this.style.display='none'" class="w-full h-full object-cover">` : ''}
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-[var(--text-main)] truncate">${escapeHtml(g.name)}</div>
+              <div class="text-sm text-[var(--text-muted)] truncate">${escapeHtml(g.sub)}</div>
+            </div>
+          </div>
+          ${g.match ? `<div class="text-right flex-shrink-0"><div class="text-xs font-black theme-accent-text">${escapeHtml(g.match)}</div></div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function handleGearRecommendationReset() {
+      if (swingtypeUserState.assessed) { retakeSwingtypeAssessment(); }
+      else { openSwingtypeAssessment(); }
     }
 
     // --- Payment handler ---
