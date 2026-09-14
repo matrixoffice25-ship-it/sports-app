@@ -357,7 +357,7 @@
           </div>
           <div class="flex items-center justify-between">
             <button onclick="retakeSwingtypeAssessment()" id="cc-swing-retake-label" class="text-xs text-[var(--text-muted)] hover:text-[var(--text-main)] underline font-semibold">Retake Screen</button>
-            <button onclick="deleteMySwingtypeAssessment()" class="text-xs text-red-400/70 hover:text-red-400 underline font-semibold">Delete Assessment</button>
+            <button onclick="deleteMySwingtypeAssessment()" id="cc-swing-delete-label" class="text-xs text-red-400/70 hover:text-red-400 underline font-semibold">Delete Assessment</button>
           </div>
         </div>
 
@@ -545,7 +545,7 @@
               </div>
               <div class="flex items-center gap-3 ml-2 flex-shrink-0">
                 <button onclick="retakeSwingtypeAssessment()" id="les-retake-label" class="text-xs text-[var(--text-muted)] hover:text-[var(--text-main)] underline font-semibold">Retake Screen</button>
-                <button onclick="deleteMySwingtypeAssessment()" class="text-xs text-red-400/70 hover:text-red-400 underline font-semibold">Delete</button>
+                <button onclick="deleteMySwingtypeAssessment()" id="les-delete-label" class="text-xs text-red-400/70 hover:text-red-400 underline font-semibold">Delete</button>
               </div>
             </div>
 
@@ -2323,58 +2323,45 @@
       const sp = await fetchSponsorPlacementForSport(key, explicitSportId !== undefined ? explicitSportId : currentSportId);
       if (!sp) { el.innerHTML = ''; return; }
 
-      const logo = sponsorLogoHtml(sp, 'h-3.5', 22);
-      // Same unconditional rule the banners already use: if an image is
-      // uploaded, it wins and replaces the WHOLE block - full stop. This
-      // does NOT depend on whether a label/eyebrow text is also set (that
-      // was the bug: it only worked when the label was blank, so any row
-      // with leftover label text kept showing the old tiny logo instead).
-      const imageFillsWholeSlot = !!sp.logo_image_url;
+      // The frame is ALWAYS a real, visible bordered block - the same
+      // fixed size whether it's currently showing placeholder text/logo
+      // or a fully uploaded photo. Uploading an image just fills this
+      // exact frame edge-to-edge; nothing about the box's size, border,
+      // or position changes. This is what makes it predictable: admins
+      // see the block they're filling before they ever upload anything.
+      const defaultSizeByVariant = { stacked: [180, 72], 'corner-logo': [80, 80], pill: [180, 64], header: [220, 88] };
+      const [defW, defH] = defaultSizeByVariant[def.variant] || [180, 72];
+      const s = badgeSizeStyle(sp, defW, defH);
 
-      if (imageFillsWholeSlot) {
-        // One shared "whole block" frame for every badge variant - matches
-        // the bordered-card look every banner in the app already uses.
-        // Sized to actually read as a real block, not a small icon.
-        const defaultSizeByVariant = { stacked: [180, 72], 'corner-logo': [80, 80], pill: [180, 64], header: [220, 88] };
-        const [defW, defH] = defaultSizeByVariant[def.variant] || [180, 72];
-        const s = badgeSizeStyle(sp, defW, defH);
-        el.innerHTML = `<div class="rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-app)]" style="${s}">
-          <img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="w-full h-full object-cover">
-        </div>`;
-        return;
-      }
-
-      if (def.variant === 'stacked') {
+      let inner;
+      if (sp.logo_image_url) {
+        inner = `<img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="w-full h-full object-cover">`;
+      } else if (def.variant === 'stacked') {
         // News magazine header: "POWERED BY" stacked above the logo.
-        el.innerHTML = `
-          <span class="text-xs text-[var(--text-muted)] block font-mono text-right">${escapeHtml(sp.eyebrow_label || 'POWERED BY')}</span>
-          ${logo}
-        `;
+        inner = `<div class="w-full h-full flex flex-col items-center justify-center gap-1 px-2">
+          <span class="text-xs text-[var(--text-muted)] font-mono uppercase">${escapeHtml(sp.eyebrow_label || 'POWERED BY')}</span>
+          ${sponsorLogoHtml(sp, 'h-5', 30)}
+        </div>`;
       } else if (def.variant === 'corner-logo') {
-        // Command Center Lessons/Fitness cards: no image uploaded yet, so
-        // fall back to the generated text-in-a-pill logo. (An uploaded
-        // image is already handled by the whole-block path above.)
-        const s = badgeSizeStyle(sp, 80, 80);
-        el.innerHTML = `<div class="rounded-xl bg-[var(--bg-app)] border border-[var(--border-subtle)] flex items-center justify-center p-1.5" style="${s}">${pulseLogoSvg(sp.logo_text, sp.logo_color, 'h-6')}</div>`;
+        // Command Center Lessons/Fitness cards.
+        inner = `<div class="w-full h-full flex items-center justify-center p-1.5">${pulseLogoSvg(sp.logo_text, sp.logo_color, 'h-6')}</div>`;
       } else if (def.variant === 'pill') {
-        // Pro Voice Stream / Polls / Multi-Sport: a bordered pill with
-        // logo + label.
-        el.innerHTML = `
-          <div class="flex items-center gap-1.5 bg-red-950/40 border border-red-500/30 px-2.5 py-1.5 rounded-xl">
-            ${sponsorLogoHtml(sp, 'h-4', 24)}
-            <span class="text-xs font-bold text-red-300 uppercase">${escapeHtml(sp.eyebrow_label || 'Supporter')}</span>
-          </div>
-        `;
+        // Pro Voice Stream / Polls / Multi-Sport.
+        inner = `<div class="w-full h-full flex items-center justify-center gap-1.5 px-2">
+          ${sponsorLogoHtml(sp, 'h-4', 24)}
+          <span class="text-xs font-bold text-red-300 uppercase">${escapeHtml(sp.eyebrow_label || 'Supporter')}</span>
+        </div>`;
       } else {
-        // 'header' variant - Equipment/Podcast: eyebrow label above the
-        // logo, right-aligned in the card header.
-        el.innerHTML = `
-          <div class="text-right">
-            <span class="text-xs font-mono text-[var(--text-muted)] block uppercase">${escapeHtml(sp.eyebrow_label || '')}</span>
-            ${logo}
-          </div>
-        `;
+        // 'header' variant - Equipment/Podcast card header.
+        inner = `<div class="w-full h-full flex flex-col items-center justify-center gap-1 px-2 text-center">
+          <span class="text-xs font-mono text-[var(--text-muted)] uppercase">${escapeHtml(sp.eyebrow_label || 'Sponsor')}</span>
+          ${sponsorLogoHtml(sp, 'h-5', 30)}
+        </div>`;
       }
+
+      const borderClass = def.variant === 'pill' ? 'border-red-500/30' : 'border-[var(--border-subtle)]';
+      const bgClass = def.variant === 'pill' ? 'bg-red-950/40' : 'bg-[var(--bg-app)]';
+      el.innerHTML = `<div class="rounded-xl overflow-hidden border ${borderClass} ${bgClass}" style="${s}">${inner}</div>`;
     }
 
     // Wraps banner markup with an admin-configurable max-width. Leave
@@ -2653,6 +2640,7 @@
       setT('cc-swing-body', 'swingtype_cc_body', 'To ensure every lesson and drill is tailored to your natural body mechanics, complete your physical movement assessment before booking or purchasing golf coaching.');
       setT('cc-swing-cta', 'swingtype_cc_cta', 'Unlock & Start Assessment');
       setT('cc-swing-retake-label', 'swingtype_retake_label', 'Retake Screen');
+      setT('cc-swing-delete-label', 'swingtype_delete_label', 'Delete Assessment');
       setT('les-gate-eyebrow', 'swingtype_gate_eyebrow', 'Coaching Prerequisite');
       setT('les-gate-price', 'swingtype_gate_price', '$19.00 Assessment');
       setT('les-gate-title', 'swingtype_gate_title', 'SwingType Required Prior to Lessons');
@@ -2661,6 +2649,7 @@
       setT('les-gate-tier2-sub', 'swingtype_gate_tier2_sub', 'Subscription or à la carte');
       setT('les-gate-cta', 'swingtype_gate_cta', 'Get Your SwingType Assessment');
       setT('les-retake-label', 'swingtype_retake_label', 'Retake Screen');
+      setT('les-delete-label', 'swingtype_delete_label', 'Delete');
       setT('les-curric-price', 'swingtype_curric_price', '$49/mo Active');
     }
 
@@ -3296,6 +3285,21 @@
         const el = document.getElementById(id);
         if (el) el.src = url;
       });
+    }
+
+    // Mirrors setAllAvatars() above - one place that updates every on-screen
+    // spot showing the logged-in user's own name, so a profile edit can
+    // never update the database but leave some other visible copy stale.
+    // Called both right after a save (with the freshly-typed value) and
+    // during login/session load (with the value freshly re-fetched from
+    // Supabase) - same helper either way, single source of truth.
+    function setAllDisplayNames(name) {
+      ['welcome-username', 'overview-user-name'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = name;
+      });
+      const inputEl = document.getElementById('input-name');
+      if (inputEl) inputEl.value = name;
     }
 
     // ============================================================
@@ -4275,9 +4279,14 @@
         }
 
         currentUser.name = nameVal;
-        const welcomeNameEl = document.getElementById('welcome-username');
-        if (welcomeNameEl) welcomeNameEl.innerText = nameVal;
-        document.getElementById('overview-user-name').innerText = nameVal;
+        setAllDisplayNames(nameVal);
+        // pro_posts only stores author_id (never a copy of the name/photo),
+        // so the database is already 100% correct the instant users.display_name
+        // is updated above - but if the Pro Voice feed is already rendered
+        // on screen from before this edit, its HTML was built with the old
+        // name and won't know to update itself. Re-render it now so this
+        // session matches too, not just the next page load.
+        if (currentTab === 'tab-stream') loadProFeed();
         closeProfileModal();
         triggerToast(`✅ Your profile changes have been saved successfully.`);
         return;
@@ -4407,10 +4416,7 @@
         }
       }
 
-      const welcomeNameEl = document.getElementById('welcome-username');
-      if (welcomeNameEl) welcomeNameEl.innerText = displayName;
-      document.getElementById('overview-user-name').innerText = displayName;
-      document.getElementById('input-name').value = displayName;
+      setAllDisplayNames(displayName);
       document.getElementById('input-title').value = profile?.title || '';
       if (profile?.title) {
         document.getElementById('verification-fields').classList.remove('hidden');
