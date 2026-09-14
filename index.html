@@ -2324,18 +2324,19 @@
       if (!sp) { el.innerHTML = ''; return; }
 
       const logo = sponsorLogoHtml(sp, 'h-3.5', 22);
-      // If the admin uploaded a logo/photo and left the label blank, the
-      // image REPLACES the badge entirely - same "whole block, one photo"
-      // behavior as the banner placements: a real bordered frame, with the
-      // image filling it edge-to-edge (object-cover), not just a bigger
-      // floating logo next to leftover text.
-      const imageFillsWholeSlot = !sp.eyebrow_label && sp.logo_image_url;
+      // Same unconditional rule the banners already use: if an image is
+      // uploaded, it wins and replaces the WHOLE block - full stop. This
+      // does NOT depend on whether a label/eyebrow text is also set (that
+      // was the bug: it only worked when the label was blank, so any row
+      // with leftover label text kept showing the old tiny logo instead).
+      const imageFillsWholeSlot = !!sp.logo_image_url;
 
       if (imageFillsWholeSlot) {
         // One shared "whole block" frame for every badge variant - matches
         // the bordered-card look every banner in the app already uses.
-        const defaultSizeByVariant = { stacked: [140, 56], 'corner-logo': [80, 80], pill: [140, 48], header: [160, 56] };
-        const [defW, defH] = defaultSizeByVariant[def.variant] || [120, 48];
+        // Sized to actually read as a real block, not a small icon.
+        const defaultSizeByVariant = { stacked: [180, 72], 'corner-logo': [80, 80], pill: [180, 64], header: [220, 88] };
+        const [defW, defH] = defaultSizeByVariant[def.variant] || [180, 72];
         const s = badgeSizeStyle(sp, defW, defH);
         el.innerHTML = `<div class="rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-app)]" style="${s}">
           <img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="w-full h-full object-cover">
@@ -2350,13 +2351,11 @@
           ${logo}
         `;
       } else if (def.variant === 'corner-logo') {
-        // Command Center Lessons/Fitness cards: a sponsor logo/photo box,
-        // object-cover so an uploaded photo fills it edge-to-edge rather
-        // than being letterboxed. Bigger default (80px) than before (56px).
+        // Command Center Lessons/Fitness cards: no image uploaded yet, so
+        // fall back to the generated text-in-a-pill logo. (An uploaded
+        // image is already handled by the whole-block path above.)
         const s = badgeSizeStyle(sp, 80, 80);
-        el.innerHTML = sp.logo_image_url
-          ? `<img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="rounded-xl object-cover bg-[var(--bg-app)] border border-[var(--border-subtle)]" style="${s}">`
-          : `<div class="rounded-xl bg-[var(--bg-app)] border border-[var(--border-subtle)] flex items-center justify-center p-1.5" style="${s}">${pulseLogoSvg(sp.logo_text, sp.logo_color, 'h-6')}</div>`;
+        el.innerHTML = `<div class="rounded-xl bg-[var(--bg-app)] border border-[var(--border-subtle)] flex items-center justify-center p-1.5" style="${s}">${pulseLogoSvg(sp.logo_text, sp.logo_color, 'h-6')}</div>`;
       } else if (def.variant === 'pill') {
         // Pro Voice Stream / Polls / Multi-Sport: a bordered pill with
         // logo + label.
