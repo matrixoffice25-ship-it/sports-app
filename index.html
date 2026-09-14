@@ -212,7 +212,7 @@
         </div>
       </div>
 
-      <!-- TOP NAV: 4 of 7 tabs — single line, stacked icon/label -->
+      <!-- TOP NAV ROW 1 of 2: content tabs -->
       <nav class="flex items-stretch gap-1 px-1.5 py-1 border-t border-[var(--border-subtle)] bg-[var(--nav-bar-sub)] transition-colors">
         <button onclick="switchTab('tab-news')" id="nav-tab-news" class="nav-btn flex-1 min-w-0 py-1.5 rounded-xl text-xs font-semibold flex flex-col items-center gap-0.5 transition-all text-[var(--text-muted)] hover:text-[var(--text-main)] touch-target">
           
@@ -235,28 +235,33 @@
           <span class="truncate">Shows & Gear</span>
         </button>
       </nav>
+
+      <!-- TOP NAV ROW 2 of 2: previously a separate bar fixed to the
+           BOTTOM of the screen - people were missing Multi-Sport,
+           Command Center and Education entirely because they lived in a
+           different, easy-to-overlook spot from the other 4 tabs. Now
+           both rows sit together at the top, nothing scrollable, nothing
+           floating over content. -->
+      <nav class="flex items-stretch gap-1 px-1.5 py-1 border-t border-[var(--border-subtle)] bg-[var(--nav-bar-sub)] transition-colors">
+        <button onclick="switchTab('tab-selector')" id="nav-tab-selector" class="nav-btn flex-1 min-w-0 py-1.5 rounded-xl text-xs font-semibold flex flex-col items-center gap-0.5 transition-all text-[var(--text-muted)] hover:text-[var(--text-main)] touch-target">
+          
+          <span class="truncate">Multi-Sport</span>
+        </button>
+
+        <button onclick="switchTab('tab-home')" id="nav-tab-home" class="nav-btn flex-1 min-w-0 py-1.5 rounded-xl text-xs font-semibold flex flex-col items-center gap-0.5 transition-all theme-accent-text theme-accent-subtle-bg theme-accent-subtle-border border touch-target">
+          
+          <span class="truncate">Command Center</span>
+        </button>
+
+        <button onclick="switchTab('tab-market')" id="nav-tab-market" class="nav-btn flex-1 min-w-0 py-1.5 rounded-xl text-xs font-semibold flex flex-col items-center gap-0.5 transition-all text-[var(--text-muted)] hover:text-[var(--text-main)] touch-target">
+          
+          <span class="truncate">Education</span>
+        </button>
+      </nav>
     </header>
 
-    <!-- BOTTOM NAV: remaining 3 of 7 tabs -->
-    <nav class="fixed bottom-0 left-0 right-0 mx-auto max-w-lg flex items-stretch px-2 py-1.5 border-t border-[var(--border-subtle)] bg-[var(--nav-bar-bg)] backdrop-blur-md z-40">
-      <button onclick="switchTab('tab-selector')" id="nav-tab-selector" class="nav-btn flex-1 py-2 rounded-xl text-xs font-semibold flex flex-col items-center gap-1 transition-all text-[var(--text-muted)] hover:text-[var(--text-main)] touch-target">
-        
-        <span>Multi-Sport</span>
-      </button>
-
-      <button onclick="switchTab('tab-home')" id="nav-tab-home" class="nav-btn flex-1 py-2 rounded-xl text-xs font-semibold flex flex-col items-center gap-1 transition-all theme-accent-text theme-accent-subtle-bg theme-accent-subtle-border border touch-target">
-        
-        <span>Command Center</span>
-      </button>
-
-      <button onclick="switchTab('tab-market')" id="nav-tab-market" class="nav-btn flex-1 py-2 rounded-xl text-xs font-semibold flex flex-col items-center gap-1 transition-all text-[var(--text-muted)] hover:text-[var(--text-main)] touch-target">
-        
-        <span>Education</span>
-      </button>
-    </nav>
-
     <!-- Main Content Dynamic View Canvas -->
-    <main class="flex-1 p-4 pb-24 space-y-5 relative w-full" id="main-viewport">
+    <main class="flex-1 p-4 pb-6 space-y-5 relative w-full" id="main-viewport">
 
       <!-- ================================================================= -->
       <!-- TAB 1: MULTI-SPORT PLATFORM SELECTOR -->
@@ -350,7 +355,10 @@
               <span>Open Lessons</span><span>➔</span>
             </button>
           </div>
-          <button onclick="retakeSwingtypeAssessment()" id="cc-swing-retake-label" class="text-xs text-[var(--text-muted)] hover:text-[var(--text-main)] underline font-semibold">Retake Screen</button>
+          <div class="flex items-center justify-between">
+            <button onclick="retakeSwingtypeAssessment()" id="cc-swing-retake-label" class="text-xs text-[var(--text-muted)] hover:text-[var(--text-main)] underline font-semibold">Retake Screen</button>
+            <button onclick="deleteMySwingtypeAssessment()" class="text-xs text-red-400/70 hover:text-red-400 underline font-semibold">Delete Assessment</button>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -535,7 +543,10 @@
                   <span id="les-assessed-profile-title" class="text-xs font-black text-[var(--text-main)] block">—</span>
                 </div>
               </div>
-              <button onclick="retakeSwingtypeAssessment()" id="les-retake-label" class="text-xs text-[var(--text-muted)] hover:text-[var(--text-main)] underline font-semibold ml-2">Retake Screen</button>
+              <div class="flex items-center gap-3 ml-2 flex-shrink-0">
+                <button onclick="retakeSwingtypeAssessment()" id="les-retake-label" class="text-xs text-[var(--text-muted)] hover:text-[var(--text-main)] underline font-semibold">Retake Screen</button>
+                <button onclick="deleteMySwingtypeAssessment()" class="text-xs text-red-400/70 hover:text-red-400 underline font-semibold">Delete</button>
+              </div>
             </div>
 
             <div class="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-2xl">
@@ -2314,18 +2325,27 @@
 
       const logo = sponsorLogoHtml(sp, 'h-3.5', 22);
       // If the admin uploaded a logo/photo and left the label blank, the
-      // image fills the WHOLE badge instead of sharing space with a
-      // separate "eyebrow" text line - lets a full logo mark (e.g. a
-      // "Powered by X" lockup that's already baked into the image) stand
-      // on its own instead of getting a redundant second label next to it.
+      // image REPLACES the badge entirely - same "whole block, one photo"
+      // behavior as the banner placements: a real bordered frame, with the
+      // image filling it edge-to-edge (object-cover), not just a bigger
+      // floating logo next to leftover text.
       const imageFillsWholeSlot = !sp.eyebrow_label && sp.logo_image_url;
+
+      if (imageFillsWholeSlot) {
+        // One shared "whole block" frame for every badge variant - matches
+        // the bordered-card look every banner in the app already uses.
+        const defaultSizeByVariant = { stacked: [140, 56], 'corner-logo': [80, 80], pill: [140, 48], header: [160, 56] };
+        const [defW, defH] = defaultSizeByVariant[def.variant] || [120, 48];
+        const s = badgeSizeStyle(sp, defW, defH);
+        el.innerHTML = `<div class="rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-app)]" style="${s}">
+          <img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="w-full h-full object-cover">
+        </div>`;
+        return;
+      }
 
       if (def.variant === 'stacked') {
         // News magazine header: "POWERED BY" stacked above the logo.
-        const s = badgeSizeStyle(sp, 140, 40);
-        el.innerHTML = imageFillsWholeSlot
-          ? `<img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="object-contain inline-block" style="${s} max-width:100%;">`
-          : `
+        el.innerHTML = `
           <span class="text-xs text-[var(--text-muted)] block font-mono text-right">${escapeHtml(sp.eyebrow_label || 'POWERED BY')}</span>
           ${logo}
         `;
@@ -2339,12 +2359,8 @@
           : `<div class="rounded-xl bg-[var(--bg-app)] border border-[var(--border-subtle)] flex items-center justify-center p-1.5" style="${s}">${pulseLogoSvg(sp.logo_text, sp.logo_color, 'h-6')}</div>`;
       } else if (def.variant === 'pill') {
         // Pro Voice Stream / Polls / Multi-Sport: a bordered pill with
-        // logo + label - or, with no label set, just the image at its
-        // configured (or default, bigger-than-before) size.
-        const s = badgeSizeStyle(sp, 120, 36);
-        el.innerHTML = imageFillsWholeSlot
-          ? `<img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="rounded-xl object-contain" style="${s}">`
-          : `
+        // logo + label.
+        el.innerHTML = `
           <div class="flex items-center gap-1.5 bg-red-950/40 border border-red-500/30 px-2.5 py-1.5 rounded-xl">
             ${sponsorLogoHtml(sp, 'h-4', 24)}
             <span class="text-xs font-bold text-red-300 uppercase">${escapeHtml(sp.eyebrow_label || 'Supporter')}</span>
@@ -2352,12 +2368,8 @@
         `;
       } else {
         // 'header' variant - Equipment/Podcast: eyebrow label above the
-        // logo, right-aligned in the card header - or just a larger image
-        // alone when there's no label to pair it with.
-        const s = badgeSizeStyle(sp, 160, 44);
-        el.innerHTML = imageFillsWholeSlot
-          ? `<img src="${sp.logo_image_url}" alt="" onerror="this.style.display='none'" class="object-contain inline-block" style="${s} max-width:100%;">`
-          : `
+        // logo, right-aligned in the card header.
+        el.innerHTML = `
           <div class="text-right">
             <span class="text-xs font-mono text-[var(--text-muted)] block uppercase">${escapeHtml(sp.eyebrow_label || '')}</span>
             ${logo}
@@ -2970,6 +2982,34 @@
 
     function closeSwingtypeAssessment() {
       document.getElementById('swingtype-modal').classList.add('hidden');
+    }
+
+    // Self-service version of the admin's "Reset SwingType" tool - a user
+    // can wipe their OWN profile (never anyone else's - scoped to their
+    // own auth.uid() via RLS) and land back on the unassessed gate in both
+    // the Command Center and Lessons tab, exactly as if they'd never taken
+    // it. Distinct from Retake: this does not immediately reopen the
+    // assessment, and if testing mode / a grant / a code doesn't apply,
+    // they'll be asked to pay again next time.
+    async function deleteMySwingtypeAssessment() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session || !currentSportId) { triggerToast('Log in to manage your SwingType assessment.'); return; }
+      if (!confirm("Delete your SwingType assessment? You'll go back to the start and need to unlock it again (pay, or use a grant/testing access/code) before you can retake it.")) return;
+
+      const { error } = await supabaseClient.from('user_sport_profiles').update({
+        assessment_purchased: false,
+        assessment_profile_id: null,
+        assessment_completed_at: null,
+        assessment_retakes_used: 0,
+        assessment_free_access: false,
+        assessment_access_source: null,
+        assessment_a1: null, assessment_a2: null, assessment_a3: null, assessment_a4: null, assessment_a5: null,
+        assessment_alignment_score: null,
+      }).eq('user_id', session.user.id).eq('sport_id', currentSportId);
+
+      if (error) { triggerToast(`Could not delete your assessment: ${error.message}`); return; }
+      await loadSwingtypeUserState(currentSportId);
+      triggerToast('Your SwingType assessment has been deleted.');
     }
 
     function swingtypeStepBack() {
