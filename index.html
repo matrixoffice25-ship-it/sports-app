@@ -2310,9 +2310,17 @@
     // Builds an inline size style from admin-set badge_width_px/badge_height_px,
     // falling back to a given default. Bigger defaults than before across the
     // board per feedback that every sponsor badge read as too small.
+    // Minimum floor so a leftover/stale admin-saved width or height (e.g.
+    // from earlier testing, before badges had a proper default size) can
+    // never collapse a badge back into a tiny postage stamp. This is the
+    // most likely reason two badges using the exact same code can still
+    // look different sizes - a small saved override on just one of them.
+    const BADGE_MIN_WIDTH_PX = 80;
+    const BADGE_MIN_HEIGHT_PX = 60;
+
     function badgeSizeStyle(sp, defaultW, defaultH) {
-      const w = sp.badge_width_px || defaultW;
-      const h = sp.badge_height_px || defaultH;
+      const w = Math.max(sp.badge_width_px || defaultW, BADGE_MIN_WIDTH_PX);
+      const h = Math.max(sp.badge_height_px || defaultH, BADGE_MIN_HEIGHT_PX);
       return `width:${w}px; height:${h}px;`;
     }
 
