@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MY SPORTS NETWORK — Your Sports Companion</title>
+  <title>BUKO NETWORK</title>
 
   <!-- PWA: required for installability and for Google Play's Trusted Web
        Activity path, and generally good practice regardless of which
        native-wrapping approach gets used later. -->
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#10b981">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F4F7FB">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0B1120">
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 
@@ -77,14 +78,23 @@
 
   <style>
     :root {
-      /* Palette 1: Fairway Emerald (Default) */
-      --accent-main: #10B981;
-      --accent-glow: #059669;
-      --accent-light: #34D399;
-      --accent-subtle: rgba(16, 185, 129, 0.14);
-      --accent-border: rgba(16, 185, 129, 0.35);
-      --accent-shadow: rgba(16, 185, 129, 0.25);
+      /* Palette 1: BUKO Obsidian Teal (Default / Dark) — from the BUKO
+         Network brand bible. Mint husk teal doubles as the app accent
+         so in-app UI stays native to the logo's dark-mode colorway. */
+      --accent-main: #00E5A3;
+      --accent-glow: #00B382;
+      --accent-light: #5EEFC0;
+      --accent-subtle: rgba(0, 229, 163, 0.14);
+      --accent-border: rgba(0, 229, 163, 0.35);
+      --accent-shadow: rgba(0, 229, 163, 0.25);
       --accent-text-btn: #0A0F1D;
+
+      /* BUKO logo tokens — Obsidian Teal colorway (dark mode) */
+      --logo-husk: #00E5A3;
+      --logo-glyph: #FFFFFF;
+      --logo-bg-from: #18202F;
+      --logo-bg-to: #0A0D15;
+      --logo-border: rgba(255, 255, 255, 0.10);
 
       /* Dark Mode Variables */
       --bg-body: #060913;
@@ -128,6 +138,24 @@
       --nav-bar-bg: rgba(255, 255, 255, 0.96);
       --nav-bar-sub: rgba(241, 245, 249, 0.9);
       --glass-lock: rgba(248, 250, 252, 0.9);
+
+      /* BUKO brand accent — Ceramic White colorway (light mode) uses the
+         deeper teal so it holds contrast on white instead of the neon
+         mint, matching the logo's light-mode husk color. */
+      --accent-main: #0D9488;
+      --accent-glow: #0F766E;
+      --accent-light: #14B8A6;
+      --accent-subtle: rgba(13, 148, 136, 0.12);
+      --accent-border: rgba(13, 148, 136, 0.35);
+      --accent-shadow: rgba(13, 148, 136, 0.25);
+      --accent-text-btn: #FFFFFF;
+
+      /* BUKO logo tokens — Ceramic White colorway (light mode) */
+      --logo-husk: #0D9488;
+      --logo-glyph: #0F172A;
+      --logo-bg-from: #FFFFFF;
+      --logo-bg-to: #E2E8F0;
+      --logo-border: rgba(15, 23, 42, 0.10);
     }
 
     ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -175,14 +203,20 @@
       <!-- Top Title & Quick Actions -->
       <div class="px-4 py-3 flex items-center justify-between">
         <div class="flex items-center space-x-2.5">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[var(--accent-main)] to-violet-accent flex items-center justify-center text-white font-black text-xs shadow-md">
-            MSN
+          <!-- BUKO Network mark: // |B (slanted husk blades + architectural
+               vertical B). Colors are theme tokens, so this one SVG auto-
+               swaps between the Obsidian Teal (dark) and Ceramic White
+               (light) colorways defined in :root / [data-theme-mode="light"]. -->
+          <div class="w-10 h-10 rounded-2xl p-1.5 flex items-center justify-center shadow-md transition-colors" style="background: linear-gradient(to bottom, var(--logo-bg-from), var(--logo-bg-to)); border: 1px solid var(--logo-border);">
+            <svg viewBox="0 0 100 100" fill="none" class="w-full h-full" role="img" aria-label="BUKO Network logo">
+              <polygon points="10,78 26,22 36,22 20,78" style="fill:var(--logo-husk)" />
+              <polygon points="26,78 42,22 52,22 36,78" style="fill:var(--logo-husk)" />
+              <path d="M54,78 L54,22 L78,22 C87,22 93,27 93,36 C93,42 88,47 81,49 C90,52 94,58 94,67 C94,75 86,78 76,78 Z M66,33 L66,45 L78,45 C81,45 83,43 83,39 C83,35 81,33 78,33 Z M66,54 L66,67 L79,67 C82,67 84,65 84,61 C84,57 82,54 79,54 Z" style="fill:var(--logo-glyph)" />
+            </svg>
           </div>
-          <div>
-            <h1 class="text-xs font-black tracking-widest uppercase flex items-center gap-1.5 text-[var(--text-main)]">
-              MY SPORTS <span class="theme-accent-text font-extrabold">NETWORK</span>
-            </h1>
-            <p class="text-xs text-[var(--text-muted)] font-medium">Your Sports Companion</p>
+          <div class="flex flex-col justify-center leading-none">
+            <h1 class="text-sm font-black tracking-tight uppercase text-[var(--text-main)] leading-none">BUKO</h1>
+            <p class="theme-accent-text text-[10px] font-black tracking-[0.22em] uppercase mt-0.5">Network</p>
           </div>
         </div>
 
