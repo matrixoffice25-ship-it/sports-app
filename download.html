@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Get BUKO Network</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F4F7FB">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0B1120">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+
+  <!--
+    BUKO NETWORK - SMART DOWNLOAD PAGE  (bukonetwork.com/download.html)
+    This is what your QR code points to. It looks at the phone that scanned
+    it and sends each person to the right place. 100% free, no scan limits,
+    no ads, no outside services - it is just this one file.
+
+    To change a destination later, edit ONLY the four lines marked
+    "EDIT THESE" inside the <script> at the bottom of this file.
+  -->
+
+  <style>
+    :root {
+      --bg: #0A0F1D;  --surface: #131D31;  --border: #2A3B5C;
+      --text: #F8FAFC; --muted: #94A3B8;
+      --accent: #00E5A3; --accent-text: #0A0F1D;
+      --logo-husk: #00E5A3; --logo-glyph: #FFFFFF;
+      --logo-from: #18202F; --logo-to: #0A0D15; --logo-border: rgba(255,255,255,.10);
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #F4F7FB;  --surface: #FFFFFF;  --border: #CBD5E1;
+        --text: #0F172A; --muted: #475569;
+        --accent: #0F766E; --accent-text: #FFFFFF;
+        --logo-husk: #0D9488; --logo-glyph: #0F172A;
+        --logo-from: #FFFFFF; --logo-to: #E2E8F0; --logo-border: rgba(15,23,42,.10);
+      }
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      min-height: 100vh; min-height: 100dvh;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      display: flex; align-items: center; justify-content: center;
+    }
+    [hidden] { display: none !important; }
+
+    .stage { width: 100%; max-width: 440px; padding: 24px; text-align: center; }
+    .logo {
+      width: 84px; height: 84px; margin: 0 auto 20px; padding: 12px; border-radius: 24px;
+      background: linear-gradient(to bottom, var(--logo-from), var(--logo-to));
+      border: 1px solid var(--logo-border); box-shadow: 0 8px 28px rgba(0,0,0,.25);
+    }
+    .logo svg { width: 100%; height: 100%; display: block; }
+    .brand { font-size: 1.05rem; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; margin: 0; color: var(--text); }
+    .brand span { display: block; color: var(--accent); font-size: .8rem; letter-spacing: .3em; margin-top: 2px; }
+    h1 { font-size: 1.5rem; line-height: 1.25; margin: 22px 0 8px; font-weight: 800; }
+    p  { margin: 0; color: var(--muted); font-size: 1rem; line-height: 1.5; }
+
+    /* loading screen */
+    .spinner {
+      width: 44px; height: 44px; margin: 26px auto 6px; border-radius: 50%;
+      border: 4px solid var(--border); border-top-color: var(--accent);
+      animation: spin .9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 3s; } }
+    .slow { margin-top: 22px; font-size: .95rem; }
+    .slow a, noscript a { color: var(--accent); font-weight: 700; }
+
+    /* Android choice card */
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 24px;
+      padding: 28px 20px 22px; box-shadow: 0 16px 48px rgba(0,0,0,.28);
+    }
+    .card h1 { margin-top: 4px; }
+    .btn {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 64px; width: 100%; margin-top: 14px; padding: 12px 16px;
+      border-radius: 16px; text-decoration: none; font-weight: 800; font-size: 1.15rem; line-height: 1.25;
+      border: 2px solid var(--accent); cursor: pointer;
+    }
+    .btn small { font-weight: 500; font-size: .85rem; margin-top: 3px; opacity: .85; }
+    .btn-primary   { background: var(--accent); color: var(--accent-text); }
+    .btn-secondary { background: transparent;   color: var(--text); border-color: var(--border); }
+    .btn:active { transform: scale(.985); }
+    .btn:focus-visible, .slow a:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+    .web-link { display: inline-block; margin-top: 18px; padding: 12px; color: var(--muted); font-size: .95rem; }
+  </style>
+</head>
+<body>
+
+  <main class="stage">
+
+    <!-- 1) Loading screen (everyone sees this first, for a split second) -->
+    <section id="loading" aria-live="polite">
+      <div class="logo">
+        <svg viewBox="0 0 100 100" fill="none" role="img" aria-label="BUKO Network logo">
+          <polygon points="10,78 26,22 36,22 20,78" style="fill:var(--logo-husk)" />
+          <polygon points="26,78 42,22 52,22 36,78" style="fill:var(--logo-husk)" />
+          <path d="M54,78 L54,22 L78,22 C87,22 93,27 93,36 C93,42 88,47 81,49 C90,52 94,58 94,67 C94,75 86,78 76,78 Z M66,33 L66,45 L78,45 C81,45 83,43 83,39 C83,35 81,33 78,33 Z M66,54 L66,67 L79,67 C82,67 84,65 84,61 C84,57 82,54 79,54 Z" style="fill:var(--logo-glyph)" />
+        </svg>
+      </div>
+      <p class="brand">BUKO<span>Network</span></p>
+      <div class="spinner" role="status" aria-label="Loading"></div>
+      <h1>Opening BUKO Network&hellip;</h1>
+      <p>One moment while we find the right version for your device.</p>
+      <p class="slow" id="slow" hidden>Still here? <a id="slow-link" href="#">Tap to continue</a></p>
+      <noscript><p class="slow">JavaScript is turned off. <a href="https://bukonetwork.com">Open the BUKO Network website</a></p></noscript>
+    </section>
+
+    <!-- 2) Android choice card (only shown to Android phones/tablets) -->
+    <section id="android" class="card" role="dialog" aria-modal="true" aria-labelledby="android-title" hidden>
+      <div class="logo" style="width:68px;height:68px;padding:10px;border-radius:20px;margin-bottom:14px">
+        <svg viewBox="0 0 100 100" fill="none" aria-hidden="true">
+          <polygon points="10,78 26,22 36,22 20,78" style="fill:var(--logo-husk)" />
+          <polygon points="26,78 42,22 52,22 36,78" style="fill:var(--logo-husk)" />
+          <path d="M54,78 L54,22 L78,22 C87,22 93,27 93,36 C93,42 88,47 81,49 C90,52 94,58 94,67 C94,75 86,78 76,78 Z M66,33 L66,45 L78,45 C81,45 83,43 83,39 C83,35 81,33 78,33 Z M66,54 L66,67 L79,67 C82,67 84,65 84,61 C84,57 82,54 79,54 Z" style="fill:var(--logo-glyph)" />
+        </svg>
+      </div>
+      <h1 id="android-title">Get BUKO Network</h1>
+      <p>Choose how you would like to install the app on your Android device.</p>
+
+      <a id="btn-play" class="btn btn-primary" href="#" rel="noopener">
+        Download from Google Play Store
+        <small>Recommended &middot; automatic updates</small>
+      </a>
+      <a id="btn-apk" class="btn btn-secondary" href="#" rel="noopener">
+        Download Standalone App (.APK)
+        <small>Direct install file</small>
+      </a>
+      <a id="btn-web" class="web-link" href="#">Or continue to the website</a>
+    </section>
+
+  </main>
+
+  <script>
+  (function () {
+    'use strict';
+
+    /* =====================================================================
+       EDIT THESE 4 LINES ONLY.  While the apps are in testing, all four
+       point at the website so nothing can ever land on a dead page.
+       Later, swap in the real links (keep the quotes and the semicolon), e.g.
+         var APPLE_STORE_URL = 'https://apps.apple.com/app/idXXXXXXXXXX';
+       ===================================================================== */
+    var APPLE_STORE_URL        = 'https://bukonetwork.com';
+    var GOOGLE_PLAY_URL        = 'https://bukonetwork.com';
+    var STANDALONE_ANDROID_APK = 'https://bukonetwork.com';
+    var WEB_FALLBACK_URL       = 'https://bukonetwork.com';
+    /* ===================================================================== */
+
+    var $ = function (id) { return document.getElementById(id); };
+
+    /* Only ever allow normal web links (protects against typos / bad pastes). */
+    function safeUrl(u) {
+      if (!/^https?:\/\//i.test(String(u).trim())) return null;   // must literally start with http:// or https://
+      try {
+        var x = new URL(String(u).trim());
+        return (x.protocol === 'https:' || x.protocol === 'http:') ? x.href : null;
+      } catch (e) { return null; }
+    }
+    function stripHash(u) { return String(u).split('#')[0]; }
+    function isThisPage(u) { return stripHash(u) === stripHash(location.href); }
+
+    /* Which kind of device is this?  -> 'android' | 'ios' | 'desktop' */
+    function detectDevice() {
+      // Testing helper: download.html?device=android  (or ios / desktop)
+      var m = /[?&]device=(android|ios|desktop)\b/i.exec(location.search);
+      if (m) return m[1].toLowerCase();
+
+      var ua = navigator.userAgent || '';
+      var uaData = navigator.userAgentData;
+      if (/Android/i.test(ua) || (uaData && uaData.platform === 'Android')) return 'android';
+
+      // iPhone / iPod / old iPad, PLUS modern iPads that pretend to be a Mac.
+      var isIPadOS = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+      if (/iPhone|iPad|iPod/i.test(ua) || isIPadOS) return 'ios';
+
+      return 'desktop';
+    }
+
+    function showManualLink(target) {
+      var link = $('slow-link');
+      link.href = target || safeUrl(WEB_FALLBACK_URL) || '/';
+      $('slow').hidden = false;
+    }
+
+    /* Send the visitor onward. location.replace() means the Back button
+       does not trap them on this loading page. */
+    function goTo(rawUrl) {
+      var target = safeUrl(rawUrl) || safeUrl(WEB_FALLBACK_URL);
+      if (!target || isThisPage(target)) {          // never redirect to ourselves (no loops)
+        showManualLink('/');
+        return;
+      }
+      setTimeout(function () { location.replace(target); }, 350);   // lets the loading screen show
+      setTimeout(function () { showManualLink(target); }, 4000);    // safety net if the redirect is slow/blocked
+    }
+
+    function showAndroidChoices() {
+      var play = safeUrl(GOOGLE_PLAY_URL) || safeUrl(WEB_FALLBACK_URL) || '/';
+      var apk  = safeUrl(STANDALONE_ANDROID_APK) || safeUrl(WEB_FALLBACK_URL) || '/';
+      var web  = safeUrl(WEB_FALLBACK_URL) || '/';
+      $('btn-play').href = play;
+      $('btn-apk').href  = apk;
+      $('btn-web').href  = web;
+      // Ask the browser to save the file only when the link really is an .apk
+      // (otherwise a test link to the website would be "downloaded" as a page).
+      if (/\.apk(\?|#|$)/i.test(apk)) $('btn-apk').setAttribute('download', '');
+      $('loading').hidden = true;
+      $('android').hidden = false;
+    }
+
+    /* If someone taps Back from the store and this page comes back from the
+       browser's memory, show the manual link right away. */
+    window.addEventListener('pageshow', function (e) {
+      if (e.persisted && !$('loading').hidden) showManualLink();
+    });
+
+    var device = detectDevice();
+    if (device === 'android')      showAndroidChoices();
+    else if (device === 'ios')     goTo(APPLE_STORE_URL);
+    else                           goTo(WEB_FALLBACK_URL);
+  })();
+  </script>
+</body>
+</html>
