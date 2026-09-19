@@ -237,107 +237,145 @@
     }
 
     /* =====================================================================
-       PART B: DESKTOP / LAPTOP  -  only when the window is 1024px or wider
+       PART B: LARGE SCREENS  (laptops, desktops, iPads)
+       ---------------------------------------------------------------------
+       Shared rules  : screens 1024px+ wide, OR 768px+ wide and 600px+ tall
+                       (iPad upright). Phones are never that big, and a
+                       phone turned sideways is never that tall, so phones
+                       never see any of this.
+       Desktop rules : screens 1024px+ wide only (side menu + sponsor bar).
        ===================================================================== */
+
+    @media (min-width: 1024px), (min-width: 768px) and (min-height: 600px) {
+
+      :root { --desk-gap: 24px; --desk-max: 1200px; }
+
+      /* the phone-width column and its frame go away */
+      #app-shell { max-width: none; border-left-width: 0; border-right-width: 0; box-shadow: none; }
+
+      /* every page = the same 12-column grid, same 24px gaps, same left edge */
+      #main-viewport > .tab-page { margin: 0 auto; width: 100%; max-width: var(--desk-max); }
+      #main-viewport > .tab-page:not(.hidden) {
+        display: grid; grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: var(--desk-gap); align-content: start; align-items: stretch;
+      }
+      #main-viewport > .tab-page > * { grid-column: 1 / -1; margin: 0; min-width: 0; }
+
+      /* step-by-step pages (Lessons, Pro Voice) read best in a centered column */
+      #main-viewport > #tab-lessons > *, #main-viewport > #tab-stream > * { grid-column: 3 / -3; }
+
+      /* Command Center: poll + PULSE tile share the first row */
+      #main-viewport > #tab-home > #poll-card { grid-column: span 7; }
+      #main-viewport > #tab-home > #poll-card + div { grid-column: span 5; }
+      #main-viewport > #tab-home > .grid { gap: var(--desk-gap); }
+
+      /* card lists: equal-width columns, one gap size */
+      #sport-hubs-list, #education-events-list-frontend, #news-article-list, #home-pro-voice-preview {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+        gap: var(--desk-gap); align-items: stretch;
+      }
+      #sport-hubs-list > *, #education-events-list-frontend > *, #news-article-list > *, #home-pro-voice-preview > * { margin: 0; }
+      #sport-hubs-list > :only-child, #education-events-list-frontend > :only-child,
+      #news-article-list > :only-child, #home-pro-voice-preview > :only-child { grid-column: 1 / -1; }
+
+      /* sponsor images: never cropped, never stretched - scaled with their true shape */
+      [id^="sponsor-banner-"] img {
+        width: auto; max-width: 100%; height: auto;
+        object-fit: contain !important;
+        display: block; margin-left: auto; margin-right: auto;
+      }
+
+      /* the app's own bigger screens deserve slightly bigger text */
+      ::-webkit-scrollbar { width: 10px; height: 10px; }
+      :focus-visible { outline: 2px solid var(--accent-main); outline-offset: 2px; }
+    }
+
+    /* ---------- iPad upright (768-1023px wide): same top menu, wider and tidier ---------- */
+    @media (min-width: 768px) and (max-width: 1023.98px) and (min-height: 600px) {
+      #main-viewport { padding: 32px 32px calc(48px + env(safe-area-inset-bottom, 0px)); }
+      #app-shell > header > .justify-between { padding-left: 32px; padding-right: 32px; }
+      #app-shell > header > nav { padding-left: 32px; padding-right: 32px; }
+    }
+
+    /* ---------- Laptops / desktops / iPad sideways (1024px+) ---------- */
     @media (min-width: 1024px) {
 
-      :root { --desk-nav-w: clamp(232px, 20vw, 280px); }
-
-      /* Wide screens: drop the phone-width column, borders and glow */
-      #app-shell {
-        max-width: none;
-        border-left-width: 0; border-right-width: 0;
-        box-shadow: none;
+      :root {
+        --desk-nav-w: clamp(232px, 17vw, 264px);
+        --desk-pad: clamp(24px, 3.2vw, 48px);
+        --desk-bar-h: 72px;
       }
 
-      /* ---- Left sidebar (the old header, turned sideways) ---- */
+      /* ----- side menu: one clean panel, no lines, no stacked boxes ----- */
       #app-shell > header {
-        position: fixed; top: 0; bottom: 0; left: 0;
-        width: var(--desk-nav-w);
+        position: fixed; top: 0; bottom: 0; left: 0; width: var(--desk-nav-w);
+        padding: calc(28px + env(safe-area-inset-top, 0px)) 16px 24px;
+        background: var(--bg-surface);
+        -webkit-backdrop-filter: none; backdrop-filter: none;
+        border-width: 0;
         overflow-y: auto; overflow-x: hidden;
-        border-bottom-width: 0;
-        border-right: 1px solid var(--border-subtle);
         z-index: 40;
       }
-      /* logo row: brand on top, controls underneath */
       #app-shell > header > .justify-between {
         flex-direction: column; align-items: stretch;
-        gap: 14px; padding: 20px 14px 14px;
+        gap: 16px; padding: 0; margin-bottom: 24px;
       }
       #app-shell > header > .justify-between > div:last-child {
         display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
       }
       #app-shell > header > .justify-between > div:last-child > * { margin-left: 0; }
-      #app-shell > header > .justify-between > div:last-child > :first-child { flex: 1 1 100%; }  /* sport switcher gets its own full-width row */
+      #app-shell > header > .justify-between > div:last-child > :first-child { flex: 1 1 100%; }
       #app-shell > header #sport-switcher-btn { width: 100%; justify-content: space-between; }
       #sport-switcher-panel { left: 0; right: auto; width: 100%; }
 
-      /* the two nav rows become two vertical lists */
       #app-shell > header > nav {
         flex-direction: column; align-items: stretch; gap: 4px;
-        padding: 12px 12px;
+        padding: 0; border-width: 0; background: transparent;
       }
+      #app-shell > header > nav + nav { margin-top: 24px; }   /* a gap between the two groups, no line */
       #app-shell > header > nav .nav-btn {
-        flex: 0 0 auto;
-        flex-direction: row; justify-content: flex-start; align-items: center;
-        gap: 10px; min-height: 48px; padding: 0 14px;
+        position: relative;
+        flex: 0 0 auto; flex-direction: row; justify-content: flex-start; align-items: center;
+        gap: 10px; min-height: 48px; padding: 0 16px;
         font-size: 0.9375rem; text-align: left;
-        border: 1px solid transparent;                 /* no 1px jump when a tab becomes active */
+        border-width: 0; border-radius: 12px; background: transparent;
       }
-      /* sponsor strip lives at the bottom of the sidebar and wraps to fit */
-      #sponsor-banner-global { order: 99; margin-top: auto; }
-      #sponsor-banner-global > * { overflow: hidden; }
-      #sponsor-banner-global .flex { flex-wrap: wrap; gap: 8px; }
-      #sponsor-banner-global .flex > * { margin-left: 0; }
+      #app-shell > header > nav .nav-btn:hover { background: var(--nav-bar-sub); }
+      /* current page: soft tint (from the app) + a slim accent bar on the left */
+      #app-shell > header > nav .nav-btn.theme-accent-subtle-bg::before {
+        content: ""; position: absolute; left: 0; top: 12px; bottom: 12px;
+        width: 3px; border-radius: 3px; background: var(--accent-main);
+      }
 
-      /* ---- Main content area ---- */
-      #main-viewport {
-        margin-left: var(--desk-nav-w);
-        width: auto; min-width: 0;
-        padding: 32px clamp(24px, 3.2vw, 56px) 56px;
+      /* ----- sponsor strip: a slim bar across the top of the content (as on phones) ----- */
+      #sponsor-banner-global {
+        position: fixed; top: 0; left: var(--desk-nav-w); right: 0; height: var(--desk-bar-h);
+        display: flex; align-items: center; justify-content: center;
+        padding: 0 var(--desk-pad); background: var(--bg-app);
+        overflow: hidden; z-index: 35;
       }
-      #main-viewport > .tab-page {
-        margin-top: 0; margin-left: auto; margin-right: auto;
-        width: 100%; max-width: 1320px;
+      #sponsor-banner-global:empty { display: none; }
+      #sponsor-banner-global > :not(img) { width: 100%; max-width: var(--desk-max); margin: 0 auto; }
+      #sponsor-banner-global .border-b { border-bottom-width: 0; border-radius: 14px; overflow: hidden; }
+      #sponsor-banner-global img { max-height: calc(var(--desk-bar-h) - 16px) !important; }
+      body:has(#sponsor-banner-global:not(:empty)) #main-viewport { padding-top: calc(var(--desk-bar-h) + 24px); }
+
+      /* ----- content area ----- */
+      #main-viewport {
+        margin-left: var(--desk-nav-w); width: auto; min-width: 0;
+        padding: 40px var(--desk-pad) calc(64px + env(safe-area-inset-bottom, 0px));
       }
       #toast-container { left: calc(50% + (var(--desk-nav-w) / 2)); }
-
-      /* ---- Command Center: dashboard grid ---- */
-      #main-viewport > #tab-home:not(.hidden) {
-        display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 20px; align-items: stretch;
-      }
-      #main-viewport > #tab-home > * { margin-top: 0; grid-column: 1 / -1; }
-      #main-viewport > #tab-home > #poll-card { grid-column: span 1; }
-      #main-viewport > #tab-home > #poll-card + div { grid-column: span 1; }   /* first PULSE tile sits beside the poll */
-
-      /* ---- Shows & Gear: podcast and gear lab side by side ---- */
-      #main-viewport > #tab-gear:not(.hidden) {
-        display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 20px; align-items: start;
-      }
-      #main-viewport > #tab-gear > * { margin-top: 0; }
-
-      /* ---- Card lists become responsive grids ---- */
-      #sport-hubs-list, #education-events-list-frontend,
-      #news-article-list, #home-pro-voice-preview {
-        display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 16px; align-items: stretch;
-      }
-      #sport-hubs-list > *, #education-events-list-frontend > *,
-      #news-article-list > *, #home-pro-voice-preview > * { margin-top: 0; }
-      #sport-hubs-list > :only-child, #education-events-list-frontend > :only-child,
-      #news-article-list > :only-child, #home-pro-voice-preview > :only-child { grid-column: 1 / -1; }
-
-      /* ---- Reading-width tabs (feeds and step-by-step flows stay comfortable) ---- */
-      #main-viewport > #tab-stream { max-width: 860px; }
-      #main-viewport > #tab-lessons { max-width: 1040px; }
-      #tab-lessons > :first-child { max-width: 520px; }      /* Lessons | Fitness switch */
-
-      /* ---- Desktop polish: mouse users ---- */
-      ::-webkit-scrollbar { width: 10px; height: 10px; }
-      :focus-visible { outline: 2px solid var(--accent-main); outline-offset: 2px; }
     }
+
+    /* Shows & Gear: two equal cards side by side once there is room */
+    @media (min-width: 1280px) {
+      #main-viewport > #tab-gear > * { grid-column: span 6; }
+    }
+    /* a touch larger text on big screens (respects the app's Text Size setting) */
+    @media (min-width: 1280px) { html { font-size: calc(106.25% * var(--font-scale)); } }
+    @media (min-width: 1680px) { html { font-size: calc(112.5% * var(--font-scale)); } }
+
     /* ===================== END BUKO CROSS-DEVICE LAYER ===================== */
   </style>
 </head>
