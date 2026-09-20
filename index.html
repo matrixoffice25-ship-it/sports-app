@@ -239,10 +239,11 @@
     /* =====================================================================
        STANDARD SPONSOR BLOCKS  (phone + desktop)
        One design, three sizes. Bigger = more important:
-         regular (112px) < multi (128px, Multi-Sport top) < global (144px, Official Global Partner)
+         regular (112px) < multi (120px phones / 128px laptops, Multi-Sport top) < global (128px on phones / 144px on laptops, Official Global Partner)
        No buttons: if the admin adds a link, the whole block is the link.
        ===================================================================== */
-    :root { --sp-h-regular: 112px; --sp-h-multi: 128px; --sp-h-global: 144px; }
+    :root { --sp-h-regular: 112px; --sp-h-multi: 120px; --sp-h-global: 128px; }
+    @media (min-width: 1024px) { :root { --sp-h-multi: 128px; --sp-h-global: 144px; } }
     .sp-block {
       position: relative; display: flex; align-items: center; width: 100%;
       overflow: hidden; border-radius: 12px; box-sizing: border-box;
@@ -284,6 +285,14 @@
     .ep-thumb { min-width: 0; padding: 0; background: none; border: 0; cursor: pointer; }
     .ep-thumb:hover img { opacity: 0.85; }
     .ep-thumb-active > div:first-child { border-color: var(--accent-main); box-shadow: 0 0 0 1px var(--accent-main); }
+
+    /* Education flyer: tap to see the whole thing (phones) */
+    .edu-flyer { position: relative; cursor: zoom-in; }
+    .edu-flyer-hint { position: absolute; right: 8px; bottom: 8px; background: rgba(0, 0, 0, 0.68); color: #fff; font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; pointer-events: none; }
+
+    /* Shows & Gear: each column = the video card + its sponsor banner standing alone under it */
+    .gear-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+    .gear-col > .gear-card { flex: 1 1 auto; }
 
     /* =====================================================================
        PART B: LARGE SCREENS  (laptops, desktops, iPads)
@@ -343,6 +352,12 @@
 
       /* Shows & Gear: 4 featured boxes stay tidy */
       .featured-box { min-width: 0; }
+
+      /* Laptops/iPad: sponsor pictures inside cards FILL their box (no small floating picture) */
+      #sponsor-banner-lessons-card .sp-img, #sponsor-banner-fitness-card .sp-img, .sport-card-sponsor-slot .sp-img { object-fit: cover; }
+      /* the flyer is already shown whole here, so no tap hint needed */
+      .edu-flyer-hint { display: none; }
+      .edu-flyer { cursor: default; }
 
       /* the app's own bigger screens deserve slightly bigger text */
       ::-webkit-scrollbar { width: 10px; height: 10px; }
@@ -544,7 +559,6 @@
       <section id="tab-selector" class="tab-page hidden space-y-4">
         <div id="sponsor-banner-multisport-header"></div>
         <div class="text-center py-2">
-          <div class="inline-flex justify-center mb-2" id="sponsor-badge-multisport"></div>
           <h2 class="text-xl font-extrabold text-[var(--text-main)]">Sport Hubs</h2>
         </div>
 
@@ -671,7 +685,7 @@
             <div>
               <h3 class="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider flex items-center gap-2">
                 
-                <span>Daily News Brief Feed</span>
+                <span id="news-brief-feed-title-home">NEWS BRIEF FEED</span>
               </h3>
             </div>
             <button onclick="switchTab('tab-news')" class="text-sm font-bold text-red-400 hover:text-red-300 flex items-center gap-1">
@@ -716,7 +730,7 @@
         <div id="sponsor-banner-news-inline"></div>
 
         <div class="space-y-2">
-          <h3 class="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider">All News Briefs</h3>
+          <h3 id="news-brief-feed-title-news" class="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider">NEWS BRIEF FEED</h3>
           <div id="news-tab-briefs-list" class="space-y-2">
             <!-- populated dynamically by loadNewsTabBriefs() - EVERY brief,
                  not just the 3-item Home preview -->
@@ -911,50 +925,54 @@
       <!-- TAB 6: SHOWS & EQUIPMENT/TECH LAB -->
       <!-- ================================================================= -->
       <section id="tab-gear" class="tab-page hidden space-y-4">
-        <div id="card-podcast" class="gear-card bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
-          <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
-            <div>
-              <span id="podcast-eyebrow-label" class="text-xs font-bold text-amber-400 uppercase tracking-wider bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20"></span>
-              <h3 id="podcast-title-label" class="text-sm font-bold text-[var(--text-main)] mt-1"></h3>
+        <div id="col-podcast" class="gear-col">
+          <div id="card-podcast" class="gear-card bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
+            <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
+              <div>
+                <span id="podcast-eyebrow-label" class="text-xs font-bold text-amber-400 uppercase tracking-wider bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20"></span>
+                <h3 id="podcast-title-label" class="text-sm font-bold text-[var(--text-main)] mt-1"></h3>
+              </div>
+              <div id="sponsor-badge-podcast"></div>
             </div>
-            <div id="sponsor-badge-podcast"></div>
-          </div>
-          <div class="space-y-2">
-            <div id="podcast-video-title" class="text-xs font-bold text-[var(--text-main)]"></div>
-            <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-black">
-              <iframe id="podcast-iframe" class="w-full h-full" src="" title="Podcast video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <div class="space-y-2">
+              <div id="podcast-video-title" class="text-xs font-bold text-[var(--text-main)]"></div>
+              <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-black">
+                <iframe id="podcast-iframe" class="w-full h-full" src="" title="Podcast video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+              </div>
+              <div id="podcast-chapters-list" class="flex flex-wrap gap-1.5"></div>
+              <div id="podcast-summary" class="hidden bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-line"></div>
             </div>
-            <div id="podcast-chapters-list" class="flex flex-wrap gap-1.5"></div>
-            <div id="podcast-summary" class="hidden bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-line"></div>
+            <div id="podcast-featured-wrap" class="hidden">
+              <div id="podcast-featured-title" class="text-sm font-bold text-[var(--text-muted)] mb-2"></div>
+              <div id="podcast-featured-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-2"></div>
+            </div>
           </div>
           <div id="sponsor-banner-podcast"></div>
-          <div id="podcast-featured-wrap" class="hidden">
-            <div id="podcast-featured-title" class="text-sm font-bold text-[var(--text-muted)] mb-2"></div>
-            <div id="podcast-featured-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-2"></div>
-          </div>
         </div>
 
-        <div id="card-gear" class="gear-card bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
-          <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
-            <div>
-              <span id="gear-eyebrow-label" class="text-xs font-bold theme-accent-text uppercase tracking-wider theme-accent-subtle-bg px-2 py-0.5 rounded theme-accent-subtle-border border"></span>
-              <h3 id="gear-title-label" class="text-sm font-bold text-[var(--text-main)] mt-1"></h3>
+        <div id="col-gear" class="gear-col">
+          <div id="card-gear" class="gear-card bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
+            <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
+              <div>
+                <span id="gear-eyebrow-label" class="text-xs font-bold theme-accent-text uppercase tracking-wider theme-accent-subtle-bg px-2 py-0.5 rounded theme-accent-subtle-border border"></span>
+                <h3 id="gear-title-label" class="text-sm font-bold text-[var(--text-main)] mt-1"></h3>
+              </div>
+              <div id="sponsor-badge-equipment"></div>
             </div>
-            <div id="sponsor-badge-equipment"></div>
-          </div>
-          <div class="space-y-2">
-            <div id="gear-video-title" class="text-xs font-bold text-[var(--text-main)]"></div>
-            <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-black">
-              <iframe id="gear-iframe" class="w-full h-full" src="" title="Gear video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <div class="space-y-2">
+              <div id="gear-video-title" class="text-xs font-bold text-[var(--text-main)]"></div>
+              <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-black">
+                <iframe id="gear-iframe" class="w-full h-full" src="" title="Gear video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+              </div>
+              <div id="gear-chapters-list" class="flex flex-wrap gap-1.5"></div>
+              <div id="gear-summary" class="hidden bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-line"></div>
             </div>
-            <div id="gear-chapters-list" class="flex flex-wrap gap-1.5"></div>
-            <div id="gear-summary" class="hidden bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-line"></div>
+            <div id="gear-featured-wrap" class="hidden">
+              <div id="gear-featured-title" class="text-sm font-bold text-[var(--text-muted)] mb-2"></div>
+              <div id="gear-featured-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-2"></div>
+            </div>
           </div>
           <div id="sponsor-banner-equipment"></div>
-          <div id="gear-featured-wrap" class="hidden">
-            <div id="gear-featured-title" class="text-sm font-bold text-[var(--text-muted)] mb-2"></div>
-            <div id="gear-featured-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-2"></div>
-          </div>
         </div>
 
       </section>
@@ -1091,19 +1109,31 @@
         </div>
 
         <div id="forgot-password-link" class="text-center hidden">
-          <button type="button" onclick="requestPasswordReset()" class="text-xs font-bold text-[var(--text-muted)] underline min-h-touch">
+          <button type="button" onclick="openForgotPassword()" class="text-xs font-bold text-[var(--text-muted)] underline min-h-touch">
             Forgot password?
           </button>
+        </div>
+
+        <div id="forgot-panel" class="hidden space-y-3 p-3 bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl">
+          <p class="text-sm text-[var(--text-main)] font-extrabold">Reset your password</p>
+          <p class="text-xs text-[var(--text-muted)]">Enter the email you signed up with. We will email you a link to choose a new password.</p>
+          <input type="email" id="forgot-email" autocomplete="email" placeholder="Your email" class="w-full bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl py-2.5 px-3 text-xs text-[var(--text-main)] focus:outline-none">
+          <p id="forgot-msg" class="text-xs font-bold hidden" role="status"></p>
+          <button type="button" id="forgot-send-btn" onclick="sendResetLink()" class="w-full min-h-touch theme-accent-bg font-extrabold text-xs py-2.5 rounded-xl">Send reset link</button>
+          <button type="button" onclick="closeForgotPassword()" class="w-full min-h-touch text-xs font-bold theme-accent-text underline">Back to log in</button>
         </div>
 
         <div id="password-reset-form" class="hidden space-y-3 p-3 bg-[var(--bg-app)] border border-[var(--accent-border)] rounded-xl">
           <p class="text-xs text-[var(--text-main)] font-bold">Set a new password</p>
           <p class="text-xs text-[var(--text-muted)]">You clicked a password reset link. Choose a new password below.</p>
           <input type="password" id="input-new-password" placeholder="New password" class="w-full bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl py-2.5 px-3 text-xs text-[var(--text-main)] focus:outline-none focus:border-[var(--accent-main)]">
+          <input type="password" id="input-new-password-confirm" autocomplete="new-password" placeholder="Confirm new password" class="w-full bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl py-2.5 px-3 text-xs text-[var(--text-main)] focus:outline-none">
+          <p class="text-xs text-[var(--text-muted)]">At least 8 characters, with an uppercase letter, a lowercase letter and a symbol.</p>
+          <p id="reset-msg" class="text-xs font-bold hidden" role="status"></p>
           <button type="button" onclick="submitNewPassword()" class="w-full min-h-touch theme-accent-bg font-extrabold text-xs py-2.5 rounded-xl">Save New Password</button>
         </div>
 
-        <form id="profile-form" onsubmit="handleProfileSubmit(event)" class="space-y-3.5">
+        <form id="profile-form" novalidate onsubmit="handleProfileSubmit(event)" class="space-y-3.5">
 
           <div id="signup-only-fields">
           <div>
@@ -1249,6 +1279,17 @@
             <span>Edit Credentials / Title</span>
           </button>
 
+          <button type="button" onclick="toggleChangePasswordPanel()" class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] font-bold text-xs py-2.5 rounded-xl">Change password</button>
+          <div id="change-password-panel" class="hidden space-y-2 p-3 bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl">
+            <input id="cp-current" type="password" autocomplete="current-password" placeholder="Current password" class="w-full bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl py-2.5 px-3 text-xs text-[var(--text-main)] focus:outline-none">
+            <input id="cp-new" type="password" autocomplete="new-password" placeholder="New password" class="w-full bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl py-2.5 px-3 text-xs text-[var(--text-main)] focus:outline-none">
+            <input id="cp-confirm" type="password" autocomplete="new-password" placeholder="Confirm new password" class="w-full bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-xl py-2.5 px-3 text-xs text-[var(--text-main)] focus:outline-none">
+            <p class="text-xs text-[var(--text-muted)]">At least 8 characters, with an uppercase letter, a lowercase letter and a symbol.</p>
+            <p id="cp-msg" class="text-xs font-bold hidden" role="status"></p>
+            <button type="button" onclick="submitChangePassword()" class="w-full min-h-touch theme-accent-bg font-extrabold text-xs py-2.5 rounded-xl">Save new password</button>
+            <button type="button" onclick="sendResetToMyEmail()" class="w-full min-h-touch text-xs font-bold text-[var(--text-muted)] underline">I forgot my current password - email me a reset link</button>
+          </div>
+
           <div class="pt-2 border-t border-[var(--border-subtle)]">
             <button type="button" id="delete-account-toggle" onclick="toggleDeleteAccountPanel()" class="text-xs text-red-400/70 hover:text-red-400 underline min-h-touch">
               Delete my account
@@ -1317,6 +1358,11 @@
         <button onclick="document.getElementById('article-detail-modal').classList.add('hidden')" class="absolute top-3 right-3 z-20 min-h-touch min-w-touch flex items-center justify-center bg-black/50 rounded-full text-white text-lg">✕</button>
         <div id="article-detail-body" class="overflow-y-auto"></div>
       </div>
+    </div>
+
+    <div id="flyer-viewer" class="fixed inset-0 bg-black/90 z-[70] hidden items-center justify-center p-3" onclick="closeFlyerViewer()" role="dialog" aria-modal="true" aria-label="Event flyer">
+      <button type="button" onclick="closeFlyerViewer()" class="absolute top-3 right-3 w-12 h-12 rounded-full bg-white/15 text-white text-xl font-bold flex items-center justify-center" style="top: calc(0.75rem + env(safe-area-inset-top, 0px));" aria-label="Close">✕</button>
+      <img id="flyer-viewer-img" src="" alt="Event flyer, full size" class="max-w-full max-h-full object-contain rounded-lg" onclick="event.stopPropagation()">
     </div>
 
     <div id="registration-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all">
@@ -1583,50 +1629,113 @@
     // ============================================================
     // FORGOT PASSWORD
     // ============================================================
-    async function requestPasswordReset() {
-      const email = document.getElementById('input-email').value.trim();
-      if (!email) {
-        triggerToast('Type your email above first, then tap "Forgot password?" again.');
-        return;
-      }
-      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin,
-      });
-      if (error) {
-        triggerToast(`Could not send reset email: ${error.message}`);
-        return;
-      }
-      triggerToast('Check your email for a password reset link! 📧');
+    function passwordProblem(pwd) {
+      if (!pwd || pwd.length < 8) return 'Use at least 8 characters.';
+      if (!/[A-Z]/.test(pwd) || !/[a-z]/.test(pwd)) return 'Include an uppercase and a lowercase letter.';
+      if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(pwd)) return 'Include at least one symbol (like ! or #).';
+      return '';
+    }
+    function showInlineMsg(id, text, ok) {
+      const e = document.getElementById(id); if (!e) return;
+      e.textContent = text;
+      e.classList.remove('hidden', 'text-red-400', 'text-emerald-400');
+      e.classList.add(ok ? 'text-emerald-400' : 'text-red-400');
     }
 
-    // Supabase redirects the user back here with a special recovery session
-    // after they click the email link — this listener catches that moment
-    // and swaps in the "set a new password" form automatically.
+    // "Forgot password?" - its own screen, like other apps: email -> link -> new password.
+    function openForgotPassword() {
+      document.getElementById('forgot-email').value = document.getElementById('input-email').value.trim();
+      document.getElementById('forgot-msg').classList.add('hidden');
+      ['profile-form', 'auth-mode-toggle', 'forgot-password-link', 'password-reset-form'].forEach(id => document.getElementById(id).classList.add('hidden'));
+      document.getElementById('forgot-panel').classList.remove('hidden');
+    }
+    function closeForgotPassword() {
+      document.getElementById('forgot-panel').classList.add('hidden');
+      document.getElementById('profile-form').classList.remove('hidden');
+      document.getElementById('auth-mode-toggle').classList.remove('hidden');
+      document.getElementById('forgot-password-link').classList.toggle('hidden', !isLoginMode);
+    }
+    const requestPasswordReset = openForgotPassword;   // old name still works
+
+    async function sendResetLink() {
+      const email = (document.getElementById('forgot-email').value || '').trim();
+      if (!/^\S+@\S+\.\S+$/.test(email)) { showInlineMsg('forgot-msg', 'Please enter a valid email address.', false); return; }
+      const btn = document.getElementById('forgot-send-btn'); btn.disabled = true;
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+      btn.disabled = false;
+      if (error) {
+        showInlineMsg('forgot-msg', /rate|seconds|too many/i.test(error.message) ? 'Please wait a minute before asking for another link.' : `We could not send the link: ${error.message}`, false);
+        return;
+      }
+      // Same wording whether or not the email exists, so nobody can probe for accounts.
+      showInlineMsg('forgot-msg', `If an account exists for ${email}, a reset link is on its way. Check your inbox and spam folder. The link works for about an hour.`, true);
+    }
+
+    // The email link brings the person back here with a recovery session.
     supabaseClient.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') {
         openProfileModal();
-        document.getElementById('profile-form').classList.add('hidden');
-        document.getElementById('auth-mode-toggle').classList.add('hidden');
-        document.getElementById('forgot-password-link').classList.add('hidden');
+        ['profile-form', 'auth-mode-toggle', 'forgot-password-link', 'forgot-panel'].forEach(id => document.getElementById(id).classList.add('hidden'));
         document.getElementById('password-reset-form').classList.remove('hidden');
+        try { history.replaceState(null, '', window.location.pathname); } catch (e) { /* ignore */ }
       }
     });
 
     async function submitNewPassword() {
-      const newPwd = document.getElementById('input-new-password').value;
-      if (!newPwd || newPwd.length < 8) {
-        triggerToast('Password must be at least 8 characters.');
-        return;
-      }
-      const { error } = await supabaseClient.auth.updateUser({ password: newPwd });
+      const a = document.getElementById('input-new-password').value;
+      const b = document.getElementById('input-new-password-confirm').value;
+      const problem = passwordProblem(a);
+      if (problem) { showInlineMsg('reset-msg', problem, false); return; }
+      if (a !== b) { showInlineMsg('reset-msg', 'The two passwords do not match.', false); return; }
+      const { error } = await supabaseClient.auth.updateUser({ password: a });
       if (error) {
-        triggerToast(`Could not update password: ${error.message}`);
+        showInlineMsg('reset-msg', /same|different|previous/i.test(error.message) ? 'Please choose a password you have not used before.' : `Could not update your password: ${error.message}`, false);
         return;
       }
-      triggerToast('Password updated! You can log in with it now. 🔒');
       document.getElementById('password-reset-form').classList.add('hidden');
       document.getElementById('profile-form').classList.remove('hidden');
-      setAuthMode('login');
+      document.getElementById('auth-mode-toggle').classList.remove('hidden');
+      document.getElementById('input-new-password').value = ''; document.getElementById('input-new-password-confirm').value = '';
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        await applyLoggedInState(session.user.id);
+        setAuthMode('signup');
+        closeProfileModal();
+        triggerToast('Password updated. You are signed in. 🔒');
+      } else {
+        setAuthMode('login');
+        triggerToast('Password updated. Please log in with your new password. 🔒');
+      }
+    }
+
+    // Logged-in people change their password from Profile (current + new + confirm).
+    function toggleChangePasswordPanel() { document.getElementById('change-password-panel').classList.toggle('hidden'); }
+    async function submitChangePassword() {
+      const cur = document.getElementById('cp-current').value;
+      const nw = document.getElementById('cp-new').value;
+      const cf = document.getElementById('cp-confirm').value;
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) { showInlineMsg('cp-msg', 'Please log in again first.', false); return; }
+      if (!cur) { showInlineMsg('cp-msg', 'Enter your current password.', false); return; }
+      const problem = passwordProblem(nw);
+      if (problem) { showInlineMsg('cp-msg', problem, false); return; }
+      if (nw !== cf) { showInlineMsg('cp-msg', 'The two new passwords do not match.', false); return; }
+      if (nw === cur) { showInlineMsg('cp-msg', 'Your new password must be different from the current one.', false); return; }
+      const { error: reErr } = await supabaseClient.auth.signInWithPassword({ email: currentUser.email || session.user.email, password: cur });
+      if (reErr) { showInlineMsg('cp-msg', 'Your current password is not correct.', false); return; }
+      const { error } = await supabaseClient.auth.updateUser({ password: nw });
+      if (error) { showInlineMsg('cp-msg', `Could not change your password: ${error.message}`, false); return; }
+      ['cp-current', 'cp-new', 'cp-confirm'].forEach(id => { document.getElementById(id).value = ''; });
+      showInlineMsg('cp-msg', 'Your password was changed.', true);
+      triggerToast('Password changed. 🔒');
+    }
+    async function sendResetToMyEmail() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const email = currentUser.email || (session && session.user.email);
+      if (!email) { showInlineMsg('cp-msg', 'Please log in again first.', false); return; }
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+      if (error) { showInlineMsg('cp-msg', `We could not send the link: ${error.message}`, false); return; }
+      showInlineMsg('cp-msg', `A reset link is on its way to ${email}. Check your inbox and spam folder.`, true);
     }
 
     async function restoreSession() {
@@ -1896,7 +2005,7 @@
           : null;
         return `
           <div class="edu-card ${ev.cover_image_url ? 'edu-has-flyer ' : ''}bg-[var(--bg-surface)] rounded-2xl border border-[var(--border-subtle)] overflow-hidden shadow-md">
-            ${ev.cover_image_url ? `<div class="edu-flyer"><img src="${ev.cover_image_url}" alt="" class="w-full h-32 object-cover" onerror="this.style.display='none'"></div>` : ''}
+            ${ev.cover_image_url ? `<div class="edu-flyer" data-src="${escapeHtml(ev.cover_image_url)}" onclick="openFlyerViewer(this.dataset.src)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'){openFlyerViewer(this.dataset.src)}"><img src="${ev.cover_image_url}" alt="Event flyer" class="w-full h-32 object-cover" onerror="this.style.display='none'"><span class="edu-flyer-hint">Tap to see full flyer</span></div>` : ''}
             <div class="edu-details p-4 space-y-2">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-white theme-accent-bg px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow">${escapeHtml(EVENT_TYPE_LABELS[ev.event_type] || ev.event_type)}</span>
@@ -1911,7 +2020,7 @@
 
               ${isRegistered
                 ? `<button disabled class="w-full min-h-touch bg-emerald-950/40 text-emerald-400 font-black text-sm py-3 px-4 rounded-xl border border-emerald-500/30 flex items-center justify-center gap-2">✓ You're Registered</button>`
-                : `<button onclick="openRegistrationModal('${ev.event_id}')" class="w-full min-h-touch theme-accent-bg font-black text-sm py-3 px-4 rounded-xl shadow-lg transition-all hover:opacity-90">Register${ev.price_cents ? ` — ${priceLabel}` : ' (Free)'}</button>`
+                : `<button onclick="openRegistrationModal('${ev.event_id}')" class="w-full min-h-touch theme-accent-bg font-black text-sm py-3 px-4 rounded-xl shadow-lg transition-all hover:opacity-90">Register</button>`
               }
               ${ev.payment_url
                 ? `<a href="${ev.payment_url}" target="_blank" rel="noopener noreferrer" class="block w-full text-center min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] font-bold text-xs py-2.5 rounded-xl border border-[var(--border-subtle)]">Pay${ev.payment_provider ? ` via ${escapeHtml(ev.payment_provider.replace('_', ' '))}` : ''}</a>`
@@ -1922,6 +2031,19 @@
         `;
       }).join('');
     }
+
+    function openFlyerViewer(url) {
+      if (!url) return;
+      const v = document.getElementById('flyer-viewer');
+      document.getElementById('flyer-viewer-img').src = url;
+      v.classList.remove('hidden'); v.classList.add('flex');
+    }
+    function closeFlyerViewer() {
+      const v = document.getElementById('flyer-viewer');
+      v.classList.add('hidden'); v.classList.remove('flex');
+      document.getElementById('flyer-viewer-img').removeAttribute('src');
+    }
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeFlyerViewer(); });
 
     let educationEventsCache = {};
     let registeringEventId = null;
@@ -2382,7 +2504,6 @@
       { key: 'home_footer_banner', kind: 'banner', label: 'Command Center — banner at the bottom of the tab' },
       { key: 'stream_header_badge', kind: 'badge', variant: 'pill', label: 'Pro Voice Stream — header badge' },
       { key: 'polls_header_badge', kind: 'badge', variant: 'pill', label: 'Home — Community Poll card badge' },
-      { key: 'multisport_badge', kind: 'badge', variant: 'pill', label: 'Multi-Sport tab — header badge' },
       { key: 'sport_card_banner', kind: 'banner', label: 'Multi-Sport — ad inside EACH sport card (set a sport to customize just that one, or leave sport blank for all)' },
       { key: 'equipment_header_badge', kind: 'badge', variant: 'header', label: 'Equipment & Fitting — card header badge' },
       { key: 'podcast_header_badge', kind: 'badge', variant: 'header', label: 'Shows/Podcast — card header badge' },
@@ -2647,9 +2768,15 @@
       const wrap = document.getElementById(mediaType + '-featured-wrap');
       const grid = document.getElementById(mediaType + '-featured-grid');
       if (!wrap || !grid) return;
+      if (!currentSportId) { wrap.classList.add('hidden'); grid.innerHTML = ''; return; }
       const st = mediaState[mediaType];
       const items = st.list.slice(0, 8);
-      if (items.length < 2) { wrap.classList.add('hidden'); grid.innerHTML = ''; return; }   // nothing else to click
+      // The "other episodes" box is ALWAYS there once a sport is chosen.
+      wrap.classList.remove('hidden');
+      if (!items.length) {
+        grid.innerHTML = '<p class="col-span-3 sm:col-span-4 text-xs text-[var(--text-muted)] py-2">New videos will appear here.</p>';
+        return;
+      }
       grid.innerHTML = items.map(ep => `
         <button type="button" class="ep-thumb text-left ${ep.episode_id === st.playingId ? 'ep-thumb-active' : ''}" onclick="playEpisode('${mediaType}', '${escapeHtml(ep.episode_id)}')">
           <div class="aspect-video rounded-lg overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-card)]">
@@ -2657,7 +2784,6 @@
           </div>
           <div class="text-xs mt-1 text-[var(--text-muted)] truncate">${escapeHtml(ep.title || '')}</div>
         </button>`).join('');
-      wrap.classList.remove('hidden');
     }
 
     async function loadMediaEmbed(mediaType, iframeId) {
@@ -2733,6 +2859,8 @@
       setIfPresent('podcast-title-label', 'podcast_title');
       setIfPresent('gear-eyebrow-label', 'gear_eyebrow');
       setIfPresent('gear-title-label', 'gear_title');
+      const newsBriefTitle = labelMap.news_brief_feed_title || 'NEWS BRIEF FEED';
+      ['news-brief-feed-title-home', 'news-brief-feed-title-news'].forEach(id => { const e = document.getElementById(id); if (e) e.textContent = newsBriefTitle; });
       const featuredDefaults = { podcast: 'More Episodes', gear: 'More Gear Videos' };
       ['podcast', 'gear'].forEach(slot => {
         const t = document.getElementById(slot + '-featured-title');
@@ -3460,7 +3588,6 @@
         renderSponsorBanner('education_secondary_banner', 'sponsor-banner-education-secondary'),
         renderSponsorBadge('stream_header_badge', 'sponsor-badge-stream'),
         renderSponsorBadge('polls_header_badge', 'sponsor-badge-polls'),
-        renderSponsorBadge('multisport_badge', 'sponsor-badge-multisport'),
         renderSponsorBadge('equipment_header_badge', 'sponsor-badge-equipment'),
         renderSponsorBadge('podcast_header_badge', 'sponsor-badge-podcast'),
         renderSponsorBanner('podcast_banner', 'sponsor-banner-podcast'),
@@ -4480,14 +4607,22 @@
         if (!session) { triggerToast('Session expired — please log in again.'); return; }
 
         const { error: reAuthErr } = await supabaseClient.auth.signInWithPassword({
-          email: currentUser.email, password: pwdVal,
+          email: currentUser.email || session.user.email, password: pwdVal,
         });
         if (reAuthErr) {
           triggerToast('Incorrect password — changes were not saved.');
           return;
         }
 
-        await supabaseClient.from('users').update({ display_name: nameVal }).eq('user_id', session.user.id);
+        // Make sure the database REALLY accepted the change. An update that is silently
+        // blocked returns no error - it just changes nothing - so check what came back.
+        const { data: savedRows, error: saveErr } = await supabaseClient.from('users')
+          .update({ display_name: nameVal }).eq('user_id', session.user.id).select('display_name');
+        if (saveErr || !savedRows || !savedRows.length) {
+          triggerToast(`We could not save your changes${saveErr ? ': ' + saveErr.message : ' - the database did not accept the update. Please try again.'}`);
+          return;
+        }
+        const savedName = savedRows[0].display_name;
         if (pendingPhotoFile) await uploadPendingPhoto(session.user.id);
 
         // Title changes go through a request an admin must approve -
@@ -4502,8 +4637,8 @@
           }
         }
 
-        currentUser.name = nameVal;
-        setAllDisplayNames(nameVal);
+        currentUser.name = savedName;
+        setAllDisplayNames(savedName);
         // pro_posts only stores author_id (never a copy of the name/photo),
         // so the database is already 100% correct the instant users.display_name
         // is updated above - but if the Pro Voice feed is already rendered
