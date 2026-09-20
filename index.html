@@ -964,6 +964,7 @@
                 <span class="font-bold">Subtitles</span>
                 <select id="podcast-lang" onchange="setSubtitleLang('podcast', this.value)" class="bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl px-3 text-xs text-[var(--text-main)]" style="min-height:48px" aria-label="Podcast subtitles language"><option value="">Off</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="pt">Português</option><option value="de">Deutsch</option><option value="it">Italiano</option><option value="zh-Hans">中文</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="hi">हिन्दी</option><option value="ar">العربية</option></select>
               </label>
+              <p class="text-xs text-[var(--text-muted)]">Shows that language if the video has it. For any other language, tap the gear in the video, then Subtitles, then Auto-translate.</p>
               <div id="podcast-summary-wrap" class="hidden bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 space-y-1">
                 <div id="podcast-summary-title" class="text-xs font-extrabold uppercase tracking-wider text-[var(--text-muted)]">Episode Summary</div>
                 <div id="podcast-summary" class="text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-line"></div>
@@ -995,6 +996,7 @@
                 <span class="font-bold">Subtitles</span>
                 <select id="gear-lang" onchange="setSubtitleLang('gear', this.value)" class="bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl px-3 text-xs text-[var(--text-main)]" style="min-height:48px" aria-label="Gear video subtitles language"><option value="">Off</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="pt">Português</option><option value="de">Deutsch</option><option value="it">Italiano</option><option value="zh-Hans">中文</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="hi">हिन्दी</option><option value="ar">العربية</option></select>
               </label>
+              <p class="text-xs text-[var(--text-muted)]">Shows that language if the video has it. For any other language, tap the gear in the video, then Subtitles, then Auto-translate.</p>
               <div id="gear-summary-wrap" class="hidden bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 space-y-1">
                 <div id="gear-summary-title" class="text-xs font-extrabold uppercase tracking-wider text-[var(--text-muted)]">Episode Summary</div>
                 <div id="gear-summary" class="text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-line"></div>
@@ -2807,6 +2809,8 @@
     function youtubeThumb(id) { return `https://i.ytimg.com/vi/${encodeURIComponent(id)}/mqdefault.jpg`; }
 
     { const bl = document.getElementById('app-build-label'); if (bl) bl.textContent = 'App version ' + APP_BUILD; }
+    const mediaShown = { podcast: 8, gear: 8 };
+    function showMoreEpisodes(mediaType) { mediaShown[mediaType] += 8; renderEpisodeThumbs(mediaType); }
     const mediaLang = { podcast: '', gear: '' };
     function embedUrl(mediaType, videoId, autoplay) {
       const lang = mediaLang[mediaType];
@@ -2857,7 +2861,7 @@
       if (!wrap || !grid) return;
       if (!currentSportId) { wrap.classList.add('hidden'); grid.innerHTML = ''; return; }
       const st = mediaState[mediaType];
-      const items = st.list.slice(0, 8);
+      const items = st.list.slice(0, mediaShown[mediaType]);
       // The "other episodes" box is ALWAYS there once a sport is chosen.
       wrap.classList.remove('hidden');
       if (!items.length) {
@@ -2871,6 +2875,7 @@
           </div>
           <div class="text-xs mt-1 text-[var(--text-muted)] truncate">${escapeHtml(ep.title || '')}</div>
         </button>`).join('');
+      if (st.list.length > items.length) grid.insertAdjacentHTML('beforeend', `<button type="button" class="col-span-3 sm:col-span-4 rounded-xl border border-[var(--border-subtle)] text-sm font-bold text-[var(--text-main)]" style="min-height:48px" onclick="showMoreEpisodes('${mediaType}')">Show more episodes</button>`);
     }
 
     async function loadMediaEmbed(mediaType, iframeId) {
@@ -2886,7 +2891,7 @@
 
       const run = cols => supabaseClient.from('podcast_episodes').select(cols)
         .eq('sport_id', currentSportId).eq('media_type', mediaType)
-        .order('created_at', { ascending: false }).limit(24);
+        .order('created_at', { ascending: false }).limit(60);
       let { data, error } = await run('episode_id, youtube_video_id, title, is_active, created_at, summary, thumbnail_url');
       let usedFallback = false;
       if (error) { usedFallback = true; ({ data, error } = await run('episode_id, youtube_video_id, title, is_active, created_at')); } // new columns not added yet
@@ -2897,7 +2902,7 @@
       const prevId = mediaState[mediaType].playingId;
       mediaState[mediaType] = { list, playingId: null };
       // Refreshing keeps what the person is already watching (if it still exists); otherwise the main video.
-      const current = list.find(e => e.episode_id === prevId) || list.find(e => e.is_active);
+      const current = list.find(e => e.episode_id === prevId) || list.find(e => e.is_active) || list[0];
       if (!current) { resetPlayer(); renderEpisodeThumbs(mediaType); return; }
       showEpisode(mediaType, current, false);
     }
