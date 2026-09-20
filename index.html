@@ -239,10 +239,10 @@
     /* =====================================================================
        STANDARD SPONSOR BLOCKS  (phone + desktop)
        One design, three sizes. Bigger = more important:
-         regular (64px) < multi (80px, Multi-Sport top) < global (96px, Official Global Partner)
+         regular (112px) < multi (128px, Multi-Sport top) < global (144px, Official Global Partner)
        No buttons: if the admin adds a link, the whole block is the link.
        ===================================================================== */
-    :root { --sp-h-regular: 64px; --sp-h-multi: 80px; --sp-h-global: 96px; }
+    :root { --sp-h-regular: 112px; --sp-h-multi: 128px; --sp-h-global: 144px; }
     .sp-block {
       position: relative; display: flex; align-items: center; width: 100%;
       overflow: hidden; border-radius: 12px; box-sizing: border-box;
@@ -258,11 +258,32 @@
     .sp-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-width: 0; padding: 0 14px; }
     .sp-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
     .sp-text { min-width: 0; }
-    .sp-eyebrow { font-size: 0.75rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: #f87171; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .sp-headline { font-size: 0.75rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .sp-tag { flex-shrink: 0; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.04em; color: #fff; background: rgba(127, 29, 29, 0.9); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(244, 63, 94, 0.30); }
-    .sp-global .sp-eyebrow { font-size: 0.875rem; }
-    .sp-global .sp-inner { padding: 0 20px; }
+    .sp-eyebrow { font-size: 0.9375rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: #f87171; white-space: normal; overflow-wrap: break-word; line-height: 1.2; }
+    .sp-headline { font-size: 0.8125rem; font-weight: 700; color: var(--text-main); white-space: normal; overflow-wrap: break-word; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .sp-tag { position: absolute; top: 8px; right: 10px; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.04em; color: #fff; background: rgba(127, 29, 29, 0.9); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(244, 63, 94, 0.30); }
+    .sp-multi .sp-eyebrow { font-size: 1.0625rem; }
+    .sp-global .sp-eyebrow { font-size: 1.1875rem; }
+    .sp-global .sp-inner, .sp-multi .sp-inner { padding: 0 20px; }
+    .sp-tag { font-size: 0.75rem; }
+    @media (max-width: 340px) {
+      .sp-eyebrow { font-size: 0.8125rem; letter-spacing: 0.02em; }
+      .sp-multi .sp-eyebrow, .sp-global .sp-eyebrow { font-size: 0.9375rem; }
+      .sp-tag { font-size: 0.625rem; top: 6px; right: 8px; }
+      .sp-inner { padding-left: 10px; }
+    }
+
+    /* Phones + iPad upright: the big Official Global Partner banner slides away as you scroll,
+       so the menu stays pinned but the banner never eats half the screen. */
+    @media (max-width: 1023.98px) {
+      #app-shell > header:has(#sponsor-banner-global:not(:empty)) {
+        top: calc(-1 * (var(--sp-h-global) + env(safe-area-inset-top, 0px)));
+      }
+    }
+
+    /* Shows & Gear: clickable thumbnails of other episodes */
+    .ep-thumb { min-width: 0; padding: 0; background: none; border: 0; cursor: pointer; }
+    .ep-thumb:hover img { opacity: 0.85; }
+    .ep-thumb-active > div:first-child { border-color: var(--accent-main); box-shadow: 0 0 0 1px var(--accent-main); }
 
     /* =====================================================================
        PART B: LARGE SCREENS  (laptops, desktops, iPads)
@@ -385,17 +406,9 @@
         width: 3px; border-radius: 3px; background: var(--accent-main);
       }
 
-      /* ----- sponsor strip: a slim bar across the top of the content (as on phones) ----- */
-      #sponsor-banner-global {
-        position: fixed; top: 0; left: var(--desk-nav-w); right: 0; height: var(--desk-bar-h);
-        display: flex; align-items: center; justify-content: center;
-        padding: 0 var(--desk-pad); background: var(--bg-app);
-        overflow: hidden; z-index: 35;
-      }
-      #sponsor-banner-global:empty { display: none; }
-      #sponsor-banner-global > * { width: 100%; max-width: var(--desk-max); margin: 0 auto; }
-      #sponsor-banner-global .sp-global { border-radius: 14px; border-width: 1px; }
-      body:has(#sponsor-banner-global:not(:empty)) #main-viewport { padding-top: calc(var(--desk-bar-h) + 24px); }
+      /* ----- Official Global Partner: top of the content, scrolls with the page ----- */
+      #main-viewport > #sponsor-banner-global { width: 100%; max-width: var(--desk-max); margin: 0 auto 24px; }
+      #main-viewport > #sponsor-banner-global .sp-global { border-radius: 14px; border-width: 1px; }
 
       /* ----- content area ----- */
       #main-viewport {
@@ -912,11 +925,12 @@
               <iframe id="podcast-iframe" class="w-full h-full" src="" title="Podcast video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
             <div id="podcast-chapters-list" class="flex flex-wrap gap-1.5"></div>
+            <div id="podcast-summary" class="hidden bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-line"></div>
           </div>
           <div id="sponsor-banner-podcast"></div>
           <div id="podcast-featured-wrap" class="hidden">
             <div id="podcast-featured-title" class="text-sm font-bold text-[var(--text-muted)] mb-2"></div>
-            <div id="podcast-featured-grid" class="grid grid-cols-4 gap-2"></div>
+            <div id="podcast-featured-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-2"></div>
           </div>
         </div>
 
@@ -934,11 +948,12 @@
               <iframe id="gear-iframe" class="w-full h-full" src="" title="Gear video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
             <div id="gear-chapters-list" class="flex flex-wrap gap-1.5"></div>
+            <div id="gear-summary" class="hidden bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-line"></div>
           </div>
           <div id="sponsor-banner-equipment"></div>
           <div id="gear-featured-wrap" class="hidden">
             <div id="gear-featured-title" class="text-sm font-bold text-[var(--text-muted)] mb-2"></div>
-            <div id="gear-featured-grid" class="grid grid-cols-4 gap-2"></div>
+            <div id="gear-featured-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-2"></div>
           </div>
         </div>
 
@@ -1697,8 +1712,6 @@
       refreshAllSponsorPlacements();
       loadMediaEmbed('podcast', 'podcast-iframe');
       loadMediaEmbed('gear', 'gear-iframe');
-      loadFeaturedItems('podcast');
-      loadFeaturedItems('gear');
       loadEducationEventsFrontend();
       loadSportSpecificLabels(sportId);
       loadSwingtypeUserState(sportId);
@@ -1823,8 +1836,6 @@
       refreshAllSponsorPlacements();
       loadMediaEmbed('podcast', 'podcast-iframe');
       loadMediaEmbed('gear', 'gear-iframe');
-      loadFeaturedItems('podcast');
-      loadFeaturedItems('gear');
       loadEducationEventsFrontend();
       loadSportSpecificLabels(sportId);
       loadSwingtypeUserState(sportId);
@@ -2419,21 +2430,40 @@
       return fetchSponsorPlacementForSport(key, currentSportId);
     }
 
+    // These slots used to be typed straight into the app. If the database has no row
+    // for one of them yet, a default sponsor block still shows, so an ad space is never
+    // lost. Saving anything for that slot in the admin replaces the default; setting it
+    // inactive there hides it.
+    const SPONSOR_FALLBACKS = {
+      home_strip_top:           'Pulse Presenting Sponsor',
+      home_strip_bottom:        'Partner Sponsor',
+      lessons_strip:            'Partner Sponsor',
+      fitness_strip:            'Partner Sponsor',
+      profile_vip_banner:       'Official Show Partner',
+      multisport_header_banner: 'Official Multi-Sport Partner',
+    };
+
     async function fetchSponsorPlacementForSport(key, sportId) {
       let query = supabaseClient
         .from('sponsor_placements')
         .select('*')
-        .eq('placement_key', key)
-        .eq('is_active', true);
+        .eq('placement_key', key);
 
       query = sportId
         ? query.or(`sport_id.eq.${sportId},sport_id.is.null`)
         : query.is('sport_id', null);
 
       const { data, error } = await query;
-      if (error || !data || !data.length) return null;
+      if (error) return null;
+      if (!data || !data.length) {
+        return SPONSOR_FALLBACKS[key]
+          ? { placement_key: key, sport_id: null, kind: 'banner', is_active: true, sponsor_name: 'PULSE', logo_text: 'PULSE', logo_color: '#F40009', eyebrow_label: SPONSOR_FALLBACKS[key] }
+          : null;
+      }
+      // Rows exist: only active ones show (all inactive = the admin hid this slot).
+      const active = data.filter(r => r.is_active);
       // Prefer the sport-specific row over the global fallback if both exist.
-      return data.find(r => r.sport_id === sportId) || data.find(r => !r.sport_id) || data[0];
+      return active.find(r => r.sport_id === sportId) || active.find(r => !r.sport_id) || active[0] || null;
     }
 
     // Only real web links are ever opened (http/https). Used by whole-ad
@@ -2526,6 +2556,22 @@
     // only (set in CSS): regular, multi (Multi-Sport top), global (the top
     // Official Global Partner - always the biggest). No buttons anywhere:
     // if the admin sets a link, the WHOLE block is the link.
+    // Phones/iPad upright: Global banner stays at the top of the header.
+    // Laptops/desktops: it moves to the top of the page content (scrolls with the page).
+    (function keepGlobalSponsorInRightPlace() {
+      const el = document.getElementById('sponsor-banner-global');
+      const main = document.getElementById('main-viewport');
+      const header = el && el.parentElement;
+      if (!el || !main || !header || !window.matchMedia) return;
+      const mq = window.matchMedia('(min-width: 1024px)');
+      const place = () => {
+        if (mq.matches) { if (el.parentElement !== main) main.insertBefore(el, main.firstChild); }
+        else if (el.parentElement !== header) header.insertBefore(el, header.firstChild);
+      };
+      place();
+      if (mq.addEventListener) mq.addEventListener('change', place); else mq.addListener(place);
+    })();
+
     async function renderSponsorBanner(key, containerId, explicitSportId) {
       const el = document.getElementById(containerId);
       if (!el) return;
@@ -2549,7 +2595,7 @@
         inner = `
           <div class="sp-inner">
             <div class="sp-left">
-              ${sponsorLogoHtml(sp, tier === 'global' ? 'h-5' : 'h-4', tier === 'global' ? 30 : 24)}
+              ${sponsorLogoHtml(sp, tier === 'global' ? 'h-6' : 'h-5', tier === 'global' ? 36 : 30)}
               <div class="sp-text">
                 <div class="sp-eyebrow">${escapeHtml(sp.eyebrow_label || fallbackEyebrow)}</div>
                 ${sp.headline ? `<div class="sp-headline">${escapeHtml(sp.headline)}</div>` : ''}
@@ -2568,41 +2614,73 @@
     // (which now covers both types via `media_type`) and points the
     // iframe at it - if none exists yet, the iframe is simply left
     // showing nothing rather than a confusing placeholder video.
+    const mediaState = { podcast: { list: [], playingId: null }, gear: { list: [], playingId: null } };
+    const MEDIA_IFRAME = { podcast: 'podcast-iframe', gear: 'gear-iframe' };
+
+    function youtubeThumb(id) { return `https://i.ytimg.com/vi/${encodeURIComponent(id)}/mqdefault.jpg`; }
+
+    // Puts one episode into the player: video, title, summary box, chapter buttons, highlighted thumbnail.
+    function showEpisode(mediaType, ep, autoplay) {
+      const iframe = document.getElementById(MEDIA_IFRAME[mediaType]);
+      if (!iframe || !ep) return;
+      iframe.src = `https://www.youtube.com/embed/${encodeURIComponent(ep.youtube_video_id)}?enablejsapi=1${autoplay ? '&autoplay=1' : ''}`;
+      iframe.title = ep.title || iframe.title;
+      const vt = document.getElementById(mediaType + '-video-title'); if (vt) vt.textContent = ep.title || '';
+      const sm = document.getElementById(mediaType + '-summary');
+      if (sm) { const txt = (ep.summary || '').trim(); sm.textContent = txt; sm.classList.toggle('hidden', !txt); }
+      mediaState[mediaType].playingId = ep.episode_id;
+      const chaptersEl = document.getElementById(mediaType + '-chapters-list');
+      if (chaptersEl) loadEpisodeChapters(ep.episode_id, MEDIA_IFRAME[mediaType], chaptersEl);
+      renderEpisodeThumbs(mediaType);
+    }
+
+    // Tapping a thumbnail plays that episode in the player above it.
+    function playEpisode(mediaType, episodeId) {
+      const ep = mediaState[mediaType].list.find(e => e.episode_id === episodeId);
+      if (!ep) return;
+      showEpisode(mediaType, ep, true);
+      const iframe = document.getElementById(MEDIA_IFRAME[mediaType]);
+      if (iframe && iframe.scrollIntoView) iframe.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function renderEpisodeThumbs(mediaType) {
+      const wrap = document.getElementById(mediaType + '-featured-wrap');
+      const grid = document.getElementById(mediaType + '-featured-grid');
+      if (!wrap || !grid) return;
+      const st = mediaState[mediaType];
+      const items = st.list.slice(0, 8);
+      if (items.length < 2) { wrap.classList.add('hidden'); grid.innerHTML = ''; return; }   // nothing else to click
+      grid.innerHTML = items.map(ep => `
+        <button type="button" class="ep-thumb text-left ${ep.episode_id === st.playingId ? 'ep-thumb-active' : ''}" onclick="playEpisode('${mediaType}', '${escapeHtml(ep.episode_id)}')">
+          <div class="aspect-video rounded-lg overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-card)]">
+            <img src="${escapeHtml(ep.thumbnail_url || youtubeThumb(ep.youtube_video_id))}" alt="" class="w-full h-full object-cover" onerror="this.style.display='none'">
+          </div>
+          <div class="text-xs mt-1 text-[var(--text-muted)] truncate">${escapeHtml(ep.title || '')}</div>
+        </button>`).join('');
+      wrap.classList.remove('hidden');
+    }
+
     async function loadMediaEmbed(mediaType, iframeId) {
       const iframe = document.getElementById(iframeId);
       if (!iframe) return;
-      const chaptersListId = mediaType === 'gear' ? 'gear-chapters-list' : 'podcast-chapters-list';
-      const chaptersEl = document.getElementById(chaptersListId);
-
-      if (!currentSportId) {
+      const resetPlayer = () => {
         iframe.removeAttribute('src');
-        if (chaptersEl) chaptersEl.innerHTML = '';
-        return;
-      }
+        const ch = document.getElementById(mediaType + '-chapters-list'); if (ch) ch.innerHTML = '';
+        const vt = document.getElementById(mediaType + '-video-title'); if (vt) vt.textContent = '';
+        const sm = document.getElementById(mediaType + '-summary'); if (sm) { sm.textContent = ''; sm.classList.add('hidden'); }
+      };
+      if (!currentSportId) { resetPlayer(); mediaState[mediaType] = { list: [], playingId: null }; renderEpisodeThumbs(mediaType); return; }
 
-      const { data, error } = await supabaseClient
-        .from('podcast_episodes')
-        .select('episode_id, youtube_video_id, title')
-        .eq('sport_id', currentSportId)
-        .eq('media_type', mediaType)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (error || !data || !data.youtube_video_id) {
-        iframe.removeAttribute('src');
-        if (chaptersEl) chaptersEl.innerHTML = '';
-        const vt0 = document.getElementById(mediaType === 'gear' ? 'gear-video-title' : 'podcast-video-title');
-        if (vt0) vt0.textContent = '';
-        return;
-      }
-      iframe.src = `https://www.youtube.com/embed/${encodeURIComponent(data.youtube_video_id)}?enablejsapi=1`;
-      iframe.title = data.title || iframe.title;
-      const vt = document.getElementById(mediaType === 'gear' ? 'gear-video-title' : 'podcast-video-title');
-      if (vt) vt.textContent = data.title || '';
-
-      if (chaptersEl) await loadEpisodeChapters(data.episode_id, iframeId, chaptersEl);
+      const run = cols => supabaseClient.from('podcast_episodes').select(cols)
+        .eq('sport_id', currentSportId).eq('media_type', mediaType)
+        .order('created_at', { ascending: false }).limit(24);
+      let { data, error } = await run('episode_id, youtube_video_id, title, is_active, created_at, summary, thumbnail_url');
+      if (error) ({ data, error } = await run('episode_id, youtube_video_id, title, is_active, created_at')); // new columns not added yet
+      const list = (!error && data) ? data.filter(e => e.youtube_video_id) : [];
+      mediaState[mediaType] = { list, playingId: null };
+      const current = list.find(e => e.is_active);
+      if (!current) { resetPlayer(); renderEpisodeThumbs(mediaType); return; }
+      showEpisode(mediaType, current, false);
     }
 
     // Chapter jumps - each chapter is just a timestamp + label an admin
@@ -2641,36 +2719,6 @@
       }
     }
 
-    // Featured photo boxes (up to 4 per card, per sport) - all uploaded and
-    // captioned from the admin dashboard, nothing typed into the app.
-    async function loadFeaturedItems(slot) {
-      const wrap = document.getElementById(slot + '-featured-wrap');
-      const grid = document.getElementById(slot + '-featured-grid');
-      if (!wrap || !grid) return;
-      if (!currentSportId) { wrap.classList.add('hidden'); grid.innerHTML = ''; return; }
-      const { data, error } = await supabaseClient
-        .from('featured_items')
-        .select('position, image_url, caption, link_url')
-        .eq('sport_id', currentSportId)
-        .eq('slot', slot)
-        .eq('is_active', true)
-        .order('position', { ascending: true })
-        .limit(4);
-      const rows = (!error && data) ? data.filter(r => r.image_url) : [];
-      if (!rows.length) { wrap.classList.add('hidden'); grid.innerHTML = ''; return; }
-      grid.innerHTML = rows.map(r => {
-        const url = sponsorSafeUrl(r.link_url);
-        const attrs = url ? ` data-url="${escapeHtml(url)}" onclick="openSafeLink(this.dataset.url)" role="link" tabindex="0" style="cursor:pointer"` : '';
-        return `<div class="featured-box"${attrs}>
-          <div class="featured-photo aspect-square rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-card)]">
-            <img src="${escapeHtml(r.image_url)}" alt="${escapeHtml(r.caption || '')}" class="w-full h-full object-cover" onerror="this.style.display='none'">
-          </div>
-          ${r.caption ? `<div class="text-xs mt-1 text-[var(--text-muted)] truncate">${escapeHtml(r.caption)}</div>` : ''}
-        </div>`;
-      }).join('');
-      wrap.classList.remove('hidden');
-    }
-
     async function loadContentLabels() {
       const { data, error } = await supabaseClient.from('app_content_labels').select('label_key, value');
       if (error || !data) return; // non-fatal - the hardcoded default text already in the HTML stays as a safe fallback
@@ -2685,7 +2733,7 @@
       setIfPresent('podcast-title-label', 'podcast_title');
       setIfPresent('gear-eyebrow-label', 'gear_eyebrow');
       setIfPresent('gear-title-label', 'gear_title');
-      const featuredDefaults = { podcast: 'Featured Episodes', gear: 'Featured Gear' };
+      const featuredDefaults = { podcast: 'More Episodes', gear: 'More Gear Videos' };
       ['podcast', 'gear'].forEach(slot => {
         const t = document.getElementById(slot + '-featured-title');
         if (t) t.textContent = labelMap[slot + '_featured_title'] || featuredDefaults[slot];
@@ -5866,8 +5914,6 @@
       safeBootStep('refreshAllSponsorPlacements', () => refreshAllSponsorPlacements());
       safeBootStep('loadPodcastEmbed', () => loadMediaEmbed('podcast', 'podcast-iframe'));
       safeBootStep('loadGearEmbed', () => loadMediaEmbed('gear', 'gear-iframe'));
-      safeBootStep('loadFeaturedPodcast', () => loadFeaturedItems('podcast'));
-      safeBootStep('loadFeaturedGear', () => loadFeaturedItems('gear'));
       safeBootStep('loadContentLabels', () => loadContentLabels());
       safeBootStep('loadSwingtypeLabels', () => loadSwingtypeLabels());
       safeBootStep('renderSportSwitcherLabel', () => renderSportSwitcherLabel());
