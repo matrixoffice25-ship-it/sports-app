@@ -960,7 +960,10 @@
               <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-black">
                 <iframe id="podcast-iframe" class="w-full h-full" src="" title="Podcast video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
               </div>
-              <div id="podcast-chapters-list" class="flex flex-wrap gap-1.5"></div>
+              <label class="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+                <span class="font-bold">Subtitles</span>
+                <select id="podcast-lang" onchange="setSubtitleLang('podcast', this.value)" class="bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl px-3 text-xs text-[var(--text-main)]" style="min-height:48px" aria-label="Podcast subtitles language"><option value="">Off</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="pt">Português</option><option value="de">Deutsch</option><option value="it">Italiano</option><option value="zh-Hans">中文</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="hi">हिन्दी</option><option value="ar">العربية</option></select>
+              </label>
               <div id="podcast-summary-wrap" class="hidden bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 space-y-1">
                 <div id="podcast-summary-title" class="text-xs font-extrabold uppercase tracking-wider text-[var(--text-muted)]">Episode Summary</div>
                 <div id="podcast-summary" class="text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-line"></div>
@@ -988,7 +991,10 @@
               <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-black">
                 <iframe id="gear-iframe" class="w-full h-full" src="" title="Gear video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
               </div>
-              <div id="gear-chapters-list" class="flex flex-wrap gap-1.5"></div>
+              <label class="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+                <span class="font-bold">Subtitles</span>
+                <select id="gear-lang" onchange="setSubtitleLang('gear', this.value)" class="bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl px-3 text-xs text-[var(--text-main)]" style="min-height:48px" aria-label="Gear video subtitles language"><option value="">Off</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="pt">Português</option><option value="de">Deutsch</option><option value="it">Italiano</option><option value="zh-Hans">中文</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="hi">हिन्दी</option><option value="ar">العربية</option></select>
+              </label>
               <div id="gear-summary-wrap" class="hidden bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 space-y-1">
                 <div id="gear-summary-title" class="text-xs font-extrabold uppercase tracking-wider text-[var(--text-muted)]">Episode Summary</div>
                 <div id="gear-summary" class="text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-line"></div>
@@ -1194,7 +1200,7 @@
 
           <div>
             <button type="button" id="verification-toggle-btn" onclick="toggleVerificationRequest()" class="text-xs font-bold theme-accent-text underline min-h-touch">
-              Coach, elite athlete, or industry expert? Request verification (optional)
+              Coach, elite player, or industry expert? Request verification (optional)
             </button>
 
             <p class="text-xs text-[var(--text-muted)] mt-1">Totally optional. You do not have to answer this to create or use your account.</p>
@@ -1205,9 +1211,10 @@
                 <option value="Professional Athlete">Professional Athlete</option>
                 <option value="Coach">Coach</option>
                 <option value="Industry Expert">Industry Expert</option>
-                <option value="Elite Athlete">Elite Athlete</option>
+                <option value="Elite Player">Elite Player</option>
+                <option value="Hobby/Fan">Hobby/Fan</option>
               </select>
-              <p class="text-xs text-[var(--text-muted)] mt-1">This submits a request for our team to review. It does not automatically grant a verified badge.</p>
+              <p class="text-xs text-[var(--text-muted)] mt-1">Professional Athlete, Coach, Industry Expert and Elite Player submit a request for our team to review; it does not automatically grant posting access. Hobby/Fan is for everyone else: read and react.</p>
             </div>
           </div>
           </div>
@@ -2774,11 +2781,28 @@
 
     function youtubeThumb(id) { return `https://i.ytimg.com/vi/${encodeURIComponent(id)}/mqdefault.jpg`; }
 
-    // Puts one episode into the player: video, title, summary box, chapter buttons, highlighted thumbnail.
+    const mediaLang = { podcast: '', gear: '' };
+    function embedUrl(mediaType, videoId, autoplay) {
+      const lang = mediaLang[mediaType];
+      // Subtitles use YouTube's own caption system (free, no extra hosting). For any language, the
+      // player's own gear menu > Subtitles > Auto-translate also works.
+      return `https://www.youtube.com/embed/${encodeURIComponent(videoId)}?enablejsapi=1&rel=0&hl=${encodeURIComponent(lang || 'en')}${lang ? `&cc_load_policy=1&cc_lang_pref=${encodeURIComponent(lang)}` : ''}${autoplay ? '&autoplay=1' : ''}`;
+    }
+    function setSubtitleLang(mediaType, lang) {
+      mediaLang[mediaType] = lang;
+      const st = mediaState[mediaType];
+      const ep = st.list.find(e => e.episode_id === st.playingId);
+      const iframe = document.getElementById(MEDIA_IFRAME[mediaType]);
+      if (ep && iframe) iframe.src = embedUrl(mediaType, ep.youtube_video_id, false);
+    }
+
+    // Puts one episode into the player: video, title, summary box, highlighted thumbnail.
     function showEpisode(mediaType, ep, autoplay) {
       const iframe = document.getElementById(MEDIA_IFRAME[mediaType]);
       if (!iframe || !ep) return;
-      iframe.src = `https://www.youtube.com/embed/${encodeURIComponent(ep.youtube_video_id)}?enablejsapi=1${autoplay ? '&autoplay=1' : ''}`;
+      const url = embedUrl(mediaType, ep.youtube_video_id, autoplay);
+      const sameVideo = iframe.dataset.vid === ep.youtube_video_id;
+      if (!sameVideo || autoplay) { iframe.src = url; iframe.dataset.vid = ep.youtube_video_id; }   // don't restart a video that is already playing
       iframe.title = ep.title || iframe.title;
       const vt = document.getElementById(mediaType + '-video-title'); if (vt) vt.textContent = ep.title || '';
       const sm = document.getElementById(mediaType + '-summary'); const sw = document.getElementById(mediaType + '-summary-wrap');
@@ -2789,8 +2813,6 @@
         if (sw) sw.classList.remove('hidden');
       }
       mediaState[mediaType].playingId = ep.episode_id;
-      const chaptersEl = document.getElementById(mediaType + '-chapters-list');
-      if (chaptersEl) loadEpisodeChapters(ep.episode_id, MEDIA_IFRAME[mediaType], chaptersEl);
       renderEpisodeThumbs(mediaType);
     }
 
@@ -2829,8 +2851,7 @@
       const iframe = document.getElementById(iframeId);
       if (!iframe) return;
       const resetPlayer = () => {
-        iframe.removeAttribute('src');
-        const ch = document.getElementById(mediaType + '-chapters-list'); if (ch) ch.innerHTML = '';
+        iframe.removeAttribute('src'); delete iframe.dataset.vid;
         const vt = document.getElementById(mediaType + '-video-title'); if (vt) vt.textContent = '';
         const sm = document.getElementById(mediaType + '-summary'); if (sm) sm.textContent = '';
         const sw = document.getElementById(mediaType + '-summary-wrap'); if (sw) sw.classList.add('hidden');
@@ -2843,46 +2864,12 @@
       let { data, error } = await run('episode_id, youtube_video_id, title, is_active, created_at, summary, thumbnail_url');
       if (error) ({ data, error } = await run('episode_id, youtube_video_id, title, is_active, created_at')); // new columns not added yet
       const list = (!error && data) ? data.filter(e => e.youtube_video_id) : [];
+      const prevId = mediaState[mediaType].playingId;
       mediaState[mediaType] = { list, playingId: null };
-      const current = list.find(e => e.is_active);
+      // Refreshing keeps what the person is already watching (if it still exists); otherwise the main video.
+      const current = list.find(e => e.episode_id === prevId) || list.find(e => e.is_active);
       if (!current) { resetPlayer(); renderEpisodeThumbs(mediaType); return; }
       showEpisode(mediaType, current, false);
-    }
-
-    // Chapter jumps - each chapter is just a timestamp + label an admin
-    // sets up per episode. Tapping one seeks the YouTube player to that
-    // point via the same postMessage API already used for seekPodcast.
-    async function loadEpisodeChapters(episodeId, iframeId, chaptersEl) {
-      const { data: chapters } = await supabaseClient
-        .from('episode_chapters')
-        .select('label, time_seconds')
-        .eq('episode_id', episodeId)
-        .order('sort_order', { ascending: true });
-
-      if (!chapters || !chapters.length) { chaptersEl.innerHTML = ''; return; }
-
-      chaptersEl.innerHTML = chapters.map(c => `
-        <button onclick="seekVideoTo('${iframeId}', ${c.time_seconds})" class="text-sm font-bold px-2.5 py-1 rounded-lg bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all">
-          ${formatChapterTime(c.time_seconds)} ${escapeHtml(c.label)}
-        </button>
-      `).join('');
-    }
-
-    function formatChapterTime(totalSeconds) {
-      const mins = Math.floor(totalSeconds / 60);
-      const secs = totalSeconds % 60;
-      return `${mins}:${String(secs).padStart(2, '0')}`;
-    }
-
-    // Generic version of the existing seekPodcast() - works for either
-    // video slot (podcast or gear) via the same YouTube postMessage API.
-    function seekVideoTo(iframeId, seconds) {
-      const iframe = document.getElementById(iframeId);
-      if (iframe && iframe.contentWindow) {
-        iframe.contentWindow.postMessage(JSON.stringify({
-          event: 'command', func: 'seekTo', args: [seconds, true],
-        }), '*');
-      }
     }
 
     // Social media icons - the links are typed in the admin dashboard (Social Media page).
@@ -4294,6 +4281,7 @@
       currentTab = tabId;
       playSfx("C5", "32n");
 
+      if (tabId === 'tab-gear') { loadContentLabels(); loadMediaEmbed('podcast', 'podcast-iframe'); loadMediaEmbed('gear', 'gear-iframe'); }   // pick up admin changes without a full reload
       if (tabId === 'tab-stream') loadProFeed();
       if (tabId === 'tab-home') loadHomeProVoicePreview();
       if (tabId === 'tab-selector') loadSportHubsList();
@@ -4394,7 +4382,7 @@
       fields.classList.toggle('hidden');
       btn.innerText = isHidden
         ? 'Hide verification request'
-        : 'Coach, elite athlete, or industry expert? Request verification (optional)';
+        : 'Coach, elite player, or industry expert? Request verification (optional)';
     }
 
     function setAuthMode(mode) {
@@ -4708,7 +4696,7 @@
             user_id: session.user.id, requested_title: titleVal,
           });
           if (!reqError) {
-            triggerToast("Title request submitted! This submits a request for our team to review. It does not automatically grant a verified badge.");
+            triggerToast("Request sent! Our team will review it and you will see your title once approved.");
           }
         }
 
@@ -4851,7 +4839,7 @@
       }
 
       setAllDisplayNames(displayName);
-      document.getElementById('input-title').value = profile?.title || '';
+      document.getElementById('input-title').value = (profile?.title === 'Elite Athlete' || profile?.title === 'Athlete') ? 'Elite Player' : (profile?.title || '');
       if (profile?.title) {
         document.getElementById('verification-fields').classList.remove('hidden');
         document.getElementById('verification-toggle-btn').innerText = 'Hide verification request';
@@ -4947,7 +4935,7 @@
 
     function handleComposerButtonClick() {
       if (!canPostToProVoice()) {
-        triggerToast('Only verified or Inner Circle accounts can post to Pro Voice Stream.');
+        triggerToast('Posting in Pro Voice is for approved Professional Athletes, Coaches, Industry Experts, Elite Players and Admins. Hobby/Fan accounts can read and react.');
         return;
       }
       if (!currentSportId) {
