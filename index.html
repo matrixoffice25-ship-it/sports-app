@@ -237,6 +237,34 @@
     }
 
     /* =====================================================================
+       STANDARD SPONSOR BLOCKS  (phone + desktop)
+       One design, three sizes. Bigger = more important:
+         regular (64px) < multi (80px, Multi-Sport top) < global (96px, Official Global Partner)
+       No buttons: if the admin adds a link, the whole block is the link.
+       ===================================================================== */
+    :root { --sp-h-regular: 64px; --sp-h-multi: 80px; --sp-h-global: 96px; }
+    .sp-block {
+      position: relative; display: flex; align-items: center; width: 100%;
+      overflow: hidden; border-radius: 12px; box-sizing: border-box;
+      border: 1px solid rgba(244, 0, 9, 0.30);
+      background: linear-gradient(to right, rgba(69, 10, 10, 0.40), var(--bg-app) 55%, var(--bg-surface));
+    }
+    .sp-regular { height: var(--sp-h-regular); }
+    .sp-multi   { height: var(--sp-h-multi); }
+    .sp-global  { height: var(--sp-h-global); border-radius: 0; border-width: 0 0 1px 0; }
+    .sp-clickable { cursor: pointer; }
+    .sp-clickable:focus-visible { outline: 2px solid var(--accent-main); outline-offset: -2px; }
+    .sp-img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .sp-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-width: 0; padding: 0 14px; }
+    .sp-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .sp-text { min-width: 0; }
+    .sp-eyebrow { font-size: 0.75rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: #f87171; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sp-headline { font-size: 0.75rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sp-tag { flex-shrink: 0; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.04em; color: #fff; background: rgba(127, 29, 29, 0.9); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(244, 63, 94, 0.30); }
+    .sp-global .sp-eyebrow { font-size: 0.875rem; }
+    .sp-global .sp-inner { padding: 0 20px; }
+
+    /* =====================================================================
        PART B: LARGE SCREENS  (laptops, desktops, iPads)
        ---------------------------------------------------------------------
        Shared rules  : screens 1024px+ wide, OR 768px+ wide and 600px+ tall
@@ -278,12 +306,22 @@
       #sport-hubs-list > :only-child, #education-events-list-frontend > :only-child,
       #news-article-list > :only-child, #home-pro-voice-preview > :only-child { grid-column: 1 / -1; }
 
-      /* sponsor images: never cropped, never stretched - scaled with their true shape */
-      [id^="sponsor-banner-"] img {
-        width: auto; max-width: 100%; height: auto;
-        object-fit: contain !important;
-        display: block; margin-left: auto; margin-right: auto;
-      }
+      /* sponsor blocks: same frame everywhere; a full ad image is shown whole (never cropped or stretched) */
+      [id^="sponsor-banner-"]:empty { display: none; }
+      .sp-img { object-fit: contain; }
+      #main-viewport > #tab-home > #poll-card:has(+ #sponsor-banner-home-strip-top:empty) { grid-column: 1 / -1; }
+      #main-viewport > #tab-home > #poll-card + div { align-self: center; }
+
+      /* Education: details on the left, the whole flyer on the right */
+      #education-events-list-frontend { grid-template-columns: 1fr; }
+      .edu-card.edu-has-flyer { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; }
+      .edu-card.edu-has-flyer .edu-details { grid-column: 1; grid-row: 1; padding: 28px; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+      .edu-card.edu-has-flyer .edu-details > * { margin: 0; }
+      .edu-card.edu-has-flyer .edu-flyer { grid-column: 2; grid-row: 1; display: flex; align-items: center; justify-content: center; padding: 20px; background: var(--bg-app); }
+      .edu-card.edu-has-flyer .edu-flyer img { width: auto; max-width: 100%; height: auto; max-height: 680px; object-fit: contain; border-radius: 12px; }
+
+      /* Shows & Gear: 4 featured boxes stay tidy */
+      .featured-box { min-width: 0; }
 
       /* the app's own bigger screens deserve slightly bigger text */
       ::-webkit-scrollbar { width: 10px; height: 10px; }
@@ -303,7 +341,7 @@
       :root {
         --desk-nav-w: clamp(232px, 17vw, 264px);
         --desk-pad: clamp(24px, 3.2vw, 48px);
-        --desk-bar-h: 72px;
+        --desk-bar-h: 112px;
       }
 
       /* ----- side menu: one clean panel, no lines, no stacked boxes ----- */
@@ -355,9 +393,8 @@
         overflow: hidden; z-index: 35;
       }
       #sponsor-banner-global:empty { display: none; }
-      #sponsor-banner-global > :not(img) { width: 100%; max-width: var(--desk-max); margin: 0 auto; }
-      #sponsor-banner-global .border-b { border-bottom-width: 0; border-radius: 14px; overflow: hidden; }
-      #sponsor-banner-global img { max-height: calc(var(--desk-bar-h) - 16px) !important; }
+      #sponsor-banner-global > * { width: 100%; max-width: var(--desk-max); margin: 0 auto; }
+      #sponsor-banner-global .sp-global { border-radius: 14px; border-width: 1px; }
       body:has(#sponsor-banner-global:not(:empty)) #main-viewport { padding-top: calc(var(--desk-bar-h) + 24px); }
 
       /* ----- content area ----- */
@@ -492,7 +529,7 @@
       <!-- TAB 1: MULTI-SPORT PLATFORM SELECTOR -->
       <!-- ================================================================= -->
       <section id="tab-selector" class="tab-page hidden space-y-4">
-        
+        <div id="sponsor-banner-multisport-header"></div>
         <div class="text-center py-2">
           <div class="inline-flex justify-center mb-2" id="sponsor-badge-multisport"></div>
           <h2 class="text-xl font-extrabold text-[var(--text-main)]">Sport Hubs</h2>
@@ -527,18 +564,7 @@
           <button id="see-all-polls-btn" onclick="openAllPollsModal()" class="hidden text-sm font-bold text-red-400 hover:text-red-300">See All Polls</button>
         </div>
 
-        <!-- PULSE AD PLACEHOLDER - replace with real ad partner once MVP ships -->
-        <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all" onclick="triggerToast('PULSE Performance Gear Opened!')">
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white flex-shrink-0">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,12 7,12 9,6 13,18 16,12 22,12"/></svg>
-            </div>
-            <div>
-              <div class="text-xs font-bold text-red-400 uppercase">PULSE</div>
-              <div class="text-xs font-bold text-[var(--text-main)]">Performance Gear for Today's Round</div>
-            </div>
-          </div>
-        </div>
+        <div id="sponsor-banner-home-strip-top"></div>
 
         <!-- ================================================================= -->
         <!-- SWINGTYPE COMMAND CENTER CARD (Segment 1 gate)
@@ -625,19 +651,7 @@
           <p class="text-sm text-[var(--text-muted)] text-center py-4">Log in and select a sport to see the latest Pro Voice posts.</p>
         </div>
 
-        <!-- PULSE AD: TRACK YOUR HYDRATION -->
-        <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all" onclick="triggerToast('Hydration Tracker Opened! 💧')">
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white flex-shrink-0">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,12 7,12 9,6 13,18 16,12 22,12"/></svg>
-            </div>
-            <div>
-              <div class="text-xs font-bold text-red-400 uppercase">PULSE</div>
-              <div class="text-xs font-bold text-[var(--text-main)]">Track Your Hydration</div>
-            </div>
-          </div>
-          
-        </div>
+        <div id="sponsor-banner-home-strip-bottom"></div>
 
         <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
           <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
@@ -783,18 +797,7 @@
             </div>
           </div>
 
-          <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all mt-4" onclick="triggerToast('Loading Recovery Guide! 💓')">
-            <div class="flex items-center space-x-3">
-              <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white flex-shrink-0">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,12 7,12 9,6 13,18 16,12 22,12"/></svg>
-              </div>
-              <div>
-                <div class="text-xs font-bold text-red-400 uppercase">PULSE</div>
-                <div class="text-xs font-bold text-[var(--text-main)]">Post-Drill Recovery Guide</div>
-              </div>
-            </div>
-            
-          </div>
+          <div id="sponsor-banner-lessons-strip"></div>
 
         </div>
 
@@ -860,18 +863,7 @@
             </div>
           </div>
 
-          <!-- PULSE RECOVERY -->
-          <div class="bg-[var(--bg-surface)] border border-red-500/20 rounded-xl p-3 flex items-center justify-between shadow-sm cursor-pointer hover:border-red-500/40 transition-all mt-4" onclick="triggerToast('Loading Mobility Recovery Guide! 💓')">
-            <div class="flex items-center space-x-3">
-              <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white flex-shrink-0">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,12 7,12 9,6 13,18 16,12 22,12"/></svg>
-              </div>
-              <div>
-                <div class="text-xs font-bold text-red-400 uppercase">PULSE</div>
-                <div class="text-xs font-bold text-[var(--text-main)]">Post-Mobility Recovery Guide</div>
-              </div>
-            </div>
-          </div>
+          <div id="sponsor-banner-fitness-strip"></div>
 
         </div>
 
@@ -906,121 +898,47 @@
       <!-- TAB 6: SHOWS & EQUIPMENT/TECH LAB -->
       <!-- ================================================================= -->
       <section id="tab-gear" class="tab-page hidden space-y-4">
-        
-        <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
+        <div id="card-podcast" class="gear-card bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
           <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
             <div>
-              <span id="podcast-eyebrow-label" class="text-xs font-bold text-amber-400 uppercase tracking-wider bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">Shows & Conversations</span>
-              <h3 id="podcast-title-label" class="text-sm font-bold text-[var(--text-main)] mt-1">Terry Rowles Podcast</h3>
+              <span id="podcast-eyebrow-label" class="text-xs font-bold text-amber-400 uppercase tracking-wider bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20"></span>
+              <h3 id="podcast-title-label" class="text-sm font-bold text-[var(--text-main)] mt-1"></h3>
             </div>
             <div id="sponsor-badge-podcast"></div>
           </div>
-
-          <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-black">
-            <iframe id="podcast-iframe" class="w-full h-full" src="" title="Terry Rowles Podcast" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-          </div>
-          <div id="podcast-chapters-list" class="flex flex-wrap gap-1.5"></div>
-
-          <div id="sponsor-banner-podcast" class="mt-3"></div>
-
-          <div>
-            <div class="text-sm font-bold text-[var(--text-main)] mb-2 mt-3">Episode Chapter Jumps:</div>
-            <div class="flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar">
-              <button onclick="seekPodcast(0)" class="min-h-touch flex-shrink-0 px-3 py-1.5 bg-[var(--bg-card)] hover:theme-accent-bg text-[var(--text-main)] text-xs font-bold rounded-xl border border-[var(--border-subtle)] transition-all flex items-center gap-1">
-                
-                <span>0:00 Welcome & Meet the Coaches</span>
-              </button>
-              <button onclick="seekPodcast(255)" class="min-h-touch flex-shrink-0 px-3 py-1.5 bg-[var(--bg-card)] hover:theme-accent-bg text-[var(--text-main)] text-xs font-bold rounded-xl border border-[var(--border-subtle)] transition-all flex items-center gap-1">
-                
-                <span>4:15 Fixing the Push-Fade</span>
-              </button>
-              <button onclick="seekPodcast(860)" class="min-h-touch flex-shrink-0 px-3 py-1.5 bg-[var(--bg-card)] hover:theme-accent-bg text-[var(--text-main)] text-xs font-bold rounded-xl border border-[var(--border-subtle)] transition-all flex items-center gap-1">
-                
-                <span>14:20 Ground Force Secrets</span>
-              </button>
+          <div class="space-y-2">
+            <div id="podcast-video-title" class="text-xs font-bold text-[var(--text-main)]"></div>
+            <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-black">
+              <iframe id="podcast-iframe" class="w-full h-full" src="" title="Podcast video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
+            <div id="podcast-chapters-list" class="flex flex-wrap gap-1.5"></div>
           </div>
-
-          <div class="pt-1">
-            <div class="text-sm font-bold text-[var(--text-muted)] mb-2">More Episodes</div>
-            <div class="flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar">
-              <div class="flex-shrink-0 w-24 cursor-pointer" onclick="triggerToast('Loading Episode 12: Mindset')">
-                <div class="aspect-video bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)] flex items-center justify-center"></div>
-                <div class="text-xs mt-1 text-[var(--text-muted)] truncate">Ep. 12 · Mindset</div>
-              </div>
-              <div class="flex-shrink-0 w-24 cursor-pointer" onclick="triggerToast('Loading Episode 11: Business')">
-                <div class="aspect-video bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)] flex items-center justify-center"></div>
-                <div class="text-xs mt-1 text-[var(--text-muted)] truncate">Ep. 11 · Business</div>
-              </div>
-              <div class="flex-shrink-0 w-24 cursor-pointer" onclick="triggerToast('Loading Episode 10: Life on Tour')">
-                <div class="aspect-video bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)] flex items-center justify-center"></div>
-                <div class="text-xs mt-1 text-[var(--text-muted)] truncate">Ep. 10 · Life on tour</div>
-              </div>
-            </div>
+          <div id="sponsor-banner-podcast"></div>
+          <div id="podcast-featured-wrap" class="hidden">
+            <div id="podcast-featured-title" class="text-sm font-bold text-[var(--text-muted)] mb-2"></div>
+            <div id="podcast-featured-grid" class="grid grid-cols-4 gap-2"></div>
           </div>
         </div>
 
-        <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
-          
+        <div id="card-gear" class="gear-card bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
           <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
             <div>
-              <span id="gear-eyebrow-label" class="text-xs font-bold theme-accent-text uppercase tracking-wider theme-accent-subtle-bg px-2 py-0.5 rounded theme-accent-subtle-border border">Equipment & Fitting</span>
-              <h3 id="gear-title-label" class="text-sm font-bold text-[var(--text-main)] mt-1">Independent Gear & Shaft Lab</h3>
+              <span id="gear-eyebrow-label" class="text-xs font-bold theme-accent-text uppercase tracking-wider theme-accent-subtle-bg px-2 py-0.5 rounded theme-accent-subtle-border border"></span>
+              <h3 id="gear-title-label" class="text-sm font-bold text-[var(--text-main)] mt-1"></h3>
             </div>
             <div id="sponsor-badge-equipment"></div>
           </div>
-
           <div class="space-y-2">
-            <div class="text-xs font-bold text-[var(--text-main)] flex items-center gap-1.5">
-              
-              <span>Gear Lab Video Review: ST-04 Clubhead & Shaft Fitting</span>
-            </div>
+            <div id="gear-video-title" class="text-xs font-bold text-[var(--text-main)]"></div>
             <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-black">
-              <iframe id="gear-iframe" class="w-full h-full" src="" title="Gear & Tech Audit Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+              <iframe id="gear-iframe" class="w-full h-full" src="" title="Gear video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
             <div id="gear-chapters-list" class="flex flex-wrap gap-1.5"></div>
           </div>
-
-          <div id="sponsor-banner-equipment" class="mt-4"></div>
-
-          <div class="bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              
-              <div>
-                <div id="gear-recommendation-title" class="text-xs font-bold text-amber-400">⭐ Recommended for your SwingType</div>
-                <div id="gear-recommendation-subtitle" class="text-sm text-[var(--text-muted)]">Not yet assessed</div>
-              </div>
-            </div>
-            <button id="gear-reset-btn" onclick="handleGearRecommendationReset()" class="min-h-touch text-sm text-[var(--text-muted)] underline">Take Assessment</button>
-          </div>
-
-          <!-- Populated live by renderGearRecommendations() from
-               swingtype_profile_<n>_gear1_*/gear2_* CMS fields - no
-               hardcoded product names, photos, or match percentages.
-               Real brand names/photos here need to be true, or App
-               Store/Play Store review will flag them as misleading. -->
-          <div id="gear-match-cards" class="space-y-2 hidden"></div>
-
-          <div id="gear-not-assessed-notice" class="bg-[var(--bg-app)] border border-dashed border-[var(--border-subtle)] p-4 rounded-xl text-center">
-            <p id="gear-not-assessed-notice-text" class="text-xs text-[var(--text-muted)]">Personalized gear matches unlock once your SwingType assessment is complete.</p>
-          </div>
-
-          <div class="pt-1">
-            <div class="text-sm font-bold text-[var(--text-muted)] mb-2">More Gear</div>
-            <div class="flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar">
-              <div class="flex-shrink-0 w-24 cursor-pointer" onclick="triggerToast('Loading: Putter Fitting Guide')">
-                <div class="aspect-video bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)] flex items-center justify-center"></div>
-                <div class="text-xs mt-1 text-[var(--text-muted)] truncate">Putter Fitting</div>
-              </div>
-              <div class="flex-shrink-0 w-24 cursor-pointer" onclick="triggerToast('Loading: Iron Set Reviews')">
-                <div class="aspect-video bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)] flex items-center justify-center"></div>
-                <div class="text-xs mt-1 text-[var(--text-muted)] truncate">Iron Sets</div>
-              </div>
-              <div class="flex-shrink-0 w-24 cursor-pointer" onclick="triggerToast('Loading: Golf Ball Comparison')">
-                <div class="aspect-video bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)] flex items-center justify-center"></div>
-                <div class="text-xs mt-1 text-[var(--text-muted)] truncate">Ball Comparison</div>
-              </div>
-            </div>
+          <div id="sponsor-banner-equipment"></div>
+          <div id="gear-featured-wrap" class="hidden">
+            <div id="gear-featured-title" class="text-sm font-bold text-[var(--text-muted)] mb-2"></div>
+            <div id="gear-featured-grid" class="grid grid-cols-4 gap-2"></div>
           </div>
         </div>
 
@@ -1075,26 +993,7 @@
           <button onclick="closeProfileModal()" class="w-8 h-8 rounded-full bg-[var(--bg-card)] text-[var(--text-muted)] flex items-center justify-center hover:text-[var(--text-main)] transition-colors" title="Close">✕</button>
         </div>
 
-        <div class="bg-gradient-to-r from-red-950/50 via-red-900/30 to-[var(--bg-app)] p-3.5 rounded-2xl border border-red-500/40 space-y-2 relative overflow-hidden coke-glow">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <svg class="h-3.5 w-auto" viewBox="0 0 100 24" fill="none">
-                <rect width="100" height="24" rx="12" fill="#F40009"/>
-                <text x="50" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="white">PULSE</text>
-              </svg>
-              <span class="text-xs font-extrabold text-red-300 uppercase tracking-wider">Athlete VIP Club</span>
-            </div>
-          </div>
-          <p class="text-sm text-[var(--text-main)]">
-            Complimentary hydration credits linked to your profile.
-          </p>
-          <div class="flex items-center justify-between pt-1">
-            <span class="text-sm text-red-300 font-mono font-bold">Status: Active Member (ST-04)</span>
-            <button onclick="triggerToast('PULSE VIP Barcode Generated! 🥤')" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-lg shadow">
-              View Digital Card
-            </button>
-          </div>
-        </div>
+        <div id="sponsor-banner-profile-vip"></div>
 
         <div class="bg-[var(--bg-app)] p-3.5 rounded-2xl border border-[var(--border-subtle)] space-y-2">
           <button type="button" onclick="toggleSettingsPanel()" class="w-full flex items-center justify-between text-sm font-bold text-[var(--text-main)] uppercase tracking-wider min-h-touch">
@@ -1798,6 +1697,8 @@
       refreshAllSponsorPlacements();
       loadMediaEmbed('podcast', 'podcast-iframe');
       loadMediaEmbed('gear', 'gear-iframe');
+      loadFeaturedItems('podcast');
+      loadFeaturedItems('gear');
       loadEducationEventsFrontend();
       loadSportSpecificLabels(sportId);
       loadSwingtypeUserState(sportId);
@@ -1922,6 +1823,8 @@
       refreshAllSponsorPlacements();
       loadMediaEmbed('podcast', 'podcast-iframe');
       loadMediaEmbed('gear', 'gear-iframe');
+      loadFeaturedItems('podcast');
+      loadFeaturedItems('gear');
       loadEducationEventsFrontend();
       loadSportSpecificLabels(sportId);
       loadSwingtypeUserState(sportId);
@@ -1981,9 +1884,9 @@
           ? new Date(ev.event_datetime).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
           : null;
         return `
-          <div class="bg-[var(--bg-surface)] rounded-2xl border border-[var(--border-subtle)] overflow-hidden shadow-md">
-            ${ev.cover_image_url ? `<img src="${ev.cover_image_url}" alt="" class="w-full h-32 object-cover" onerror="this.style.display='none'">` : ''}
-            <div class="p-4 space-y-2">
+          <div class="edu-card ${ev.cover_image_url ? 'edu-has-flyer ' : ''}bg-[var(--bg-surface)] rounded-2xl border border-[var(--border-subtle)] overflow-hidden shadow-md">
+            ${ev.cover_image_url ? `<div class="edu-flyer"><img src="${ev.cover_image_url}" alt="" class="w-full h-32 object-cover" onerror="this.style.display='none'"></div>` : ''}
+            <div class="edu-details p-4 space-y-2">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-white theme-accent-bg px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow">${escapeHtml(EVENT_TYPE_LABELS[ev.event_type] || ev.event_type)}</span>
                 <span class="text-sm font-bold ${ev.price_cents ? 'text-amber-400' : 'text-emerald-400'}">${priceLabel}</span>
@@ -2457,7 +2360,7 @@
     // new physical slot later means adding one line here plus a
     // container div + render call at that spot in the page.
     const SPONSOR_PLACEMENT_DEFS = [
-      { key: 'global_banner', kind: 'banner', variant: 'strip', label: 'Top Global Sponsor Strip (every screen)' },
+      { key: 'global_banner', kind: 'banner', tier: 'global', label: 'Official Global Partner - top of every screen (LARGEST)' },
       { key: 'news_header_badge', kind: 'badge', variant: 'stacked', label: 'News — Magazine header badge' },
       { key: 'news_inline_banner', kind: 'banner', label: 'News — banner between Cover Story and Briefs' },
       { key: 'news_footer_banner', kind: 'banner', label: 'News — banner at the bottom of the tab' },
@@ -2478,6 +2381,12 @@
       { key: 'fitness_tab_header_banner', kind: 'banner', label: 'Golf Fitness tab — banner at the top' },
       { key: 'education_header_banner', kind: 'banner', variant: 'strip', label: 'Education — Presenting Partner strip at the top' },
       { key: 'education_secondary_banner', kind: 'banner', label: 'Education — second banner, mid-page' },
+      { key: 'multisport_header_banner', kind: 'banner', tier: 'multi', label: 'Multi-Sport — banner above "Sport Hubs" (MEDIUM-LARGE)' },
+      { key: 'home_strip_top', kind: 'banner', label: 'Command Center — sponsor strip under the poll' },
+      { key: 'home_strip_bottom', kind: 'banner', label: 'Command Center — sponsor strip near the bottom' },
+      { key: 'lessons_strip', kind: 'banner', label: 'Golf Lessons tab — sponsor strip under the gate card' },
+      { key: 'fitness_strip', kind: 'banner', label: 'Golf Fitness tab — sponsor strip at the bottom' },
+      { key: 'profile_vip_banner', kind: 'banner', label: 'Profile pop-up — VIP club sponsor block' },
     ];
 
     function sponsorDefFor(key) {
@@ -2527,9 +2436,18 @@
       return data.find(r => r.sport_id === sportId) || data.find(r => !r.sport_id) || data[0];
     }
 
-    function sponsorCtaClick(sponsorName, ctaUrl) {
-      if (ctaUrl) { window.open(ctaUrl, '_blank', 'noopener,noreferrer'); return; }
-      triggerToast(`Opening ${sponsorName || 'sponsor'} offer…`);
+    // Only real web links are ever opened (http/https). Used by whole-ad
+    // clicks and by Featured photo boxes. No link set = nothing happens.
+    function openSafeLink(rawUrl) {
+      try {
+        const u = new URL(String(rawUrl || '').trim());
+        if (u.protocol === 'https:' || u.protocol === 'http:') window.open(u.href, '_blank', 'noopener,noreferrer');
+      } catch (e) { /* not a valid link - ignore */ }
+    }
+    function sponsorOpen(rawUrl) { openSafeLink(rawUrl); }
+    function sponsorSafeUrl(rawUrl) {
+      try { const u = new URL(String(rawUrl || '').trim()); return (u.protocol === 'https:' || u.protocol === 'http:') ? u.href : ''; }
+      catch (e) { return ''; }
     }
 
     // Builds an inline size style from admin-set badge_width_px/badge_height_px,
@@ -2604,63 +2522,43 @@
       return `<div style="max-width:${sp.banner_max_width_px}px; margin:0 auto;">${innerHtml}</div>`;
     }
 
+    // ONE standard sponsor block for every banner in the app. Three sizes
+    // only (set in CSS): regular, multi (Multi-Sport top), global (the top
+    // Official Global Partner - always the biggest). No buttons anywhere:
+    // if the admin sets a link, the WHOLE block is the link.
     async function renderSponsorBanner(key, containerId, explicitSportId) {
       const el = document.getElementById(containerId);
       if (!el) return;
-      const def = sponsorDefFor(key);
+      const def = sponsorDefFor(key) || {};
       const sp = await fetchSponsorPlacementForSport(key, explicitSportId !== undefined ? explicitSportId : currentSportId);
       if (!sp) { el.innerHTML = ''; return; }
 
-      const safeSponsorName = escapeHtml(sp.sponsor_name || 'Sponsor');
-      const safeCtaUrl = sp.cta_url ? escapeHtml(sp.cta_url) : '';
-      const ctaAttr = `onclick="sponsorCtaClick('${safeSponsorName.replace(/'/g, "\\'")}', '${safeCtaUrl.replace(/'/g, "\\'")}')"`;
+      const tier = def.tier || 'regular';
+      const url = sponsorSafeUrl(sp.cta_url);
+      const safeName = escapeHtml(sp.sponsor_name || 'Sponsor');
+      const linkAttrs = url
+        ? ` data-url="${escapeHtml(url)}" onclick="sponsorOpen(this.dataset.url)" onkeydown="if(event.key==='Enter'){sponsorOpen(this.dataset.url)}" role="link" tabindex="0"`
+        : '';
+      const cls = `sp-block sp-${tier}${url ? ' sp-clickable' : ''}`;
+      const fallbackEyebrow = tier === 'global' ? 'Official Global Partner' : 'Sponsored';
 
-      // The top global strip is a different shape entirely (thin,
-      // full-width) from the card-style banners used elsewhere, so it
-      // gets its own layout - but pulls from the exact same data fields.
-      if (def.variant === 'strip') {
-        const stripMaxH = sp.banner_max_height_px || 64;
-        el.innerHTML = sp.banner_image_url
-          ? withBannerWidth(sp, `<img src="${sp.banner_image_url}" alt="" onerror="this.style.display='none'" class="w-full block cursor-pointer" ${ctaAttr} style="max-height:${stripMaxH}px; object-fit:cover;">`)
-          : withBannerWidth(sp, `
-            <div class="bg-gradient-to-r from-red-950/90 via-slate-900 to-red-950/90 border-b border-red-500/30 px-5 py-3 flex items-center justify-between shadow-md cursor-pointer" ${ctaAttr}>
-              <div class="flex items-center space-x-3">
-                ${sponsorLogoHtml(sp, 'h-6', 34)}
-                <span class="text-xs text-slate-200 font-extrabold uppercase tracking-wider">${escapeHtml(sp.eyebrow_label || 'Official Global Partner')}</span>
-              </div>
-              <span class="text-sm font-mono font-bold text-red-300 bg-red-500/25 px-2 py-1 rounded border border-red-500/40">SPONSORED</span>
-            </div>
-          `);
-        return;
-      }
-
-      // A full custom banner image replaces the generated card layout
-      // entirely. Height is capped so an uploaded photo never dwarfs the
-      // rest of the app; width is optional (blank = full width) - both
-      // adjustable per placement from the Sponsors tab.
+      let inner;
       if (sp.banner_image_url) {
-        const maxH = sp.banner_max_height_px || 140; // default matches the app's normal banner scale
-        el.innerHTML = withBannerWidth(sp, `<img src="${sp.banner_image_url}" alt="" onerror="this.style.display='none'" class="w-full rounded-xl cursor-pointer object-cover" style="max-height:${maxH}px;" ${ctaAttr}>`);
-        return;
-      }
-
-      el.innerHTML = withBannerWidth(sp, `
-        <div class="bg-gradient-to-r from-red-950/40 via-[var(--bg-app)] to-[var(--bg-surface)] p-3 rounded-xl border border-red-500/30 space-y-2">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              ${sponsorLogoHtml(sp, 'h-3.5', 22)}
-              <div>
-                <div class="text-xs font-extrabold text-red-400 uppercase tracking-wider">${escapeHtml(sp.eyebrow_label || 'Sponsored')}</div>
-                <div class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(sp.headline || '')}</div>
+        inner = `<img src="${escapeHtml(sp.banner_image_url)}" alt="${safeName}" class="sp-img" onerror="this.style.display='none'">`;
+      } else {
+        inner = `
+          <div class="sp-inner">
+            <div class="sp-left">
+              ${sponsorLogoHtml(sp, tier === 'global' ? 'h-5' : 'h-4', tier === 'global' ? 30 : 24)}
+              <div class="sp-text">
+                <div class="sp-eyebrow">${escapeHtml(sp.eyebrow_label || fallbackEyebrow)}</div>
+                ${sp.headline ? `<div class="sp-headline">${escapeHtml(sp.headline)}</div>` : ''}
               </div>
             </div>
-            <span class="text-xs font-bold text-white bg-red-900/90 px-1.5 py-0.5 rounded uppercase border border-red-500/30">SPONSORED</span>
-          </div>
-          <button ${ctaAttr} class="w-full min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] text-xs font-bold py-2 rounded-lg border border-red-500/20 flex items-center justify-center gap-1.5 transition-all">
-            <span>${escapeHtml(sp.cta_label || 'Learn More')}</span>
-          </button>
-        </div>
-      `);
+            <span class="sp-tag">SPONSORED</span>
+          </div>`;
+      }
+      el.innerHTML = `<div class="${cls}"${linkAttrs}>${inner}</div>`;
     }
 
     // Shows & Gear: both the Podcast and Equipment/Gear video iframes
@@ -2695,10 +2593,14 @@
       if (error || !data || !data.youtube_video_id) {
         iframe.removeAttribute('src');
         if (chaptersEl) chaptersEl.innerHTML = '';
+        const vt0 = document.getElementById(mediaType === 'gear' ? 'gear-video-title' : 'podcast-video-title');
+        if (vt0) vt0.textContent = '';
         return;
       }
       iframe.src = `https://www.youtube.com/embed/${encodeURIComponent(data.youtube_video_id)}?enablejsapi=1`;
       iframe.title = data.title || iframe.title;
+      const vt = document.getElementById(mediaType === 'gear' ? 'gear-video-title' : 'podcast-video-title');
+      if (vt) vt.textContent = data.title || '';
 
       if (chaptersEl) await loadEpisodeChapters(data.episode_id, iframeId, chaptersEl);
     }
@@ -2739,6 +2641,36 @@
       }
     }
 
+    // Featured photo boxes (up to 4 per card, per sport) - all uploaded and
+    // captioned from the admin dashboard, nothing typed into the app.
+    async function loadFeaturedItems(slot) {
+      const wrap = document.getElementById(slot + '-featured-wrap');
+      const grid = document.getElementById(slot + '-featured-grid');
+      if (!wrap || !grid) return;
+      if (!currentSportId) { wrap.classList.add('hidden'); grid.innerHTML = ''; return; }
+      const { data, error } = await supabaseClient
+        .from('featured_items')
+        .select('position, image_url, caption, link_url')
+        .eq('sport_id', currentSportId)
+        .eq('slot', slot)
+        .eq('is_active', true)
+        .order('position', { ascending: true })
+        .limit(4);
+      const rows = (!error && data) ? data.filter(r => r.image_url) : [];
+      if (!rows.length) { wrap.classList.add('hidden'); grid.innerHTML = ''; return; }
+      grid.innerHTML = rows.map(r => {
+        const url = sponsorSafeUrl(r.link_url);
+        const attrs = url ? ` data-url="${escapeHtml(url)}" onclick="openSafeLink(this.dataset.url)" role="link" tabindex="0" style="cursor:pointer"` : '';
+        return `<div class="featured-box"${attrs}>
+          <div class="featured-photo aspect-square rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-card)]">
+            <img src="${escapeHtml(r.image_url)}" alt="${escapeHtml(r.caption || '')}" class="w-full h-full object-cover" onerror="this.style.display='none'">
+          </div>
+          ${r.caption ? `<div class="text-xs mt-1 text-[var(--text-muted)] truncate">${escapeHtml(r.caption)}</div>` : ''}
+        </div>`;
+      }).join('');
+      wrap.classList.remove('hidden');
+    }
+
     async function loadContentLabels() {
       const { data, error } = await supabaseClient.from('app_content_labels').select('label_key, value');
       if (error || !data) return; // non-fatal - the hardcoded default text already in the HTML stays as a safe fallback
@@ -2753,6 +2685,11 @@
       setIfPresent('podcast-title-label', 'podcast_title');
       setIfPresent('gear-eyebrow-label', 'gear_eyebrow');
       setIfPresent('gear-title-label', 'gear_title');
+      const featuredDefaults = { podcast: 'Featured Episodes', gear: 'Featured Gear' };
+      ['podcast', 'gear'].forEach(slot => {
+        const t = document.getElementById(slot + '-featured-title');
+        if (t) t.textContent = labelMap[slot + '_featured_title'] || featuredDefaults[slot];
+      });
     }
 
     // ============================================================
@@ -3480,6 +3417,12 @@
         renderSponsorBadge('podcast_header_badge', 'sponsor-badge-podcast'),
         renderSponsorBanner('podcast_banner', 'sponsor-banner-podcast'),
         renderSponsorBanner('equipment_banner', 'sponsor-banner-equipment'),
+        renderSponsorBanner('multisport_header_banner', 'sponsor-banner-multisport-header'),
+        renderSponsorBanner('home_strip_top', 'sponsor-banner-home-strip-top'),
+        renderSponsorBanner('home_strip_bottom', 'sponsor-banner-home-strip-bottom'),
+        renderSponsorBanner('lessons_strip', 'sponsor-banner-lessons-strip'),
+        renderSponsorBanner('fitness_strip', 'sponsor-banner-fitness-strip'),
+        renderSponsorBanner('profile_vip_banner', 'sponsor-banner-profile-vip'),
       ]);
     }
 
@@ -5923,6 +5866,8 @@
       safeBootStep('refreshAllSponsorPlacements', () => refreshAllSponsorPlacements());
       safeBootStep('loadPodcastEmbed', () => loadMediaEmbed('podcast', 'podcast-iframe'));
       safeBootStep('loadGearEmbed', () => loadMediaEmbed('gear', 'gear-iframe'));
+      safeBootStep('loadFeaturedPodcast', () => loadFeaturedItems('podcast'));
+      safeBootStep('loadFeaturedGear', () => loadFeaturedItems('gear'));
       safeBootStep('loadContentLabels', () => loadContentLabels());
       safeBootStep('loadSwingtypeLabels', () => loadSwingtypeLabels());
       safeBootStep('renderSportSwitcherLabel', () => renderSportSwitcherLabel());
