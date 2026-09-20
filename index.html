@@ -292,6 +292,20 @@
 
     /* Shows & Gear: each column = the video card + its sponsor banner standing alone under it */
     .gear-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+    /* Social media icons */
+    .social-block { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px; padding: 8px 0; }
+    .social-block.hidden { display: none; }
+    .social-head { width: 100%; text-align: center; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+    .social-icon { width: 48px; height: 48px; border-radius: 999px; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border: 1px solid var(--border-subtle); color: var(--text-main); }
+    .social-icon:hover { border-color: var(--accent-main); color: var(--accent-main); }
+    .social-icon svg { width: 22px; height: 22px; }
+    .social-sidebar { display: none !important; }
+
+    /* Command Center lesson / fitness cards: the ad is shown in FULL (never cropped) */
+    .sp-block.sp-natural { height: auto; }
+    .sp-natural .sp-img { height: auto; object-fit: contain; }
+    .sp-natural .sp-inner { min-height: var(--sp-h-regular); }
     .gear-col > .gear-card { flex: 1 1 auto; }
 
     /* =====================================================================
@@ -354,7 +368,9 @@
       .featured-box { min-width: 0; }
 
       /* Laptops/iPad: sponsor pictures inside cards FILL their box (no small floating picture) */
-      #sponsor-banner-lessons-card .sp-img, #sponsor-banner-fitness-card .sp-img, .sport-card-sponsor-slot .sp-img { object-fit: cover; }
+      .sport-card-sponsor-slot .sp-img { object-fit: cover; }
+      /* laptops: social icons live at the bottom of the side menu, not at the bottom of the page */
+      .social-home { display: none !important; }
       /* the flyer is already shown whole here, so no tap hint needed */
       .edu-flyer-hint { display: none; }
       .edu-flyer { cursor: default; }
@@ -406,7 +422,10 @@
         flex-direction: column; align-items: stretch; gap: 4px;
         padding: 0; border-width: 0; background: transparent;
       }
-      #app-shell > header > nav + nav { margin-top: 24px; }   /* a gap between the two groups, no line */
+      #app-shell > header > nav + nav { margin-top: 24px; }
+      #app-shell > header > .social-sidebar:not(.hidden) { display: flex !important; margin-top: auto; padding-top: 28px; justify-content: flex-start; }
+      .social-sidebar .social-icon { width: 44px; height: 44px; }
+      .social-sidebar .social-head { text-align: left; }   /* a gap between the two groups, no line */
       #app-shell > header > nav .nav-btn {
         position: relative;
         flex: 0 0 auto; flex-direction: row; justify-content: flex-start; align-items: center;
@@ -548,6 +567,7 @@
           <span class="truncate">Education</span>
         </button>
       </nav>
+      <div id="social-links-sidebar" class="social-block social-sidebar hidden"></div>
     </header>
 
     <!-- Main Content Dynamic View Canvas -->
@@ -643,28 +663,28 @@
           <div onclick="switchTab('tab-lessons'); activateLessonsSubtab();" class="bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-subtle)] flex flex-col justify-between space-y-3 relative overflow-hidden cursor-pointer hover:border-[var(--accent-main)] transition-all">
             <div class="flex items-start justify-between gap-2">
               <div class="min-w-0">
-                <span id="lessons-preview-eyebrow" class="text-xs font-bold uppercase tracking-wider theme-accent-text theme-accent-subtle-bg px-2 py-0.5 rounded theme-accent-subtle-border border">Lessons</span>
-                <h3 id="lessons-preview-title" class="text-sm font-bold text-[var(--text-main)] mt-1">Drills Progress</h3>
+                <span id="lessons-preview-eyebrow" class="text-base font-black uppercase tracking-wider theme-accent-text theme-accent-subtle-bg px-3 py-1.5 rounded-lg theme-accent-subtle-border border">Lessons</span>
+                <h3 id="lessons-preview-title" class="hidden text-sm font-bold text-[var(--text-main)] mt-1"></h3>
                 <p id="lessons-preview-subtitle" class="text-sm text-[var(--text-muted)] hidden"></p>
               </div>
               <!-- Replaces the old fake progress gauge - a sponsor's logo,
                    fully editable/uploadable from the admin dashboard's
                    Sponsors tab (placement key: lessons_card_logo). -->
-              <div onclick="event.stopPropagation()" id="sponsor-logo-lessons-card" class="flex-shrink-0"></div>
+              <div id="sponsor-logo-lessons-card" class="flex-shrink-0"></div>
             </div>
-            <div onclick="event.stopPropagation()" id="sponsor-banner-lessons-card"></div>
+            <div id="sponsor-banner-lessons-card"></div>
           </div>
 
           <div onclick="switchTab('tab-lessons'); activateFitnessSubtab();" class="bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-subtle)] flex flex-col justify-between space-y-3 relative overflow-hidden cursor-pointer hover:border-[var(--accent-main)] transition-all">
             <div class="flex items-start justify-between gap-2">
               <div class="min-w-0">
-                <span id="fitness-preview-eyebrow" class="text-xs font-bold uppercase tracking-wider text-violet-light bg-violet-accent/10 px-2 py-0.5 rounded border border-violet-accent/20">Fitness</span>
-                <h3 id="fitness-preview-title" class="text-sm font-bold text-[var(--text-main)] mt-1">Mobility & Fitness</h3>
+                <span id="fitness-preview-eyebrow" class="text-base font-black uppercase tracking-wider text-violet-light bg-violet-accent/10 px-3 py-1.5 rounded-lg border border-violet-accent/20">Fitness</span>
+                <h3 id="fitness-preview-title" class="hidden text-sm font-bold text-[var(--text-main)] mt-1"></h3>
                 <p id="fitness-preview-subtitle" class="text-sm text-[var(--text-muted)] hidden"></p>
               </div>
-              <div onclick="event.stopPropagation()" id="sponsor-logo-fitness-card" class="flex-shrink-0"></div>
+              <div id="sponsor-logo-fitness-card" class="flex-shrink-0"></div>
             </div>
-            <div onclick="event.stopPropagation()" id="sponsor-banner-fitness-card"></div>
+            <div id="sponsor-banner-fitness-card"></div>
           </div>
         </div>
 
@@ -698,6 +718,7 @@
         </div>
 
         <div id="sponsor-banner-home-footer"></div>
+        <div id="social-links-home" class="social-block social-home hidden"></div>
 
       </section>
 
@@ -755,11 +776,11 @@
         <div class="bg-[var(--bg-surface)] p-1 rounded-2xl border border-[var(--border-subtle)] flex items-center space-x-1">
           <button id="subtab-btn-lessons" onclick="toggleLessonsSubtab('lessons')" class="flex-1 min-h-touch py-2.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 transition-all theme-accent-bg shadow-md">
             
-            <span id="lessons-subtab-label">⛳ Golf Lessons</span>
+            <span id="lessons-subtab-label">Lessons</span>
           </button>
           <button id="subtab-btn-fitness" onclick="toggleLessonsSubtab('fitness')" class="flex-1 min-h-touch py-2.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 transition-all text-[var(--text-muted)] hover:text-[var(--text-main)]">
             
-            <span id="fitness-subtab-label">💪 Golf Fitness</span>
+            <span id="fitness-subtab-label">Fitness</span>
           </button>
         </div>
 
@@ -940,7 +961,10 @@
                 <iframe id="podcast-iframe" class="w-full h-full" src="" title="Podcast video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
               </div>
               <div id="podcast-chapters-list" class="flex flex-wrap gap-1.5"></div>
-              <div id="podcast-summary" class="hidden bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-line"></div>
+              <div id="podcast-summary-wrap" class="hidden bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 space-y-1">
+                <div id="podcast-summary-title" class="text-xs font-extrabold uppercase tracking-wider text-[var(--text-muted)]">Episode Summary</div>
+                <div id="podcast-summary" class="text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-line"></div>
+              </div>
             </div>
             <div id="podcast-featured-wrap" class="hidden">
               <div id="podcast-featured-title" class="text-sm font-bold text-[var(--text-muted)] mb-2"></div>
@@ -965,7 +989,10 @@
                 <iframe id="gear-iframe" class="w-full h-full" src="" title="Gear video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
               </div>
               <div id="gear-chapters-list" class="flex flex-wrap gap-1.5"></div>
-              <div id="gear-summary" class="hidden bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-line"></div>
+              <div id="gear-summary-wrap" class="hidden bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 space-y-1">
+                <div id="gear-summary-title" class="text-xs font-extrabold uppercase tracking-wider text-[var(--text-muted)]">Episode Summary</div>
+                <div id="gear-summary" class="text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-line"></div>
+              </div>
             </div>
             <div id="gear-featured-wrap" class="hidden">
               <div id="gear-featured-title" class="text-sm font-bold text-[var(--text-muted)] mb-2"></div>
@@ -1167,9 +1194,10 @@
 
           <div>
             <button type="button" id="verification-toggle-btn" onclick="toggleVerificationRequest()" class="text-xs font-bold theme-accent-text underline min-h-touch">
-              Coach, professional athlete, or industry expert? Request verification
+              Coach, elite athlete, or industry expert? Request verification (optional)
             </button>
 
+            <p class="text-xs text-[var(--text-muted)] mt-1">Totally optional. You do not have to answer this to create or use your account.</p>
             <div id="verification-fields" class="hidden mt-2 space-y-1">
               <label class="block text-sm font-bold text-[var(--text-main)] mb-1">Which best describes you?</label>
               <select id="input-title" class="w-full bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl py-2.5 px-3 text-xs text-[var(--text-main)] focus:outline-none focus:border-[var(--accent-main)] transition-all">
@@ -1177,10 +1205,9 @@
                 <option value="Professional Athlete">Professional Athlete</option>
                 <option value="Coach">Coach</option>
                 <option value="Industry Expert">Industry Expert</option>
-                <option value="Athlete">Athlete</option>
+                <option value="Elite Athlete">Elite Athlete</option>
               </select>
-              <p class="text-xs text-[var(--text-muted)] mt-1">This submits a request for our team to review. It does not grant a verified badge — approval are added by an admin after review.</p>
-              <p class="text-xs text-[var(--text-muted)] mt-1">This submits a request for our team to review. It does not grant a verified badge — approval, the checkmark, and your sport tag are added by an admin after review.</p>
+              <p class="text-xs text-[var(--text-muted)] mt-1">This submits a request for our team to review. It does not automatically grant a verified badge.</p>
             </div>
           </div>
           </div>
@@ -1312,6 +1339,7 @@
           <span>Log Out</span>
         </button>
 
+        <div id="social-links-profile" class="social-block hidden"></div>
         <p id="profile-bottom-legal-links" class="text-xs text-center text-[var(--text-muted)] pt-1 hidden">
           <a href="privacy-policy.html" target="_blank" rel="noopener noreferrer" class="underline hover:text-[var(--text-main)]">Privacy Policy</a>
           <span class="px-1">·</span>
@@ -1821,6 +1849,7 @@
       refreshAllSponsorPlacements();
       loadMediaEmbed('podcast', 'podcast-iframe');
       loadMediaEmbed('gear', 'gear-iframe');
+      applyContentLabels();
       loadEducationEventsFrontend();
       loadSportSpecificLabels(sportId);
       loadSwingtypeUserState(sportId);
@@ -1868,8 +1897,11 @@
       setText('fitness-preview-eyebrow', sport.fitness_tab_label);
       setText('lessons-headline', sport.lessons_headline);
       setText('fitness-headline', sport.fitness_headline);
-      setText('lessons-preview-title', sport.lessons_preview_title);
-      setText('fitness-preview-title', sport.fitness_preview_title);
+      // The line under the card label is OPTIONAL and comes only from the admin (Command Center page).
+      // Nothing is typed into the app: if the admin leaves it empty, no line shows.
+      const setOptional = (id, value) => { const el = document.getElementById(id); if (!el) return; el.innerText = value || ''; el.classList.toggle('hidden', !value); };
+      setOptional('lessons-preview-title', sport.lessons_preview_title);
+      setOptional('fitness-preview-title', sport.fitness_preview_title);
 
       // FIX: the descriptive line under each Command Center card title
       // ("ST-04 Lead Post Rotation Drill" / "12 Min Joint Warmup") used
@@ -1945,6 +1977,7 @@
       refreshAllSponsorPlacements();
       loadMediaEmbed('podcast', 'podcast-iframe');
       loadMediaEmbed('gear', 'gear-iframe');
+      applyContentLabels();
       loadEducationEventsFrontend();
       loadSportSpecificLabels(sportId);
       loadSwingtypeUserState(sportId);
@@ -2497,8 +2530,8 @@
       { key: 'news_header_badge', kind: 'badge', variant: 'stacked', label: 'News — Magazine header badge' },
       { key: 'news_inline_banner', kind: 'banner', label: 'News — banner between Cover Story and Briefs' },
       { key: 'news_footer_banner', kind: 'banner', label: 'News — banner at the bottom of the tab' },
-      { key: 'lessons_card_banner', kind: 'banner', label: 'Command Center — Golf Lessons card ad' },
-      { key: 'fitness_card_banner', kind: 'banner', label: 'Command Center — Golf Fitness card ad' },
+      { key: 'lessons_card_banner', kind: 'banner', natural: true, label: 'Command Center — Lessons card ad' },
+      { key: 'fitness_card_banner', kind: 'banner', natural: true, label: 'Command Center — Fitness card ad' },
       { key: 'lessons_card_logo', kind: 'badge', variant: 'corner-logo', label: 'Command Center — Lessons card logo (top-right corner)' },
       { key: 'fitness_card_logo', kind: 'badge', variant: 'corner-logo', label: 'Command Center — Fitness card logo (top-right corner)' },
       { key: 'home_footer_banner', kind: 'banner', label: 'Command Center — banner at the bottom of the tab' },
@@ -2509,15 +2542,15 @@
       { key: 'podcast_header_badge', kind: 'badge', variant: 'header', label: 'Shows/Podcast — card header badge' },
       { key: 'podcast_banner', kind: 'banner', label: 'Shows/Podcast — banner under video' },
       { key: 'equipment_banner', kind: 'banner', label: 'Equipment & Fitting — banner under video' },
-      { key: 'lessons_tab_header_banner', kind: 'banner', label: 'Golf Lessons tab — banner at the top' },
-      { key: 'fitness_tab_header_banner', kind: 'banner', label: 'Golf Fitness tab — banner at the top' },
+      { key: 'lessons_tab_header_banner', kind: 'banner', label: 'Lessons tab — banner at the top' },
+      { key: 'fitness_tab_header_banner', kind: 'banner', label: 'Fitness tab — banner at the top' },
       { key: 'education_header_banner', kind: 'banner', variant: 'strip', label: 'Education — Presenting Partner strip at the top' },
       { key: 'education_secondary_banner', kind: 'banner', label: 'Education — second banner, mid-page' },
       { key: 'multisport_header_banner', kind: 'banner', tier: 'multi', label: 'Multi-Sport — banner above "Sport Hubs" (MEDIUM-LARGE)' },
       { key: 'home_strip_top', kind: 'banner', label: 'Command Center — sponsor strip under the poll' },
       { key: 'home_strip_bottom', kind: 'banner', label: 'Command Center — sponsor strip near the bottom' },
-      { key: 'lessons_strip', kind: 'banner', label: 'Golf Lessons tab — sponsor strip under the gate card' },
-      { key: 'fitness_strip', kind: 'banner', label: 'Golf Fitness tab — sponsor strip at the bottom' },
+      { key: 'lessons_strip', kind: 'banner', label: 'Lessons tab — sponsor strip under the gate card' },
+      { key: 'fitness_strip', kind: 'banner', label: 'Fitness tab — sponsor strip at the bottom' },
       { key: 'profile_vip_banner', kind: 'banner', label: 'Profile pop-up — VIP club sponsor block' },
     ];
 
@@ -2704,9 +2737,9 @@
       const url = sponsorSafeUrl(sp.cta_url);
       const safeName = escapeHtml(sp.sponsor_name || 'Sponsor');
       const linkAttrs = url
-        ? ` data-url="${escapeHtml(url)}" onclick="sponsorOpen(this.dataset.url)" onkeydown="if(event.key==='Enter'){sponsorOpen(this.dataset.url)}" role="link" tabindex="0"`
+        ? ` data-url="${escapeHtml(url)}" onclick="event.stopPropagation(); sponsorOpen(this.dataset.url)" onkeydown="if(event.key==='Enter'){event.stopPropagation(); sponsorOpen(this.dataset.url)}" role="link" tabindex="0"`
         : '';
-      const cls = `sp-block sp-${tier}${url ? ' sp-clickable' : ''}`;
+      const cls = `sp-block sp-${tier}${def.natural ? ' sp-natural' : ''}${url ? ' sp-clickable' : ''}`;
       const fallbackEyebrow = tier === 'global' ? 'Official Global Partner' : 'Sponsored';
 
       let inner;
@@ -2735,6 +2768,7 @@
     // (which now covers both types via `media_type`) and points the
     // iframe at it - if none exists yet, the iframe is simply left
     // showing nothing rather than a confusing placeholder video.
+    let summaryEmptyText = 'No summary added yet.';
     const mediaState = { podcast: { list: [], playingId: null }, gear: { list: [], playingId: null } };
     const MEDIA_IFRAME = { podcast: 'podcast-iframe', gear: 'gear-iframe' };
 
@@ -2747,8 +2781,13 @@
       iframe.src = `https://www.youtube.com/embed/${encodeURIComponent(ep.youtube_video_id)}?enablejsapi=1${autoplay ? '&autoplay=1' : ''}`;
       iframe.title = ep.title || iframe.title;
       const vt = document.getElementById(mediaType + '-video-title'); if (vt) vt.textContent = ep.title || '';
-      const sm = document.getElementById(mediaType + '-summary');
-      if (sm) { const txt = (ep.summary || '').trim(); sm.textContent = txt; sm.classList.toggle('hidden', !txt); }
+      const sm = document.getElementById(mediaType + '-summary'); const sw = document.getElementById(mediaType + '-summary-wrap');
+      if (sm) {
+        const txt = (ep.summary || '').trim();
+        sm.textContent = txt || summaryEmptyText;
+        sm.classList.toggle('text-[var(--text-muted)]', !txt);
+        if (sw) sw.classList.remove('hidden');
+      }
       mediaState[mediaType].playingId = ep.episode_id;
       const chaptersEl = document.getElementById(mediaType + '-chapters-list');
       if (chaptersEl) loadEpisodeChapters(ep.episode_id, MEDIA_IFRAME[mediaType], chaptersEl);
@@ -2793,7 +2832,8 @@
         iframe.removeAttribute('src');
         const ch = document.getElementById(mediaType + '-chapters-list'); if (ch) ch.innerHTML = '';
         const vt = document.getElementById(mediaType + '-video-title'); if (vt) vt.textContent = '';
-        const sm = document.getElementById(mediaType + '-summary'); if (sm) { sm.textContent = ''; sm.classList.add('hidden'); }
+        const sm = document.getElementById(mediaType + '-summary'); if (sm) sm.textContent = '';
+        const sw = document.getElementById(mediaType + '-summary-wrap'); if (sw) sw.classList.add('hidden');
       };
       if (!currentSportId) { resetPlayer(); mediaState[mediaType] = { list: [], playingId: null }; renderEpisodeThumbs(mediaType); return; }
 
@@ -2845,27 +2885,62 @@
       }
     }
 
+    // Social media icons - the links are typed in the admin dashboard (Social Media page).
+    // Phones: bottom of the Command Center + the Profile pop-up. Laptops: bottom of the side menu.
+    const SOCIAL_PLATFORMS = [
+      ['instagram', 'Instagram', '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/>'],
+      ['youtube', 'YouTube', '<rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3z" fill="currentColor"/>'],
+      ['facebook', 'Facebook', '<path d="M14 8h3V4h-3a4 4 0 0 0-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8z"/>'],
+      ['x', 'X', '<path d="M4 4l16 16M20 4L4 20"/>'],
+      ['tiktok', 'TikTok', '<path d="M14 4v10a3 3 0 1 1-3-3"/><path d="M14 4c0 3 2 5 5 5"/>'],
+      ['linkedin', 'LinkedIn', '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 10v6M8 7v.01M12 16v-6m0 3a3 3 0 0 1 6 0v3"/>'],
+    ];
+    function renderSocialLinks(labelMap) {
+      const links = SOCIAL_PLATFORMS
+        .map(([key, name, icon]) => ({ key, name, icon, url: sponsorSafeUrl(labelMap['social_' + key]) }))
+        .filter(l => l.url);
+      const heading = (labelMap.social_heading || '').trim();
+      const html = links.length
+        ? (heading ? `<div class="social-head">${escapeHtml(heading)}</div>` : '') + links.map(l =>
+            `<a href="${escapeHtml(l.url)}" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="${escapeHtml(l.name)}" title="${escapeHtml(l.name)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${l.icon}</svg></a>`).join('')
+        : '';
+      ['social-links-home', 'social-links-profile', 'social-links-sidebar'].forEach(id => {
+        const el = document.getElementById(id); if (!el) return;
+        el.innerHTML = html; el.classList.toggle('hidden', !links.length);
+      });
+    }
+
+    // Editable headings. Each one can be set per SPORT in the admin (saved as "key@sportId");
+    // if a sport has no value of its own, the general one is used. Nothing is typed into the app.
+    let contentLabelMap = {};
+    function labelFor(key) {
+      const sid = currentSportId;
+      const own = sid ? contentLabelMap[`${key}@${sid}`] : undefined;
+      return (own !== undefined && own !== '') ? own : contentLabelMap[key];
+    }
+    function applyContentLabels() {
+      const set = (id, key, fallback) => {
+        const el = document.getElementById(id); if (!el) return;
+        const v = labelFor(key);
+        if (v) el.textContent = v; else if (fallback !== undefined) el.textContent = fallback;
+      };
+      set('podcast-eyebrow-label', 'podcast_eyebrow'); set('podcast-title-label', 'podcast_title');
+      set('gear-eyebrow-label', 'gear_eyebrow'); set('gear-title-label', 'gear_title');
+      set('podcast-featured-title', 'podcast_featured_title', 'More Episodes');
+      set('gear-featured-title', 'gear_featured_title', 'More Gear Videos');
+      set('podcast-summary-title', 'podcast_summary_title', 'Episode Summary');
+      set('gear-summary-title', 'gear_summary_title', 'Episode Summary');
+      summaryEmptyText = contentLabelMap.summary_empty_text || 'No summary added yet.';
+      ['news-brief-feed-title-home', 'news-brief-feed-title-news'].forEach(id => set(id, 'news_brief_feed_title', 'NEWS BRIEF FEED'));
+    }
     async function loadContentLabels() {
       const { data, error } = await supabaseClient.from('app_content_labels').select('label_key, value');
-      if (error || !data) return; // non-fatal - the hardcoded default text already in the HTML stays as a safe fallback
-      const labelMap = {};
-      data.forEach(row => labelMap[row.label_key] = row.value);
-
-      const setIfPresent = (id, key) => {
-        const el = document.getElementById(id);
-        if (el && labelMap[key]) el.textContent = labelMap[key];
-      };
-      setIfPresent('podcast-eyebrow-label', 'podcast_eyebrow');
-      setIfPresent('podcast-title-label', 'podcast_title');
-      setIfPresent('gear-eyebrow-label', 'gear_eyebrow');
-      setIfPresent('gear-title-label', 'gear_title');
-      const newsBriefTitle = labelMap.news_brief_feed_title || 'NEWS BRIEF FEED';
-      ['news-brief-feed-title-home', 'news-brief-feed-title-news'].forEach(id => { const e = document.getElementById(id); if (e) e.textContent = newsBriefTitle; });
-      const featuredDefaults = { podcast: 'More Episodes', gear: 'More Gear Videos' };
-      ['podcast', 'gear'].forEach(slot => {
-        const t = document.getElementById(slot + '-featured-title');
-        if (t) t.textContent = labelMap[slot + '_featured_title'] || featuredDefaults[slot];
-      });
+      if (error || !data) return; // non-fatal - the default text already in the page stays as a safe fallback
+      const map = {};
+      data.forEach(row => map[row.label_key] = row.value);
+      contentLabelMap = map;
+      renderSocialLinks(map);
+      applyContentLabels();
     }
 
     // ============================================================
@@ -4178,7 +4253,7 @@
           btnEmerald.className = 'min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 bg-emerald-500 text-obsidian shadow';
           btnRose.className = 'min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 text-pink-400 hover:text-[var(--text-main)]';
         }
-        if (triggerSound) triggerToast('Color Theme: Fairway Emerald ⛳');
+        if (triggerSound) triggerToast('Color Theme: Fairway Emerald');
       }
 
       if (triggerSound) {
@@ -4319,7 +4394,7 @@
       fields.classList.toggle('hidden');
       btn.innerText = isHidden
         ? 'Hide verification request'
-        : 'Coach, professional athlete, or industry expert? Request verification';
+        : 'Coach, elite athlete, or industry expert? Request verification (optional)';
     }
 
     function setAuthMode(mode) {
@@ -4633,7 +4708,7 @@
             user_id: session.user.id, requested_title: titleVal,
           });
           if (!reqError) {
-            triggerToast("Title request submitted! This submits a request for our team to review. It does not grant a verified badge — approval are added by an admin after review.");
+            triggerToast("Title request submitted! This submits a request for our team to review. It does not automatically grant a verified badge.");
           }
         }
 
