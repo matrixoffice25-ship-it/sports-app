@@ -1008,6 +1008,7 @@
           <div id="sponsor-banner-equipment"></div>
         </div>
 
+        <p class="text-center text-xs text-[var(--text-faint)]" id="app-build-label"></p>
       </section>
 
 
@@ -1611,6 +1612,23 @@
     // EPIC 0.2 / 0.5: REAL SUPABASE AUTH + SPORT SWITCHER
     // Fill in these two values from Supabase Dashboard > Settings > API
     // ============================================================
+
+    // ---- BUILD STAMP + STALE-COPY REPAIR --------------------------------------------------
+    // If an old cached copy of this page (browser or service worker) is showing, fetch the live
+    // file, compare build stamps, and if they differ clear the caches and reload ONCE.
+    const APP_BUILD = '2026-09-20-C';
+    (async () => {
+      try {
+        if (!/^https?:/.test(location.protocol)) return;
+        const r = await fetch(location.pathname + '?nocache=' + Date.now(), { cache: 'no-store' });
+        const m = (await r.text()).match(/APP_BUILD\s*=\s*'([^']+)'/);
+        if (!m || m[1] === APP_BUILD || sessionStorage.getItem('build-reloaded') === m[1]) return;
+        sessionStorage.setItem('build-reloaded', m[1]);
+        if (navigator.serviceWorker) (await navigator.serviceWorker.getRegistrations()).forEach(x => x.unregister());
+        if (window.caches) (await caches.keys()).forEach(k => caches.delete(k));
+        location.reload();
+      } catch (e) { /* never blocks the page */ }
+    })();
     const SUPABASE_URL = "https://ommgauajjxsswemokuhc.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tbWdhdWFqanhzc3dlbW9rdWhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwNDYzMzQsImV4cCI6MjEwMzYyMjMzNH0.mPTkAHUpPh9sZQEk9YRomiPGkZj15vLD0SDKaO5VD6Y";
     // Explicit (not just relying on defaults) so a session only ever ends
@@ -2779,8 +2797,16 @@
     const mediaState = { podcast: { list: [], playingId: null }, gear: { list: [], playingId: null } };
     const MEDIA_IFRAME = { podcast: 'podcast-iframe', gear: 'gear-iframe' };
 
+    // Add ?debug=shows to the app link to see exactly what the app received from the database.
+    function renderShowsDiag() {
+      if (!/debug=shows/.test(location.search)) return;
+      let el = document.getElementById('shows-diag');
+      if (!el) { el = document.createElement('pre'); el.id = 'shows-diag'; el.style.cssText = 'position:fixed;left:8px;right:8px;bottom:70px;z-index:99999;background:#000c;color:#0f0;font-size:11px;padding:8px;border-radius:8px;white-space:pre-wrap;max-height:40vh;overflow:auto'; document.body.appendChild(el); }
+      el.textContent = 'BUILD ' + APP_BUILD + '\nlabels loaded: ' + Object.keys(contentLabelMap).length + '\n' + JSON.stringify(window.__showsDiag || {}, null, 1);
+    }
     function youtubeThumb(id) { return `https://i.ytimg.com/vi/${encodeURIComponent(id)}/mqdefault.jpg`; }
 
+    { const bl = document.getElementById('app-build-label'); if (bl) bl.textContent = 'App version ' + APP_BUILD; }
     const mediaLang = { podcast: '', gear: '' };
     function embedUrl(mediaType, videoId, autoplay) {
       const lang = mediaLang[mediaType];
@@ -2862,8 +2888,12 @@
         .eq('sport_id', currentSportId).eq('media_type', mediaType)
         .order('created_at', { ascending: false }).limit(24);
       let { data, error } = await run('episode_id, youtube_video_id, title, is_active, created_at, summary, thumbnail_url');
-      if (error) ({ data, error } = await run('episode_id, youtube_video_id, title, is_active, created_at')); // new columns not added yet
+      let usedFallback = false;
+      if (error) { usedFallback = true; ({ data, error } = await run('episode_id, youtube_video_id, title, is_active, created_at')); } // new columns not added yet
       const list = (!error && data) ? data.filter(e => e.youtube_video_id) : [];
+      window.__showsDiag = window.__showsDiag || {};
+      window.__showsDiag[mediaType] = { sport: currentSportId, rows: list.length, active: list.filter(e => e.is_active).length, error: error ? error.message : null, summaryColumnMissing: usedFallback };
+      renderShowsDiag();
       const prevId = mediaState[mediaType].playingId;
       mediaState[mediaType] = { list, playingId: null };
       // Refreshing keeps what the person is already watching (if it still exists); otherwise the main video.
@@ -2922,7 +2952,7 @@
     }
     async function loadContentLabels() {
       const { data, error } = await supabaseClient.from('app_content_labels').select('label_key, value');
-      if (error || !data) return; // non-fatal - the default text already in the page stays as a safe fallback
+      if (error || !data) { window.__showsDiag = Object.assign(window.__showsDiag || {}, { labelsError: error ? error.message : 'no data' }); renderShowsDiag(); return; } // non-fatal - the default text already in the page stays as a safe fallback
       const map = {};
       data.forEach(row => map[row.label_key] = row.value);
       contentLabelMap = map;
