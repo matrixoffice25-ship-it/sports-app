@@ -1612,7 +1612,7 @@
     // ---- BUILD STAMP + STALE-COPY REPAIR --------------------------------------------------
     // If an old cached copy of this page (browser or service worker) is showing, fetch the live
     // file, compare build stamps, and if they differ clear the caches and reload ONCE.
-    const APP_BUILD = '2026-09-21-H';
+    const APP_BUILD = '2026-09-21-I';
     (async () => {
       try {
         if (!/^https?:/.test(location.protocol)) return;
@@ -2821,19 +2821,106 @@
       const c = l.startsWith('zh') ? 'zh-Hans' : l.split('-')[0];
       return TR_LANGS.some(x => x[0] === c) ? c : '';
     }
-    // Asks the server function to translate a list of texts. Returns the translations in the same order.
-    async function trFetch(texts, lang) {
+    // ---- HOW TRANSLATION STAYS RELIABLE ---------------------------------------------------
+    // Three sources, tried in this order, silently. The person only sees a message if ALL of them fail.
+    //   1. Saved translations (read straight from our database - instant, needs no AI)
+    //   2. Our translator (Gemini, through the "translate-text" function) - best quality, then saved for everyone
+    //   3. A free public translator (MyMemory), called from the person's own phone - works even if 1-2 are down
+    const TR_DEBUG = /debug=tr/.test(location.search);
+    let trLastDetail = '';
+    function trTimeout(promise, ms) {
+      return Promise.race([promise, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
+    }
+    async function trHash(text) {
+      const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+      return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+    }
+    async function trFromSaved(texts, lang) {
+      const none = texts.map(() => null);
+      if (!(window.crypto && crypto.subtle)) return none;
+      const hashes = await Promise.all(texts.map(trHash));
+      const { data, error } = await trTimeout(supabaseClient.from('translations_cache').select('source_hash, translated').eq('lang', lang).in('source_hash', [...new Set(hashes)]), 6000);
+      if (error || !data) return none;
+      const m = new Map(data.map(r => [r.source_hash, r.translated]));
+      return hashes.map(h => m.get(h) || null);
+    }
+    async function trFromServer(texts, lang) {
       const out = [];
       for (let i = 0; i < texts.length;) {
         let n = 0, chars = 0;
         while (i + n < texts.length && n < 30 && chars + texts[i + n].length <= 6000) { chars += texts[i + n].length; n++; }
         if (!n) n = 1;
-        const { data, error } = await supabaseClient.functions.invoke('translate-text', { body: { texts: texts.slice(i, i + n), lang } });
-        if (error) throw new Error('Translation is not available right now.');
-        if (!data || data.error || !Array.isArray(data.translations)) throw new Error((data && data.error) || 'Translation is not available right now.');
+        const { data, error } = await trTimeout(supabaseClient.functions.invoke('translate-text', { body: { texts: texts.slice(i, i + n), lang } }), 25000);
+        if (error) throw new Error('function: ' + (error.message || 'error'));
+        if (!data || data.error || !Array.isArray(data.translations)) throw new Error((data && (data.detail || data.error)) || 'no answer');
         out.push(...data.translations); i += n;
       }
       return out;
+    }
+    // MyMemory: free, no key, accepts up to ~500 bytes per request, so long texts are cut at sentence ends.
+    const TR_MM = { 'zh-Hans': 'zh-CN', pt: 'pt-BR' };
+    // Cuts a text into pieces of at most `max` BYTES (the free translator's limit is in bytes, and
+    // accented / Chinese / Arabic letters take more than one). Cuts at sentence ends, then words, then letters.
+    const trBytes = x => new TextEncoder().encode(x).length;
+    function trSplit(text, max) {
+      const sentences = text.match(/[\s\S]*?(?:[!?。！？]+|\.(?=\s|$))["')\]]*\s*|[\s\S]+$/g) || [text];
+      const chunks = []; let cur = '';
+      const add = piece => { if (cur && trBytes(cur + piece) > max) { chunks.push(cur.trim()); cur = ''; } cur += piece; };
+      sentences.forEach(sn => {
+        if (trBytes(sn) <= max) { add(sn); return; }
+        sn.split(/(?<=\s)/).forEach(w => {                                   // too long: cut at words
+          if (trBytes(w) <= max) { add(w); return; }
+          let piece = ''; for (const ch of w) { if (trBytes(piece + ch) > max) { add(piece); piece = ''; } piece += ch; } add(piece);   // no spaces (e.g. Chinese): cut at letters
+        });
+      });
+      if (cur.trim()) chunks.push(cur.trim());
+      return chunks.filter(Boolean);
+    }
+    function trDecode(t) { const e = document.createElement('textarea'); e.innerHTML = t; return e.value; }
+    async function trMyMemory(chunk, lang) {
+      const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 9000);
+      try {
+        const r = await fetch('https://api.mymemory.translated.net/get?q=' + encodeURIComponent(chunk) + '&langpair=en|' + encodeURIComponent(TR_MM[lang] || lang), { signal: ctl.signal });
+        const j = await r.json();
+        const t = j && j.responseData && j.responseData.translatedText;
+        if (!r.ok || j.quotaFinished || (j.responseStatus && Number(j.responseStatus) !== 200) || !t || /MYMEMORY WARNING|INVALID/i.test(t)) throw new Error('mymemory: ' + ((j && j.responseDetails) || r.status));
+        return trDecode(t);
+      } finally { clearTimeout(timer); }
+    }
+    async function trFromPublic(texts, lang) {
+      const jobs = []; texts.forEach((t, i) => trSplit(t, 450).forEach((c, k) => jobs.push({ i, k, c })));
+      const res = new Array(jobs.length); let next = 0;
+      await Promise.all(Array.from({ length: 4 }, async () => { while (next < jobs.length) { const j = next++; res[j] = await trMyMemory(jobs[j].c, lang); } }));
+      const out = texts.map(() => []); jobs.forEach((j, idx) => { out[j.i][j.k] = res[idx]; });
+      return out.map(a => a.join(' '));
+    }
+    async function trFetch(texts, lang) {
+      const out = await trFromSaved(texts, lang).catch(() => texts.map(() => null));
+      const fill = (idx, vals) => idx.forEach((i, k) => { if (vals[k]) out[i] = vals[k]; });
+      let miss = out.map((v, i) => v ? -1 : i).filter(i => i >= 0);
+      if (miss.length) { try { fill(miss, await trFromServer(miss.map(i => texts[i]), lang)); } catch (e) { trLastDetail = e.message; } }
+      miss = out.map((v, i) => v ? -1 : i).filter(i => i >= 0);
+      if (miss.length) { try { fill(miss, await trFromPublic(miss.map(i => texts[i]), lang)); } catch (e) { trLastDetail += ' | ' + e.message; } }
+      if (out.some(v => !v)) { const err = new Error('Translation is busy right now.'); err.detail = trLastDetail; throw err; }
+      return out;
+    }
+    // Last resort, kept simple: ONE small window (not a tab) with Google Translate, in the language the person chose.
+    // Phones can only open it as a tab; that is a phone limit we cannot change.
+    function openGoogleWindow(text, lang) {
+      const tl = TR_MM[lang] === 'zh-CN' ? 'zh-CN' : (lang || 'en');
+      const url = 'https://translate.google.com/?sl=auto&tl=' + encodeURIComponent(tl) + '&op=translate&text=' + encodeURIComponent((text || '').slice(0, 1800));
+      const w = window.open(url, 'gtranslate', 'popup=yes,width=460,height=640,left=80,top=60');
+      if (w) { try { w.opener = null; w.focus(); } catch (e) {} return; }
+      (navigator.clipboard ? navigator.clipboard.writeText(text || '') : Promise.reject()).then(() => triggerToast('Text copied. Paste it into any translator.'), () => triggerToast('Please allow pop-ups, then try again.'));
+    }
+    // The two clear choices shown ONLY when every automatic source failed.
+    function trRenderFailure(box, lang, getText, retry, detail) {
+      box.innerHTML = '';
+      const msg = document.createElement('p'); msg.className = 'text-sm mb-3'; msg.textContent = 'Translation is busy right now.'; box.appendChild(msg);
+      const mk = (label, fn, primary) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.className = 'w-full rounded-xl font-bold mb-2 ' + (primary ? 'theme-accent-bg' : 'bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-main)]'); b.style.minHeight = '48px'; b.onclick = fn; box.appendChild(b); };
+      mk('1. Try again', retry, true);
+      mk('2. Open Google Translate (small window)', () => openGoogleWindow(getText(), lang), false);
+      if (TR_DEBUG && detail) { const d = document.createElement('pre'); d.className = 'text-[10px] whitespace-pre-wrap opacity-70'; d.textContent = detail; box.appendChild(d); }
     }
 
     // The pop-up window: closes with the X, the Done button, the Esc key, or a tap outside it.
@@ -2857,21 +2944,20 @@
     // Pop-up for reading one piece of text in another language (e.g. an episode summary).
     function openTranslatePopup(text) {
       text = (text || '').trim(); if (!text) return;
-      const { body, close } = trOpenModal('🌐 Translate');
+      const { body } = trOpenModal('🌐 Translate');
       body.innerHTML = `<label class="text-xs font-bold text-[var(--text-muted)] block mb-1">Language</label>
         <select data-tr-lang class="w-full rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-main)] px-3 mb-3" style="min-height:48px"><option value="">Choose a language…</option>${TR_LANGS.map(l => `<option value="${l[0]}">${l[1]}</option>`).join('')}</select>
         <div data-tr-out dir="auto" class="text-sm leading-relaxed whitespace-pre-line rounded-xl bg-[var(--bg-app)] border border-[var(--border-subtle)] p-3 mb-3" style="min-height:64px"></div>
         <p class="text-xs text-[var(--text-muted)] mb-3">Translated automatically. It may contain small mistakes.</p>
         <button type="button" data-tr-close class="w-full rounded-xl font-bold theme-accent-bg" style="min-height:48px">Done</button>`;
       const sel = body.querySelector('[data-tr-lang]'), out = body.querySelector('[data-tr-out]');
+      let token = 0;
       const run = async lang => {
+        const mine = ++token;
         if (!lang) { out.textContent = ''; return; }
         out.textContent = 'Translating…'; trSaveLang(lang);
-        try { out.textContent = (await trFetch([text], lang))[0]; }
-        catch (e) {
-          out.textContent = e.message;
-          const a = document.createElement('a'); a.href = translateHref(text); a.target = '_blank'; a.rel = 'noopener'; a.className = 'underline block mt-2'; a.textContent = 'Open in Google Translate instead'; out.appendChild(a);
-        }
+        try { const r = (await trFetch([text], lang))[0]; if (mine === token) out.textContent = r; }
+        catch (e) { if (mine === token) trRenderFailure(out, lang, () => text, () => run(lang), e.detail); }
       };
       sel.addEventListener('change', () => run(sel.value));
       const start = trSavedLang() || trBrowserLang();
@@ -2891,7 +2977,16 @@
     async function trApply(root, lang) {
       const nodes = trTextNodes(root); if (!nodes.length) return;
       const texts = [...new Set(nodes.map(n => n.nodeValue.trim()))];
-      let tr; try { tr = await trFetch(texts, lang); } catch (e) { triggerToast(e.message); return; }
+      let tr;
+      try { tr = await trFetch(texts, lang); }
+      catch (e) {
+        if (TR.failShown) { triggerToast('Translation is busy right now.'); return; }
+        TR.failShown = true;
+        const { body } = trOpenModal('🌐 Translation');
+        trRenderFailure(body, lang, () => root.innerText, () => { document.getElementById('tr-modal')?.remove(); TR.failShown = false; trApply(root, lang); }, e.detail);
+        return;
+      }
+      TR.failShown = false;
       if (TR.lang !== lang) return;                                   // the person changed language meanwhile
       const map = new Map(texts.map((t, i) => [t, tr[i]]));
       nodes.forEach(n => {
@@ -2982,11 +3077,6 @@
       v.insertAdjacentElement('afterend', btn);
     }, true);
 
-    // Free "Translate this summary" link: opens Google Translate in the person's own language. No cost to us.
-    function translateHref(text) {
-      const lang = ((navigator.language || 'en').split('-')[0]) || 'en';
-      return 'https://translate.google.com/?sl=auto&tl=' + encodeURIComponent(lang) + '&op=translate&text=' + encodeURIComponent(text);
-    }
 
     // Puts one episode into the player: video, title, summary box, highlighted thumbnail.
     function showEpisode(mediaType, ep, autoplay) {
