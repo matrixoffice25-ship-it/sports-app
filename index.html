@@ -964,7 +964,7 @@
               <div id="podcast-summary-wrap" class="hidden bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 space-y-1">
                 <div id="podcast-summary-title" class="text-xs font-extrabold uppercase tracking-wider text-[var(--text-muted)]">Episode Summary</div>
                 <div id="podcast-summary" class="text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-line"></div>
-                <a id="podcast-summary-translate" href="#" target="_blank" rel="noopener" class="hidden items-center text-xs font-bold text-[var(--accent-main)] underline" style="min-height:48px">🌐 Translate this summary</a>
+                <button type="button" id="podcast-summary-translate" onclick="openTranslatePopup(document.getElementById('podcast-summary').textContent)" class="hidden items-center text-xs font-bold text-[var(--accent-main)] underline" style="min-height:48px">🌐 Translate this summary</button>
               </div>
             </div>
             <div id="podcast-featured-wrap" class="hidden">
@@ -993,7 +993,7 @@
               <div id="gear-summary-wrap" class="hidden bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 space-y-1">
                 <div id="gear-summary-title" class="text-xs font-extrabold uppercase tracking-wider text-[var(--text-muted)]">Episode Summary</div>
                 <div id="gear-summary" class="text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-line"></div>
-                <a id="gear-summary-translate" href="#" target="_blank" rel="noopener" class="hidden items-center text-xs font-bold text-[var(--accent-main)] underline" style="min-height:48px">🌐 Translate this summary</a>
+                <button type="button" id="gear-summary-translate" onclick="openTranslatePopup(document.getElementById('gear-summary').textContent)" class="hidden items-center text-xs font-bold text-[var(--accent-main)] underline" style="min-height:48px">🌐 Translate this summary</button>
               </div>
             </div>
             <div id="gear-featured-wrap" class="hidden">
@@ -1576,6 +1576,7 @@
         <div class="flex items-center justify-between">
           <span class="text-xs font-black uppercase tracking-wider text-violet-300">Diagnostic Assessment</span>
           <div class="flex items-center gap-2">
+            <button type="button" onclick="openLanguagePicker('#swingtype-modal')" class="rounded-full bg-[var(--bg-card)] text-[var(--text-main)] flex items-center justify-center" style="width:48px;height:48px" aria-label="Language" title="Language">🌐</button>
             <span id="swingtype-step-badge" class="text-xs text-violet-300 font-bold bg-violet-500/10 px-2.5 py-1 rounded-full border border-violet-500/20">Step 1 of 5</span>
             <button onclick="closeSwingtypeAssessment()" class="w-8 h-8 rounded-full bg-[var(--bg-card)] text-[var(--text-muted)] flex items-center justify-center hover:text-[var(--text-main)] transition-colors" title="Close">✕</button>
           </div>
@@ -1611,7 +1612,7 @@
     // ---- BUILD STAMP + STALE-COPY REPAIR --------------------------------------------------
     // If an old cached copy of this page (browser or service worker) is showing, fetch the live
     // file, compare build stamps, and if they differ clear the caches and reload ONCE.
-    const APP_BUILD = '2026-09-20-F';
+    const APP_BUILD = '2026-09-21-H';
     (async () => {
       try {
         if (!/^https?:/.test(location.protocol)) return;
@@ -2806,6 +2807,181 @@
     function embedUrl(mediaType, videoId, autoplay) {
       return `https://www.youtube.com/embed/${encodeURIComponent(videoId)}?enablejsapi=1&rel=0&playsinline=1${autoplay ? '&autoplay=1' : ''}`;
     }
+
+    // =====================================================================
+    // TRANSLATION - one pop-up window (never a new page), one in-place translator.
+    // Text is translated by the private "translate-text" function (Gemini) and remembered, so each
+    // sentence costs nothing after the first time. Videos are translated by YouTube itself.
+    // =====================================================================
+    const TR_LANGS = [['es','Español'],['fr','Français'],['pt','Português'],['de','Deutsch'],['it','Italiano'],['zh-Hans','中文'],['ja','日本語'],['ko','한국어'],['hi','हिन्दी'],['ar','العربية'],['id','Bahasa Indonesia'],['tr','Türkçe'],['ru','Русский'],['nl','Nederlands'],['pl','Polski'],['vi','Tiếng Việt'],['th','ไทย'],['sv','Svenska']];
+    function trSavedLang() { try { return localStorage.getItem('app_lang') || ''; } catch (e) { return ''; } }
+    function trSaveLang(l) { try { l ? localStorage.setItem('app_lang', l) : localStorage.removeItem('app_lang'); } catch (e) {} }
+    function trBrowserLang() {
+      const l = (navigator.language || 'en').toLowerCase();
+      const c = l.startsWith('zh') ? 'zh-Hans' : l.split('-')[0];
+      return TR_LANGS.some(x => x[0] === c) ? c : '';
+    }
+    // Asks the server function to translate a list of texts. Returns the translations in the same order.
+    async function trFetch(texts, lang) {
+      const out = [];
+      for (let i = 0; i < texts.length;) {
+        let n = 0, chars = 0;
+        while (i + n < texts.length && n < 30 && chars + texts[i + n].length <= 6000) { chars += texts[i + n].length; n++; }
+        if (!n) n = 1;
+        const { data, error } = await supabaseClient.functions.invoke('translate-text', { body: { texts: texts.slice(i, i + n), lang } });
+        if (error) throw new Error('Translation is not available right now.');
+        if (!data || data.error || !Array.isArray(data.translations)) throw new Error((data && data.error) || 'Translation is not available right now.');
+        out.push(...data.translations); i += n;
+      }
+      return out;
+    }
+
+    // The pop-up window: closes with the X, the Done button, the Esc key, or a tap outside it.
+    function trOpenModal(title) {
+      const old = document.getElementById('tr-modal'); if (old) old.remove();
+      const overlay = document.createElement('div');
+      overlay.id = 'tr-modal'; overlay.setAttribute('role', 'dialog'); overlay.setAttribute('aria-modal', 'true');
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:16px';
+      overlay.innerHTML = `<div class="w-full max-w-md bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-3xl p-5 shadow-2xl" style="max-height:85vh;overflow-y:auto">
+        <div class="flex items-center justify-between gap-2 mb-3"><h3 class="text-base font-black">${escapeHtml(title)}</h3>
+        <button type="button" data-tr-close class="rounded-full bg-[var(--bg-card)] text-[var(--text-main)] flex items-center justify-center text-lg" style="width:48px;height:48px" aria-label="Close">✕</button></div>
+        <div data-tr-body></div></div>`;
+      const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey); };
+      const onKey = e => { if (e.key === 'Escape') close(); };
+      overlay.addEventListener('click', e => { if (e.target === overlay || e.target.closest('[data-tr-close]')) close(); });
+      document.addEventListener('keydown', onKey);
+      document.body.appendChild(overlay);
+      return { body: overlay.querySelector('[data-tr-body]'), close };
+    }
+
+    // Pop-up for reading one piece of text in another language (e.g. an episode summary).
+    function openTranslatePopup(text) {
+      text = (text || '').trim(); if (!text) return;
+      const { body, close } = trOpenModal('🌐 Translate');
+      body.innerHTML = `<label class="text-xs font-bold text-[var(--text-muted)] block mb-1">Language</label>
+        <select data-tr-lang class="w-full rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-main)] px-3 mb-3" style="min-height:48px"><option value="">Choose a language…</option>${TR_LANGS.map(l => `<option value="${l[0]}">${l[1]}</option>`).join('')}</select>
+        <div data-tr-out dir="auto" class="text-sm leading-relaxed whitespace-pre-line rounded-xl bg-[var(--bg-app)] border border-[var(--border-subtle)] p-3 mb-3" style="min-height:64px"></div>
+        <p class="text-xs text-[var(--text-muted)] mb-3">Translated automatically. It may contain small mistakes.</p>
+        <button type="button" data-tr-close class="w-full rounded-xl font-bold theme-accent-bg" style="min-height:48px">Done</button>`;
+      const sel = body.querySelector('[data-tr-lang]'), out = body.querySelector('[data-tr-out]');
+      const run = async lang => {
+        if (!lang) { out.textContent = ''; return; }
+        out.textContent = 'Translating…'; trSaveLang(lang);
+        try { out.textContent = (await trFetch([text], lang))[0]; }
+        catch (e) {
+          out.textContent = e.message;
+          const a = document.createElement('a'); a.href = translateHref(text); a.target = '_blank'; a.rel = 'noopener'; a.className = 'underline block mt-2'; a.textContent = 'Open in Google Translate instead'; out.appendChild(a);
+        }
+      };
+      sel.addEventListener('change', () => run(sel.value));
+      const start = trSavedLang() || trBrowserLang();
+      if (start) { sel.value = start; run(start); }
+    }
+
+    // In-place translator for whole screens (SwingType now; Lessons and Fitness later).
+    // It swaps only the visible words. Buttons, answer codes and scoring are never touched.
+    const TR = { lang: '', nodes: [], done: new WeakSet(), observers: new Map(), timers: new Map() };
+    function trTextNodes(root) {
+      const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n => {
+        const p = n.parentElement;
+        if (!p || /^(SCRIPT|STYLE|TEXTAREA|INPUT)$/.test(p.tagName) || p.closest('[data-notranslate]')) return NodeFilter.FILTER_REJECT;
+        return /\p{L}/u.test(n.nodeValue) && !TR.done.has(n) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+      const list = []; while (w.nextNode()) list.push(w.currentNode); return list;
+    }
+    async function trApply(root, lang) {
+      const nodes = trTextNodes(root); if (!nodes.length) return;
+      const texts = [...new Set(nodes.map(n => n.nodeValue.trim()))];
+      let tr; try { tr = await trFetch(texts, lang); } catch (e) { triggerToast(e.message); return; }
+      if (TR.lang !== lang) return;                                   // the person changed language meanwhile
+      const map = new Map(texts.map((t, i) => [t, tr[i]]));
+      nodes.forEach(n => {
+        if (!n.isConnected || TR.done.has(n)) return;
+        const t = n.nodeValue.trim(), lead = n.nodeValue.match(/^\s*/)[0], trail = n.nodeValue.match(/\s*$/)[0];
+        TR.nodes.push([n, n.nodeValue]); TR.done.add(n); n.nodeValue = lead + (map.get(t) || t) + trail;
+      });
+    }
+    function trWatch(root, lang) {
+      if (TR.observers.has(root)) return;
+      const ob = new MutationObserver(() => {                          // a new step/screen was drawn: translate it too
+        clearTimeout(TR.timers.get(root));
+        TR.timers.set(root, setTimeout(() => { if (TR.lang) trApply(root, TR.lang); }, 150));
+      });
+      ob.observe(root, { childList: true, subtree: true });
+      TR.observers.set(root, ob);
+    }
+    function trRestore(root) {
+      TR.observers.forEach(o => o.disconnect()); TR.observers.clear();
+      TR.nodes.forEach(([n, orig]) => { if (n.isConnected) n.nodeValue = orig; });
+      TR.nodes = []; TR.done = new WeakSet(); TR.lang = '';
+      root.removeAttribute('dir');
+    }
+    // Language chooser for a screen. Use it on any screen: openLanguagePicker('#some-container')
+    function openLanguagePicker(selector) {
+      const root = document.querySelector(selector); if (!root) return;
+      const { body, close } = trOpenModal('🌐 Language');
+      const btn = (code, label) => `<button type="button" data-tr-pick="${code}" class="w-full text-left rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-main)] px-4 font-bold" style="min-height:48px;${TR.lang === code ? 'outline:2px solid var(--accent-main)' : ''}">${label}</button>`;
+      body.innerHTML = `<div class="space-y-2">${btn('', 'English (original)')}${TR_LANGS.map(l => btn(l[0], l[1])).join('')}</div>
+        <p class="text-xs text-[var(--text-muted)] mt-3">Translated automatically. It may contain small mistakes.</p>`;
+      body.addEventListener('click', e => {
+        const b = e.target.closest('[data-tr-pick]'); if (!b) return;
+        const lang = b.dataset.trPick; close();
+        trRestore(root); trSaveLang(lang);
+        if (!lang) return;
+        TR.lang = lang; root.dir = lang === 'ar' ? 'rtl' : 'ltr';
+        triggerToast('Translating…'); trWatch(root, lang); trApply(root, lang);
+      });
+    }
+
+    // =====================================================================
+    // LOUDER SOUND for Pro Voice videos. Some phone recordings are quiet even at full volume.
+    // The button only appears when it can safely work, and it is off until the person taps it.
+    // =====================================================================
+    const corsProbe = {};
+    async function corsAllowed(url) {
+      let origin; try { origin = new URL(url, location.href).origin; } catch (e) { return false; }
+      if (origin === location.origin) return true;
+      if (!(origin in corsProbe)) {
+        corsProbe[origin] = fetch(url, { method: 'GET', mode: 'cors', headers: { Range: 'bytes=0-1' } })
+          .then(r => (r.ok || r.status === 206)).catch(() => false);
+      }
+      return corsProbe[origin];
+    }
+    async function setVoiceBoost(video, btn, on) {
+      try {
+        if (!video._boost) {
+          if (!on) return;
+          if (video.crossOrigin !== 'anonymous') {                       // reload once with permission to process the sound
+            const t = video.currentTime, playing = !video.paused;
+            video.crossOrigin = 'anonymous'; video.load();
+            await new Promise(res => video.addEventListener('loadedmetadata', res, { once: true }));
+            try { video.currentTime = t; } catch (e) {}
+            if (playing) video.play().catch(() => {});
+          }
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          const ctx = new Ctx(); await ctx.resume();
+          if (ctx.state !== 'running') { ctx.close(); throw new Error('not running'); }   // checked BEFORE touching the video's sound
+          const src = ctx.createMediaElementSource(video), gain = ctx.createGain(), comp = ctx.createDynamicsCompressor();
+          src.connect(gain); gain.connect(comp); comp.connect(ctx.destination);
+          video._boost = { ctx, gain };
+        }
+        video._boost.gain.gain.value = on ? 3 : 1;
+        btn.dataset.on = on ? '1' : '';
+        btn.textContent = on ? '🔊 Louder sound: ON' : '🔊 Louder sound';
+      } catch (e) { triggerToast("Louder sound isn't available on this phone."); btn.remove(); }
+    }
+    document.addEventListener('play', async e => {
+      const v = e.target;
+      if (!v || v.tagName !== 'VIDEO' || !v.hasAttribute('data-voice-video') || v.dataset.boostChecked) return;
+      v.dataset.boostChecked = '1';
+      if (!(window.AudioContext || window.webkitAudioContext) || !(await corsAllowed(v.currentSrc || v.src))) return;
+      const btn = document.createElement('button');
+      btn.type = 'button'; btn.textContent = '🔊 Louder sound';
+      btn.className = 'mt-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-main)] text-xs font-bold px-4';
+      btn.style.minHeight = '48px';
+      btn.onclick = () => setVoiceBoost(v, btn, !btn.dataset.on);
+      v.insertAdjacentElement('afterend', btn);
+    }, true);
+
     // Free "Translate this summary" link: opens Google Translate in the person's own language. No cost to us.
     function translateHref(text) {
       const lang = ((navigator.language || 'en').split('-')[0]) || 'en';
@@ -2828,7 +3004,7 @@
         sm.classList.toggle('text-[var(--text-muted)]', !txt);
         if (sw) sw.classList.remove('hidden');
         const tl = document.getElementById(mediaType + '-summary-translate');
-        if (tl) { tl.classList.toggle('hidden', !txt); tl.classList.toggle('inline-flex', !!txt); if (txt) tl.href = translateHref(txt); }
+        if (tl) { tl.classList.toggle('hidden', !txt); tl.classList.toggle('inline-flex', !!txt); }
       }
       mediaState[mediaType].playingId = ep.episode_id;
       renderEpisodeThumbs(mediaType);
@@ -3097,7 +3273,8 @@
         const videoId = idMatch ? idMatch[1] : url;
         return `<div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-[var(--border-subtle)]">
           <iframe class="w-full h-full" src="https://www.youtube.com/embed/${encodeURIComponent(videoId)}?playsinline=1&rel=0" title="${escapeHtml(fallbackLabel)}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        </div>`;
+        </div>
+        <p class="text-xs text-[var(--text-muted)] mt-1">Subtitles or another language? Tap ⚙ on the video, then Subtitles, then pick yours.</p>`;
       }
       if (type === 'upload' && url) {
         return `<div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-[var(--border-subtle)]">
@@ -5891,7 +6068,7 @@
         // defaulted unrecognized files to video/mp4, mislabeling images.
         const videoCaption = post.body_text ? `<p class="text-xs font-bold text-[var(--text-main)] mb-2">${linkifyMentions(post.body_text)}</p>` : '';
         const posterAttr = post.thumbnail_url ? `poster="${post.thumbnail_url}"` : '';
-        mediaHtml = `${videoCaption}<video controls playsinline webkit-playsinline preload="metadata" ${posterAttr} class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${post.media_url}"></video>`;
+        mediaHtml = `${videoCaption}<video data-voice-video controls playsinline webkit-playsinline preload="metadata" ${posterAttr} class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${post.media_url}"></video>`;
       } else if (post.media_type === 'Voice' && post.media_url) {
         mediaHtml = buildVoiceMemoHtml(post.body_text || 'Voice memo', post.media_url, `${idPrefix}-voice-${post.post_id}`, post.thumbnail_url);
       }
