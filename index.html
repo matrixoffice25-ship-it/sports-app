@@ -960,14 +960,11 @@
               <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-black">
                 <iframe id="podcast-iframe" class="w-full h-full" src="" title="Podcast video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
               </div>
-              <label class="flex items-center gap-2 text-xs text-[var(--text-muted)]">
-                <span class="font-bold">Subtitles</span>
-                <select id="podcast-lang" onchange="setSubtitleLang('podcast', this.value)" class="bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl px-3 text-xs text-[var(--text-main)]" style="min-height:48px" aria-label="Podcast subtitles language"><option value="">Off</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="pt">Português</option><option value="de">Deutsch</option><option value="it">Italiano</option><option value="zh-Hans">中文</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="hi">हिन्दी</option><option value="ar">العربية</option></select>
-              </label>
-              <p class="text-xs text-[var(--text-muted)]">Shows that language if the video has it. For any other language, tap the gear in the video, then Subtitles, then Auto-translate.</p>
+              <p class="text-xs text-[var(--text-muted)]">Subtitles or another language? Tap ⚙ on the video, then Subtitles, then pick yours.</p>
               <div id="podcast-summary-wrap" class="hidden bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 space-y-1">
                 <div id="podcast-summary-title" class="text-xs font-extrabold uppercase tracking-wider text-[var(--text-muted)]">Episode Summary</div>
                 <div id="podcast-summary" class="text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-line"></div>
+                <a id="podcast-summary-translate" href="#" target="_blank" rel="noopener" class="hidden items-center text-xs font-bold text-[var(--accent-main)] underline" style="min-height:48px">🌐 Translate this summary</a>
               </div>
             </div>
             <div id="podcast-featured-wrap" class="hidden">
@@ -992,14 +989,11 @@
               <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-black">
                 <iframe id="gear-iframe" class="w-full h-full" src="" title="Gear video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
               </div>
-              <label class="flex items-center gap-2 text-xs text-[var(--text-muted)]">
-                <span class="font-bold">Subtitles</span>
-                <select id="gear-lang" onchange="setSubtitleLang('gear', this.value)" class="bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl px-3 text-xs text-[var(--text-main)]" style="min-height:48px" aria-label="Gear video subtitles language"><option value="">Off</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="pt">Português</option><option value="de">Deutsch</option><option value="it">Italiano</option><option value="zh-Hans">中文</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="hi">हिन्दी</option><option value="ar">العربية</option></select>
-              </label>
-              <p class="text-xs text-[var(--text-muted)]">Shows that language if the video has it. For any other language, tap the gear in the video, then Subtitles, then Auto-translate.</p>
+              <p class="text-xs text-[var(--text-muted)]">Subtitles or another language? Tap ⚙ on the video, then Subtitles, then pick yours.</p>
               <div id="gear-summary-wrap" class="hidden bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 space-y-1">
                 <div id="gear-summary-title" class="text-xs font-extrabold uppercase tracking-wider text-[var(--text-muted)]">Episode Summary</div>
                 <div id="gear-summary" class="text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-line"></div>
+                <a id="gear-summary-translate" href="#" target="_blank" rel="noopener" class="hidden items-center text-xs font-bold text-[var(--accent-main)] underline" style="min-height:48px">🌐 Translate this summary</a>
               </div>
             </div>
             <div id="gear-featured-wrap" class="hidden">
@@ -1010,7 +1004,6 @@
           <div id="sponsor-banner-equipment"></div>
         </div>
 
-        <p class="text-center text-xs text-[var(--text-faint)]" id="app-build-label"></p>
       </section>
 
 
@@ -1217,7 +1210,7 @@
                 <option value="Elite Player">Elite Player</option>
                 <option value="Hobby/Fan">Hobby/Fan</option>
               </select>
-              <p class="text-xs text-[var(--text-muted)] mt-1">Professional Athlete, Coach, Industry Expert and Elite Player submit a request for our team to review; it does not automatically grant posting access. Hobby/Fan is for everyone else: read and react.</p>
+              <p class="text-xs text-[var(--text-muted)] mt-1">Hobby/Fan can read and react. Other titles are reviewed by our team.</p>
             </div>
           </div>
           </div>
@@ -1618,7 +1611,7 @@
     // ---- BUILD STAMP + STALE-COPY REPAIR --------------------------------------------------
     // If an old cached copy of this page (browser or service worker) is showing, fetch the live
     // file, compare build stamps, and if they differ clear the caches and reload ONCE.
-    const APP_BUILD = '2026-09-20-C';
+    const APP_BUILD = '2026-09-20-E';
     (async () => {
       try {
         if (!/^https?:/.test(location.protocol)) return;
@@ -2808,22 +2801,15 @@
     }
     function youtubeThumb(id) { return `https://i.ytimg.com/vi/${encodeURIComponent(id)}/mqdefault.jpg`; }
 
-    { const bl = document.getElementById('app-build-label'); if (bl) bl.textContent = 'App version ' + APP_BUILD; }
     const mediaShown = { podcast: 8, gear: 8 };
     function showMoreEpisodes(mediaType) { mediaShown[mediaType] += 8; renderEpisodeThumbs(mediaType); }
-    const mediaLang = { podcast: '', gear: '' };
     function embedUrl(mediaType, videoId, autoplay) {
-      const lang = mediaLang[mediaType];
-      // Subtitles use YouTube's own caption system (free, no extra hosting). For any language, the
-      // player's own gear menu > Subtitles > Auto-translate also works.
-      return `https://www.youtube.com/embed/${encodeURIComponent(videoId)}?enablejsapi=1&rel=0&hl=${encodeURIComponent(lang || 'en')}${lang ? `&cc_load_policy=1&cc_lang_pref=${encodeURIComponent(lang)}` : ''}${autoplay ? '&autoplay=1' : ''}`;
+      return `https://www.youtube.com/embed/${encodeURIComponent(videoId)}?enablejsapi=1&rel=0&playsinline=1${autoplay ? '&autoplay=1' : ''}`;
     }
-    function setSubtitleLang(mediaType, lang) {
-      mediaLang[mediaType] = lang;
-      const st = mediaState[mediaType];
-      const ep = st.list.find(e => e.episode_id === st.playingId);
-      const iframe = document.getElementById(MEDIA_IFRAME[mediaType]);
-      if (ep && iframe) iframe.src = embedUrl(mediaType, ep.youtube_video_id, false);
+    // Free "Translate this summary" link: opens Google Translate in the person's own language. No cost to us.
+    function translateHref(text) {
+      const lang = ((navigator.language || 'en').split('-')[0]) || 'en';
+      return 'https://translate.google.com/?sl=auto&tl=' + encodeURIComponent(lang) + '&op=translate&text=' + encodeURIComponent(text);
     }
 
     // Puts one episode into the player: video, title, summary box, highlighted thumbnail.
@@ -2832,7 +2818,7 @@
       if (!iframe || !ep) return;
       const url = embedUrl(mediaType, ep.youtube_video_id, autoplay);
       const sameVideo = iframe.dataset.vid === ep.youtube_video_id;
-      if (!sameVideo || autoplay) { iframe.src = url; iframe.dataset.vid = ep.youtube_video_id; }   // don't restart a video that is already playing
+      if (!sameVideo || autoplay) { iframe.src = url; iframe.dataset.vid = ep.youtube_video_id; }
       iframe.title = ep.title || iframe.title;
       const vt = document.getElementById(mediaType + '-video-title'); if (vt) vt.textContent = ep.title || '';
       const sm = document.getElementById(mediaType + '-summary'); const sw = document.getElementById(mediaType + '-summary-wrap');
@@ -2841,6 +2827,8 @@
         sm.textContent = txt || summaryEmptyText;
         sm.classList.toggle('text-[var(--text-muted)]', !txt);
         if (sw) sw.classList.remove('hidden');
+        const tl = document.getElementById(mediaType + '-summary-translate');
+        if (tl) { tl.classList.toggle('hidden', !txt); tl.classList.toggle('inline-flex', !!txt); if (txt) tl.href = translateHref(txt); }
       }
       mediaState[mediaType].playingId = ep.episode_id;
       renderEpisodeThumbs(mediaType);
@@ -4731,7 +4719,7 @@
             user_id: session.user.id, requested_title: titleVal,
           });
           if (!reqError) {
-            triggerToast("Request sent! Our team will review it and you will see your title once approved.");
+            triggerToast("Request sent. We will review it.");
           }
         }
 
@@ -4970,7 +4958,7 @@
 
     function handleComposerButtonClick() {
       if (!canPostToProVoice()) {
-        triggerToast('Posting in Pro Voice is for approved Professional Athletes, Coaches, Industry Experts, Elite Players and Admins. Hobby/Fan accounts can read and react.');
+        triggerToast('Only approved members can post in Pro Voice.');
         return;
       }
       if (!currentSportId) {
