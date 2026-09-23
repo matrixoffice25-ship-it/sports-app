@@ -782,6 +782,7 @@
             
             <span id="fitness-subtab-label">Fitness</span>
           </button>
+          <button type="button" onclick="openLanguagePicker()" class="flex-shrink-0 rounded-xl bg-[var(--bg-card)] text-[var(--text-main)] flex items-center justify-center text-lg" style="width:48px;height:48px" aria-label="Language" title="Language">🌐</button>
         </div>
 
         <!-- SUB-VIEW 1: GOLF LESSONS -->
@@ -964,7 +965,7 @@
               <div id="podcast-summary-wrap" class="hidden bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 space-y-1">
                 <div id="podcast-summary-title" class="text-xs font-extrabold uppercase tracking-wider text-[var(--text-muted)]">Episode Summary</div>
                 <div id="podcast-summary" class="text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-line"></div>
-                <button type="button" id="podcast-summary-translate" onclick="openTranslatePopup(document.getElementById('podcast-summary').textContent)" class="hidden items-center text-xs font-bold text-[var(--accent-main)] underline" style="min-height:48px">🌐 Translate this summary</button>
+                <button type="button" id="podcast-summary-translate" onclick="openTranslatePopup([document.getElementById('podcast-video-title').textContent, document.getElementById('podcast-summary').textContent])" class="hidden items-center text-xs font-bold text-[var(--accent-main)] underline" style="min-height:48px">🌐 Translate title &amp; summary</button>
               </div>
             </div>
             <div id="podcast-featured-wrap" class="hidden">
@@ -993,7 +994,7 @@
               <div id="gear-summary-wrap" class="hidden bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 space-y-1">
                 <div id="gear-summary-title" class="text-xs font-extrabold uppercase tracking-wider text-[var(--text-muted)]">Episode Summary</div>
                 <div id="gear-summary" class="text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-line"></div>
-                <button type="button" id="gear-summary-translate" onclick="openTranslatePopup(document.getElementById('gear-summary').textContent)" class="hidden items-center text-xs font-bold text-[var(--accent-main)] underline" style="min-height:48px">🌐 Translate this summary</button>
+                <button type="button" id="gear-summary-translate" onclick="openTranslatePopup([document.getElementById('gear-video-title').textContent, document.getElementById('gear-summary').textContent])" class="hidden items-center text-xs font-bold text-[var(--accent-main)] underline" style="min-height:48px">🌐 Translate title &amp; summary</button>
               </div>
             </div>
             <div id="gear-featured-wrap" class="hidden">
@@ -1576,9 +1577,9 @@
         <div class="flex items-center justify-between">
           <span class="text-xs font-black uppercase tracking-wider text-violet-300">Diagnostic Assessment</span>
           <div class="flex items-center gap-2">
-            <button type="button" onclick="openLanguagePicker('#swingtype-modal')" class="rounded-full bg-[var(--bg-card)] text-[var(--text-main)] flex items-center justify-center" style="width:48px;height:48px" aria-label="Language" title="Language">🌐</button>
+            <button type="button" onclick="openLanguagePicker()" class="rounded-full bg-[var(--bg-card)] text-[var(--text-main)] flex items-center justify-center" style="width:48px;height:48px" aria-label="Language" title="Language">🌐</button>
             <span id="swingtype-step-badge" class="text-xs text-violet-300 font-bold bg-violet-500/10 px-2.5 py-1 rounded-full border border-violet-500/20">Step 1 of 5</span>
-            <button onclick="closeSwingtypeAssessment()" class="w-8 h-8 rounded-full bg-[var(--bg-card)] text-[var(--text-muted)] flex items-center justify-center hover:text-[var(--text-main)] transition-colors" title="Close">✕</button>
+            <button onclick="closeSwingtypeAssessment()" class="rounded-full bg-[var(--bg-card)] text-[var(--text-muted)] flex items-center justify-center hover:text-[var(--text-main)] transition-colors" style="width:48px;height:48px" aria-label="Close" title="Close">✕</button>
           </div>
         </div>
         <div class="w-full h-1.5 rounded-full bg-[var(--bg-card)] overflow-hidden">
@@ -1612,7 +1613,7 @@
     // ---- BUILD STAMP + STALE-COPY REPAIR --------------------------------------------------
     // If an old cached copy of this page (browser or service worker) is showing, fetch the live
     // file, compare build stamps, and if they differ clear the caches and reload ONCE.
-    const APP_BUILD = '2026-09-21-I';
+    const APP_BUILD = '2026-09-21-J';
     (async () => {
       try {
         if (!/^https?:/.test(location.protocol)) return;
@@ -2805,17 +2806,28 @@
     const mediaShown = { podcast: 8, gear: 8 };
     function showMoreEpisodes(mediaType) { mediaShown[mediaType] += 8; renderEpisodeThumbs(mediaType); }
     function embedUrl(mediaType, videoId, autoplay) {
-      return `https://www.youtube.com/embed/${encodeURIComponent(videoId)}?enablejsapi=1&rel=0&playsinline=1${autoplay ? '&autoplay=1' : ''}`;
+      return `https://www.youtube.com/embed/${encodeURIComponent(videoId)}?enablejsapi=1&rel=0&playsinline=1${autoplay ? '&autoplay=1' : ''}${trVideoCaptionParams()}`;
     }
 
     // =====================================================================
     // TRANSLATION - one pop-up window (never a new page), one in-place translator.
-    // Text is translated by the private "translate-text" function (Gemini) and remembered, so each
-    // sentence costs nothing after the first time. Videos are translated by YouTube itself.
+    // Strategy is matched to how often each segment's content changes:
+    //   - Lessons & Fitness (in-place translator, trFetch): small, finite, rarely-changing assessment
+    //     copy. Saved to translations_cache once and reused forever; Gemini is the paid quality backup.
+    //   - Shows & Gear (popup, trFetchLive): new episodes constantly. Free methods only (automated
+    //     Google Translate, then the MyMemory public API), and NOTHING is ever written to the database.
+    //   - Videos themselves are translated by YouTube (captions/dubbing), never by this app.
+    //   - News, Pro Voice, Education: no translate button yet, by design (see project instructions).
     // =====================================================================
     const TR_LANGS = [['es','Español'],['fr','Français'],['pt','Português'],['de','Deutsch'],['it','Italiano'],['zh-Hans','中文'],['ja','日本語'],['ko','한국어'],['hi','हिन्दी'],['ar','العربية'],['id','Bahasa Indonesia'],['tr','Türkçe'],['ru','Русский'],['nl','Nederlands'],['pl','Polski'],['vi','Tiếng Việt'],['th','ไทย'],['sv','Svenska']];
-    function trSavedLang() { try { return localStorage.getItem('app_lang') || ''; } catch (e) { return ''; } }
-    function trSaveLang(l) { try { l ? localStorage.setItem('app_lang', l) : localStorage.removeItem('app_lang'); } catch (e) {} }
+    // Only the language NAME (a few letters) is remembered on the person's own phone. No translated text is stored there.
+    function trSavedLang(key) { try { return localStorage.getItem(key || 'app_lang') || ''; } catch (e) { return ''; } }
+    function trSaveLang(l, key) { try { l ? localStorage.setItem(key || 'app_lang', l) : localStorage.removeItem(key || 'app_lang'); } catch (e) {} }
+    // Videos: if the person chose a language, ask YouTube to show captions in it (YouTube does the translating, free).
+    function trVideoCaptionParams() {
+      const l = trSavedLang() || trSavedLang('app_lang_read');
+      return l ? '&hl=' + encodeURIComponent(l) + '&cc_load_policy=1&cc_lang_pref=' + encodeURIComponent(l) : '';
+    }
     function trBrowserLang() {
       const l = (navigator.language || 'en').toLowerCase();
       const c = l.startsWith('zh') ? 'zh-Hans' : l.split('-')[0];
@@ -2826,6 +2838,12 @@
     //   1. Saved translations (read straight from our database - instant, needs no AI)
     //   2. Our translator (Gemini, through the "translate-text" function) - best quality, then saved for everyone
     //   3. A free public translator (MyMemory), called from the person's own phone - works even if 1-2 are down
+    // ---- TWO SIMPLE SWITCHES (true = on, false = off) --------------------------------------
+    // TR_USE_SAVED : reuse translations already kept in YOUR database (instant, saves money).
+    // TR_USE_GEMINI: use Gemini for best quality (a translated sentence is then kept in your database for everyone).
+    // Set BOTH to false for a fully free, nothing-stored setup: the app then uses only the free public translator.
+    const TR_USE_SAVED = true;
+    const TR_USE_GEMINI = true;
     const TR_DEBUG = /debug=tr/.test(location.search);
     let trLastDetail = '';
     function trTimeout(promise, ms) {
@@ -2894,15 +2912,56 @@
       const out = texts.map(() => []); jobs.forEach((j, idx) => { out[j.i][j.k] = res[idx]; });
       return out.map(a => a.join(' '));
     }
-    async function trFetch(texts, lang) {
-      const out = await trFromSaved(texts, lang).catch(() => texts.map(() => null));
+    // Free, no-signup, automated call to Google Translate (the same door the "open in a small window"
+    // button uses, just called from code instead of clicked). Not an official/guaranteed API, so every
+    // caller below treats it as Plan A and falls back automatically if it is ever blocked or rate-limited.
+    function trGoogleTargetLang(lang) { return TR_MM[lang] === 'zh-CN' ? 'zh-CN' : lang; }
+    async function trGoogleOne(chunk, lang) {
+      const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 9000);
+      try {
+        const url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=' + encodeURIComponent(trGoogleTargetLang(lang)) + '&dt=t&q=' + encodeURIComponent(chunk);
+        const r = await fetch(url, { signal: ctl.signal });
+        if (!r.ok) throw new Error('google: ' + r.status);
+        const j = await r.json();
+        const t = Array.isArray(j) && Array.isArray(j[0]) ? j[0].map(p => p[0]).join('') : '';
+        if (!t) throw new Error('google: empty response');
+        return t;
+      } finally { clearTimeout(timer); }
+    }
+    async function trFromGoogleFree(texts, lang) {
+      const jobs = []; texts.forEach((t, i) => trSplit(t, 1500).forEach((c, k) => jobs.push({ i, k, c })));
+      const res = new Array(jobs.length); let next = 0;
+      await Promise.all(Array.from({ length: 4 }, async () => { while (next < jobs.length) { const j = next++; res[j] = await trGoogleOne(jobs[j].c, lang); } }));
+      const out = texts.map(() => []); jobs.forEach((j, idx) => { out[j.i][j.k] = res[idx]; });
+      return out.map(a => a.join(' '));
+    }
+    // Shared engine. Which sources are allowed is decided per SEGMENT by the two callers below —
+    // never here — so a segment's storage/cost rules can't accidentally leak into another segment.
+    async function trFetchCore(texts, lang, opts) {
+      let out = opts.useSaved ? await trFromSaved(texts, lang).catch(() => texts.map(() => null)) : texts.map(() => null);
       const fill = (idx, vals) => idx.forEach((i, k) => { if (vals[k]) out[i] = vals[k]; });
       let miss = out.map((v, i) => v ? -1 : i).filter(i => i >= 0);
-      if (miss.length) { try { fill(miss, await trFromServer(miss.map(i => texts[i]), lang)); } catch (e) { trLastDetail = e.message; } }
+      if (miss.length && opts.useGemini) { try { fill(miss, await trFromServer(miss.map(i => texts[i]), lang)); } catch (e) { trLastDetail = e.message; } }
+      miss = out.map((v, i) => v ? -1 : i).filter(i => i >= 0);
+      if (miss.length && opts.useGoogleFree) { try { fill(miss, await trFromGoogleFree(miss.map(i => texts[i]), lang)); } catch (e) { trLastDetail = e.message; } }
       miss = out.map((v, i) => v ? -1 : i).filter(i => i >= 0);
       if (miss.length) { try { fill(miss, await trFromPublic(miss.map(i => texts[i]), lang)); } catch (e) { trLastDetail += ' | ' + e.message; } }
       if (out.some(v => !v)) { const err = new Error('Translation is busy right now.'); err.detail = trLastDetail; throw err; }
       return out;
+    }
+    // LESSONS & FITNESS ONLY (in-place translator on #tab-lessons / #swingtype-modal): this content is
+    // small, finite and rarely changes, so it is the one place allowed to read/write translations_cache
+    // and use the paid Gemini function as the quality backup. Plan A: saved cache. Plan B: Gemini
+    // (result gets saved for everyone). Plan C: free public translator. Plan D: manual popup.
+    async function trFetch(texts, lang) {
+      return trFetchCore(texts, lang, { useSaved: TR_USE_SAVED, useGemini: TR_USE_GEMINI, useGoogleFree: false });
+    }
+    // SHOWS & GEAR ONLY (episode title/summary translate popup): this content changes constantly
+    // (new episodes every week), so nothing here ever touches translations_cache or Gemini — free
+    // methods only. Plan A: automated free Google Translate. Plan B: free public translator (MyMemory).
+    // Plan C (below, in trRenderFailure): manual "open Google Translate" popup.
+    async function trFetchLive(texts, lang) {
+      return trFetchCore(texts, lang, { useSaved: false, useGemini: false, useGoogleFree: true });
     }
     // Last resort, kept simple: ONE small window (not a tab) with Google Translate, in the language the person chose.
     // Phones can only open it as a tab; that is a phone limit we cannot change.
@@ -2942,8 +3001,9 @@
     }
 
     // Pop-up for reading one piece of text in another language (e.g. an episode summary).
-    function openTranslatePopup(text) {
-      text = (text || '').trim(); if (!text) return;
+    function openTranslatePopup(parts) {                    // one text, or a list of texts (e.g. title + summary)
+      parts = (Array.isArray(parts) ? parts : [parts]).map(p => (p || '').trim()).filter(Boolean); if (!parts.length) return;
+      const text = parts.join('\n\n');
       const { body } = trOpenModal('🌐 Translate');
       body.innerHTML = `<label class="text-xs font-bold text-[var(--text-muted)] block mb-1">Language</label>
         <select data-tr-lang class="w-full rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-main)] px-3 mb-3" style="min-height:48px"><option value="">Choose a language…</option>${TR_LANGS.map(l => `<option value="${l[0]}">${l[1]}</option>`).join('')}</select>
@@ -2955,12 +3015,12 @@
       const run = async lang => {
         const mine = ++token;
         if (!lang) { out.textContent = ''; return; }
-        out.textContent = 'Translating…'; trSaveLang(lang);
-        try { const r = (await trFetch([text], lang))[0]; if (mine === token) out.textContent = r; }
+        out.textContent = 'Translating…'; trSaveLang(lang, 'app_lang_read');
+        try { const r = (await trFetchLive(parts, lang)).join('\n\n'); if (mine === token) out.textContent = r; }
         catch (e) { if (mine === token) trRenderFailure(out, lang, () => text, () => run(lang), e.detail); }
       };
       sel.addEventListener('change', () => run(sel.value));
-      const start = trSavedLang() || trBrowserLang();
+      const start = trSavedLang('app_lang_read') || trSavedLang() || trBrowserLang();
       if (start) { sel.value = start; run(start); }
     }
 
@@ -3004,15 +3064,23 @@
       ob.observe(root, { childList: true, subtree: true });
       TR.observers.set(root, ob);
     }
-    function trRestore(root) {
+    // The screens that can be translated in place. One language choice covers all of them.
+    const TR_ROOTS = ['#tab-lessons', '#swingtype-modal'];
+    function trRoots() { return TR_ROOTS.map(q => document.querySelector(q)).filter(Boolean); }
+    function trRestore() {
       TR.observers.forEach(o => o.disconnect()); TR.observers.clear();
       TR.nodes.forEach(([n, orig]) => { if (n.isConnected) n.nodeValue = orig; });
       TR.nodes = []; TR.done = new WeakSet(); TR.lang = '';
-      root.removeAttribute('dir');
+      trRoots().forEach(r => r.removeAttribute('dir'));
     }
-    // Language chooser for a screen. Use it on any screen: openLanguagePicker('#some-container')
-    function openLanguagePicker(selector) {
-      const root = document.querySelector(selector); if (!root) return;
+    function trStart(lang) {
+      trRestore();
+      if (!lang) return;
+      TR.lang = lang;
+      trRoots().forEach(r => { r.dir = lang === 'ar' ? 'rtl' : 'ltr'; trWatch(r, lang); trApply(r, lang); });
+    }
+    // Language chooser. Works from any screen: openLanguagePicker()
+    function openLanguagePicker() {
       const { body, close } = trOpenModal('🌐 Language');
       const btn = (code, label) => `<button type="button" data-tr-pick="${code}" class="w-full text-left rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-main)] px-4 font-bold" style="min-height:48px;${TR.lang === code ? 'outline:2px solid var(--accent-main)' : ''}">${label}</button>`;
       body.innerHTML = `<div class="space-y-2">${btn('', 'English (original)')}${TR_LANGS.map(l => btn(l[0], l[1])).join('')}</div>
@@ -3020,12 +3088,18 @@
       body.addEventListener('click', e => {
         const b = e.target.closest('[data-tr-pick]'); if (!b) return;
         const lang = b.dataset.trPick; close();
-        trRestore(root); trSaveLang(lang);
-        if (!lang) return;
-        TR.lang = lang; root.dir = lang === 'ar' ? 'rtl' : 'ltr';
-        triggerToast('Translating…'); trWatch(root, lang); trApply(root, lang);
+        trSaveLang(lang); trSaveLang(lang, 'app_lang_read');
+        if (lang) triggerToast('Translating…');
+        trStart(lang);
       });
     }
+    // Next visit: if the person already chose a language, the screen opens in it. No tapping again.
+    function trAutoStart() { if (TR.lang) return; const l = trSavedLang(); if (l) trStart(l); }
+    TR_ROOTS.forEach(q => {
+      const el = document.querySelector(q); if (!el) return;
+      new MutationObserver(() => { if (!el.classList.contains('hidden')) trAutoStart(); }).observe(el, { attributes: true, attributeFilter: ['class'] });
+    });
+    if (trSavedLang() && (() => { const t = document.querySelector('#tab-lessons'); return t && !t.classList.contains('hidden'); })()) trAutoStart();
 
     // =====================================================================
     // LOUDER SOUND for Pro Voice videos. Some phone recordings are quiet even at full volume.
@@ -3362,7 +3436,7 @@
         const idMatch = url.match(/(?:v=|\/embed\/|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
         const videoId = idMatch ? idMatch[1] : url;
         return `<div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-[var(--border-subtle)]">
-          <iframe class="w-full h-full" src="https://www.youtube.com/embed/${encodeURIComponent(videoId)}?playsinline=1&rel=0" title="${escapeHtml(fallbackLabel)}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          <iframe class="w-full h-full" src="https://www.youtube.com/embed/${encodeURIComponent(videoId)}?playsinline=1&rel=0${trVideoCaptionParams()}" title="${escapeHtml(fallbackLabel)}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
         <p class="text-xs text-[var(--text-muted)] mt-1">Subtitles or another language? Tap ⚙ on the video, then Subtitles, then pick yours.</p>`;
       }
