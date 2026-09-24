@@ -309,6 +309,21 @@
     .gear-col > .gear-card { flex: 1 1 auto; }
 
     /* =====================================================================
+       AD-FREE PREMIUM (test mode - mock monetization, see project rules).
+       Applied as a class on <html> when the person has the toggle on. Hides every
+       secondary sponsor placement app-wide. CRITICAL EXCEPTION, non-negotiable:
+       the Official Global Partner banner (#sponsor-banner-global / .sp-global)
+       across the top of every page ALWAYS stays visible, even to premium users.
+       ===================================================================== */
+    html.buko-premium-ad-free .sp-block:not(.sp-global),
+    html.buko-premium-ad-free [id^="sponsor-banner-"]:not(#sponsor-banner-global),
+    html.buko-premium-ad-free [id^="sponsor-badge-"],
+    html.buko-premium-ad-free [id^="sponsor-logo-"],
+    html.buko-premium-ad-free .sport-card-sponsor-slot {
+      display: none !important;
+    }
+
+    /* =====================================================================
        PART B: LARGE SCREENS  (laptops, desktops, iPads)
        ---------------------------------------------------------------------
        Shared rules  : screens 1024px+ wide, OR 768px+ wide and 600px+ tall
@@ -354,6 +369,7 @@
       [id^="sponsor-banner-"]:empty { display: none; }
       .sp-img { object-fit: contain; }
       #main-viewport > #tab-home > #poll-card:has(+ #sponsor-banner-home-strip-top:empty) { grid-column: 1 / -1; }
+      html.buko-premium-ad-free #main-viewport > #tab-home > #poll-card { grid-column: 1 / -1; }
       #main-viewport > #tab-home > #poll-card + div { align-self: center; }
 
       /* Education: details on the left, the whole flyer on the right */
@@ -855,7 +871,7 @@
           
           <div id="sponsor-banner-fitness-tab-header"></div>
 
-          <div class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
+          <div data-tr-assessment="true" class="bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] space-y-3">
             <div class="flex items-center justify-between">
               <div>
                 <span class="text-xs font-bold text-violet-light uppercase tracking-wider bg-violet-accent/10 px-2 py-0.5 rounded border border-violet-accent/20">Diagnostic Assessment</span>
@@ -960,6 +976,7 @@
               <div id="podcast-video-title" class="text-xs font-bold text-[var(--text-main)]"></div>
               <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-black">
                 <iframe id="podcast-iframe" class="w-full h-full" src="" title="Podcast video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <button type="button" onclick="openTheaterViewer('podcast')" class="absolute top-2 right-2 w-12 h-12 rounded-full bg-black/60 text-white flex items-center justify-center text-lg z-10" aria-label="Expand to full-size view" title="Expand to full-size view">⤢</button>
               </div>
               <p class="text-xs text-[var(--text-muted)]">Subtitles or another language? Tap ⚙ on the video, then Subtitles, then pick yours.</p>
               <div id="podcast-summary-wrap" class="hidden bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 space-y-1">
@@ -989,6 +1006,7 @@
               <div id="gear-video-title" class="text-xs font-bold text-[var(--text-main)]"></div>
               <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-black">
                 <iframe id="gear-iframe" class="w-full h-full" src="" title="Gear video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <button type="button" onclick="openTheaterViewer('gear')" class="absolute top-2 right-2 w-12 h-12 rounded-full bg-black/60 text-white flex items-center justify-center text-lg z-10" aria-label="Expand to full-size view" title="Expand to full-size view">⤢</button>
               </div>
               <p class="text-xs text-[var(--text-muted)]">Subtitles or another language? Tap ⚙ on the video, then Subtitles, then pick yours.</p>
               <div id="gear-summary-wrap" class="hidden bg-[var(--bg-app)] border border-[var(--border-subtle)] rounded-xl p-3 space-y-1">
@@ -1058,6 +1076,16 @@
 
         <div id="sponsor-banner-profile-vip"></div>
 
+        <div class="bg-[var(--bg-app)] p-3.5 rounded-2xl border border-[var(--border-subtle)] flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <span class="text-sm font-bold text-[var(--text-main)] block">✨ Ad-Free Premium</span>
+            <span class="text-sm text-[var(--text-muted)] block">Hides sponsor strips &amp; badges app-wide. Our Official Global Partner banner always stays visible. <span class="italic">(Test mode — no real billing yet.)</span></span>
+          </div>
+          <button type="button" id="premium-adfree-toggle" onclick="setPremiumAdFree(!isPremiumAdFree())" aria-pressed="false" class="flex-shrink-0 rounded-full bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-main)] font-black text-xs px-4 transition-all" style="min-height:48px;min-width:76px">
+            <span data-premium-state>OFF</span>
+          </button>
+        </div>
+
         <div class="bg-[var(--bg-app)] p-3.5 rounded-2xl border border-[var(--border-subtle)] space-y-2">
           <button type="button" onclick="toggleSettingsPanel()" class="w-full flex items-center justify-between text-sm font-bold text-[var(--text-main)] uppercase tracking-wider min-h-touch">
             <span>⚙️ Settings</span>
@@ -1109,15 +1137,6 @@
                     <span class="text-sm">Rose</span>
                   </button>
                 </div>
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-sm font-bold text-[var(--text-muted)] mb-1">Text Size</label>
-              <div class="grid grid-cols-3 gap-1 bg-[var(--bg-surface)] p-1 rounded-xl border border-[var(--border-subtle)]">
-                <button type="button" id="btn-font-sm" onclick="setFontScale(0.92, true)" class="min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all text-[var(--text-muted)]">Small</button>
-                <button type="button" id="btn-font-md" onclick="setFontScale(1, true)" class="min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all shadow">Default</button>
-                <button type="button" id="btn-font-lg" onclick="setFontScale(1.2, true)" class="min-h-touch py-1.5 px-1.5 rounded-lg text-xs font-bold transition-all text-[var(--text-muted)]">Large</button>
               </div>
             </div>
           </div>
@@ -1397,6 +1416,14 @@
       <img id="flyer-viewer-img" src="" alt="Event flyer, full size" class="max-w-full max-h-full object-contain rounded-lg" onclick="event.stopPropagation()">
     </div>
 
+    <!-- Theater / full-size view: the same video, expanded, for Shows & Gear (Podcast + Equipment). -->
+    <div id="theater-viewer" class="fixed inset-0 bg-black z-[70] hidden items-center justify-center p-0 sm:p-4" role="dialog" aria-modal="true" aria-label="Expanded video">
+      <button type="button" onclick="closeTheaterViewer()" class="absolute top-3 right-3 w-12 h-12 rounded-full bg-white/15 text-white text-xl font-bold flex items-center justify-center z-10" style="top: calc(0.75rem + env(safe-area-inset-top, 0px));" aria-label="Close expanded view">✕</button>
+      <div class="w-full max-w-5xl aspect-video bg-black" onclick="event.stopPropagation()">
+        <iframe id="theater-iframe" class="w-full h-full" src="" title="Expanded video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div>
+
     <div id="registration-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all">
       <div class="w-full max-w-md bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-subtle)] rounded-t-3xl sm:rounded-3xl p-5 space-y-3 shadow-2xl relative animate-slide-up max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
@@ -1586,7 +1613,7 @@
           <div id="swingtype-progress-bar" class="h-full theme-accent-bg transition-all" style="width:20%"></div>
         </div>
 
-        <div id="swingtype-modal-body"></div>
+        <div id="swingtype-modal-body" data-tr-assessment="true"></div>
 
         <div class="flex gap-2 pt-1">
           <button id="swingtype-back-btn" onclick="swingtypeStepBack()" class="hidden flex-1 py-3 rounded-xl font-bold text-xs touch-target bg-[var(--bg-card)] text-[var(--text-main)] border border-[var(--border-subtle)]">Back</button>
@@ -1815,6 +1842,17 @@
       if (isHidden) loadSportSwitcherOptions();
       panel.classList.toggle('hidden');
     }
+    // Tapping anywhere outside the button or the open panel closes it. Using 'pointerdown' (fires
+    // before 'click') so a tap that starts inside the panel and drags out (e.g. scrolling the list)
+    // is judged by where the interaction STARTED, not where the finger ends up - this stops the
+    // panel from slamming shut mid-scroll.
+    document.addEventListener('pointerdown', e => {
+      const panel = document.getElementById('sport-switcher-panel');
+      const btn = document.getElementById('sport-switcher-btn');
+      if (!panel || panel.classList.contains('hidden')) return;
+      if (panel.contains(e.target) || (btn && btn.contains(e.target))) return;
+      panel.classList.add('hidden');
+    });
 
     async function loadSportSwitcherOptions() {
       const listEl = document.getElementById('sport-switcher-list');
@@ -2099,6 +2137,26 @@
       document.getElementById('flyer-viewer-img').removeAttribute('src');
     }
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeFlyerViewer(); });
+
+    // Theater / full-size view for Shows & Gear. The inline card's iframe is left completely
+    // alone (never paused, moved or reloaded) - the theater overlay just points its OWN iframe
+    // at the same src, so closing it never disrupts whatever was already playing in the card.
+    function openTheaterViewer(mediaType) {
+      const srcIframe = document.getElementById(mediaType === 'gear' ? 'gear-iframe' : 'podcast-iframe');
+      if (!srcIframe || !srcIframe.src) { triggerToast('No video loaded yet.'); return; }
+      const v = document.getElementById('theater-viewer');
+      const theaterFrame = document.getElementById('theater-iframe');
+      theaterFrame.title = srcIframe.title || 'Expanded video';
+      theaterFrame.src = srcIframe.src;
+      v.classList.remove('hidden'); v.classList.add('flex');
+    }
+    function closeTheaterViewer() {
+      const v = document.getElementById('theater-viewer');
+      v.classList.add('hidden'); v.classList.remove('flex');
+      document.getElementById('theater-iframe').removeAttribute('src');   // stop playback/bandwidth once closed
+    }
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeTheaterViewer(); });
+
 
     let educationEventsCache = {};
     let registeringEventId = null;
@@ -2718,7 +2776,7 @@
 
       const borderClass = def.variant === 'pill' ? 'border-red-500/30' : 'border-[var(--border-subtle)]';
       const bgClass = def.variant === 'pill' ? 'bg-red-950/40' : 'bg-[var(--bg-app)]';
-      el.innerHTML = `<div class="rounded-xl overflow-hidden border ${borderClass} ${bgClass}" style="${s}">${inner}</div>`;
+      el.innerHTML = `<div class="rounded-xl overflow-hidden border ${borderClass} ${bgClass}" style="${s}" data-notranslate="true">${inner}</div>`;
     }
 
     // Wraps banner markup with an admin-configurable max-width. Leave
@@ -2780,7 +2838,7 @@
             <span class="sp-tag">SPONSORED</span>
           </div>`;
       }
-      el.innerHTML = `<div class="${cls}"${linkAttrs}>${inner}</div>`;
+      el.innerHTML = `<div class="${cls}" data-notranslate="true"${linkAttrs}>${inner}</div>`;
     }
 
     // Shows & Gear: both the Podcast and Equipment/Gear video iframes
@@ -3024,13 +3082,18 @@
       if (start) { sel.value = start; run(start); }
     }
 
-    // In-place translator for whole screens (SwingType now; Lessons and Fitness later).
-    // It swaps only the visible words. Buttons, answer codes and scoring are never touched.
+    // In-place translator for the actual diagnostic content only (SwingType steps/report now;
+    // Fitness's inline screen today; any future sport's assessment cards later). It swaps only the
+    // visible words. Buttons, answer codes and scoring are never touched.
     const TR = { lang: '', nodes: [], done: new WeakSet(), observers: new Map(), timers: new Map() };
     function trTextNodes(root) {
       const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n => {
         const p = n.parentElement;
-        if (!p || /^(SCRIPT|STYLE|TEXTAREA|INPUT)$/.test(p.tagName) || p.closest('[data-notranslate]')) return NodeFilter.FILTER_REJECT;
+        if (!p || /^(SCRIPT|STYLE|TEXTAREA|INPUT)$/.test(p.tagName)) return NodeFilter.FILTER_REJECT;
+        // Sponsor content is NEVER translated, however it got nested in here - checked two ways on
+        // purpose (an explicit tag, and any ancestor whose id contains "sponsor") so a sponsor block
+        // can't slip through just because one of the two markers was missed when it was added.
+        if (p.closest('[data-notranslate]') || p.closest('[id*="sponsor"]')) return NodeFilter.FILTER_REJECT;
         return /\p{L}/u.test(n.nodeValue) && !TR.done.has(n) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
       const list = []; while (w.nextNode()) list.push(w.currentNode); return list;
     }
@@ -3064,20 +3127,26 @@
       ob.observe(root, { childList: true, subtree: true });
       TR.observers.set(root, ob);
     }
-    // The screens that can be translated in place. One language choice covers all of them.
-    const TR_ROOTS = ['#tab-lessons', '#swingtype-modal'];
-    function trRoots() { return TR_ROOTS.map(q => document.querySelector(q)).filter(Boolean); }
+    // SCOPE: translation only ever scans elements explicitly marked data-tr-assessment="true" -
+    // today that's #swingtype-modal-body (the question steps and the final report) and the Fitness
+    // diagnostic card. This is an allowlist on purpose: surrounding UI (gate/pricing copy, curriculum
+    // cards, sponsor strips) and the modal's own header/close button are never inside this list, so
+    // they can never be swept into a translation just because a new one was added inside the tab.
+    function trScanRoots() { return Array.from(document.querySelectorAll('[data-tr-assessment]')); }
+    // VISIBILITY ONLY: these two just tell the app WHEN to kick off translation (tab opened / modal
+    // opened) - not WHAT to translate. What gets translated is decided solely by trScanRoots() above.
+    const TR_VISIBILITY_ROOTS = ['#tab-lessons', '#swingtype-modal'];
     function trRestore() {
       TR.observers.forEach(o => o.disconnect()); TR.observers.clear();
       TR.nodes.forEach(([n, orig]) => { if (n.isConnected) n.nodeValue = orig; });
       TR.nodes = []; TR.done = new WeakSet(); TR.lang = '';
-      trRoots().forEach(r => r.removeAttribute('dir'));
+      trScanRoots().forEach(r => r.removeAttribute('dir'));
     }
     function trStart(lang) {
       trRestore();
       if (!lang) return;
       TR.lang = lang;
-      trRoots().forEach(r => { r.dir = lang === 'ar' ? 'rtl' : 'ltr'; trWatch(r, lang); trApply(r, lang); });
+      trScanRoots().forEach(r => { r.dir = lang === 'ar' ? 'rtl' : 'ltr'; trWatch(r, lang); trApply(r, lang); });
     }
     // Language chooser. Works from any screen: openLanguagePicker()
     function openLanguagePicker() {
@@ -3095,11 +3164,12 @@
     }
     // Next visit: if the person already chose a language, the screen opens in it. No tapping again.
     function trAutoStart() { if (TR.lang) return; const l = trSavedLang(); if (l) trStart(l); }
-    TR_ROOTS.forEach(q => {
+    TR_VISIBILITY_ROOTS.forEach(q => {
       const el = document.querySelector(q); if (!el) return;
       new MutationObserver(() => { if (!el.classList.contains('hidden')) trAutoStart(); }).observe(el, { attributes: true, attributeFilter: ['class'] });
     });
     if (trSavedLang() && (() => { const t = document.querySelector('#tab-lessons'); return t && !t.classList.contains('hidden'); })()) trAutoStart();
+
 
     // =====================================================================
     // LOUDER SOUND for Pro Voice videos. Some phone recordings are quiet even at full volume.
@@ -4548,6 +4618,42 @@
       return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
     }
 
+    // =====================================================================
+    // AD-FREE PREMIUM (test mode). Mock monetization only, per project rules -
+    // no real billing wired up yet, this just proves the toggle/gate shape.
+    // The Official Global Partner banner is EXCLUDED from suppression in CSS
+    // (see html.buko-premium-ad-free rules) - that exception lives there, not here.
+    // =====================================================================
+    const PREMIUM_ADFREE_KEY = 'buko_premium_ad_free';
+    function isPremiumAdFree() { try { return localStorage.getItem(PREMIUM_ADFREE_KEY) === '1'; } catch (e) { return false; } }
+    function applyPremiumAdFreeClass() {
+      document.documentElement.classList.toggle('buko-premium-ad-free', isPremiumAdFree());
+    }
+    function renderPremiumAdFreeToggleUI() {
+      const btn = document.getElementById('premium-adfree-toggle');
+      if (!btn) return;
+      const on = isPremiumAdFree();
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.className = 'flex-shrink-0 rounded-full border font-black text-xs px-4 transition-all ' +
+        (on ? 'theme-accent-bg border-transparent' : 'bg-[var(--bg-card)] border-[var(--border-subtle)] text-[var(--text-main)]');
+      const stateEl = btn.querySelector('[data-premium-state]');
+      if (stateEl) stateEl.textContent = on ? 'ON' : 'OFF';
+    }
+    async function setPremiumAdFree(on) {
+      try { localStorage.setItem(PREMIUM_ADFREE_KEY, on ? '1' : '0'); } catch (e) {}
+      applyPremiumAdFreeClass();
+      renderPremiumAdFreeToggleUI();
+      triggerToast(on ? 'Ad-Free Premium is ON (test mode) — sponsor strips are hidden, except our top partner banner.' : 'Ad-Free Premium is off.');
+      // Best-effort: mirror the choice onto the profile row if that column already exists.
+      // Never blocks the toggle and never breaks it if the column isn't there yet - real
+      // billing/entitlement is a later milestone (see project instructions, Monetization).
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session) await supabaseClient.from('users').update({ is_premium: on }).eq('user_id', session.user.id);
+      } catch (e) { /* column may not exist yet - the local toggle still works fine either way */ }
+    }
+    applyPremiumAdFreeClass(); // as early as possible, before sponsor content starts fetching in
+
     function setThemeMode(mode, triggerSound = false) {
       currentThemeMode = mode;
       const htmlEl = document.documentElement;
@@ -4612,16 +4718,10 @@
       }
     }
 
-    function setFontScale(scale, triggerSound = false) {
-      document.documentElement.style.setProperty('--font-scale', scale);
-      ['btn-font-sm', 'btn-font-md', 'btn-font-lg'].forEach(id => {
-        const btn = document.getElementById(id);
-        if (btn) btn.classList.remove('theme-accent-bg', 'shadow');
-      });
-      const activeId = scale === 0.92 ? 'btn-font-sm' : (scale === 1.2 ? 'btn-font-lg' : 'btn-font-md');
-      const activeBtn = document.getElementById(activeId);
-      if (activeBtn) activeBtn.classList.add('theme-accent-bg', 'shadow');
-      if (triggerSound) { playSfx("A5", "16n"); triggerToast('Text size updated'); }
+    // Text Size control was removed (device layout distortion across viewports). Font scale is
+    // locked to the standard default; this stub is kept only so the one remaining boot call is safe.
+    function setFontScale() {
+      document.documentElement.style.setProperty('--font-scale', 1);
     }
 
     function switchTab(tabId) {
@@ -4730,6 +4830,7 @@
       validatePasswordRules();
       setThemeMode(currentThemeMode, false);
       setAccentPalette(currentPalette, false);
+      renderPremiumAdFreeToggleUI();
     }
 
     function closeProfileModal() {
@@ -6430,7 +6531,8 @@
       safeBootStep('setThemeMode', () => setThemeMode('dark', false));
       safeBootStep('initSettingsPanelState', () => initSettingsPanelState());
       safeBootStep('setAccentPalette', () => setAccentPalette('emerald', false));
-      safeBootStep('setFontScale', () => setFontScale(1, false));
+      safeBootStep('setFontScale', () => setFontScale());
+      safeBootStep('applyPremiumAdFreeClass', () => { applyPremiumAdFreeClass(); renderPremiumAdFreeToggleUI(); });
       safeBootStep('switchTab', () => switchTab('tab-home'));
       safeBootStep('initFitnessQuizCanvas', () => initFitnessQuizCanvas());
       safeBootStep('validatePasswordRules', () => validatePasswordRules());
