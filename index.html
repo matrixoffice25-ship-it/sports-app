@@ -311,16 +311,34 @@
     /* =====================================================================
        AD-FREE PREMIUM (test mode - mock monetization, see project rules).
        Applied as a class on <html> when the person has the toggle on. Hides every
-       secondary sponsor placement app-wide. CRITICAL EXCEPTION, non-negotiable:
-       the Official Global Partner banner (#sponsor-banner-global / .sp-global)
-       across the top of every page ALWAYS stays visible, even to premium users.
+       sponsor placement app-wide, with exactly two exceptions, both non-negotiable:
+         1. The Official Global Partner banner (#sponsor-banner-global / .sp-global)
+            across the top of every page - always stays visible, even to premium users.
+         2. The sponsor ad INSIDE each individual sport card on the Multi-Sport tab
+            (.sport-card-sponsor-slot / [id^="sponsor-banner-sportcard-"]) - only the
+            ad nested inside the card stays visible. The Multi-Sport tab's own top
+            header banner (#sponsor-banner-multisport-header) is NOT an exception and
+            is hidden like any other banner.
        ===================================================================== */
-    html.buko-premium-ad-free .sp-block:not(.sp-global),
-    html.buko-premium-ad-free [id^="sponsor-banner-"]:not(#sponsor-banner-global),
-    html.buko-premium-ad-free [id^="sponsor-badge-"],
-    html.buko-premium-ad-free [id^="sponsor-logo-"],
-    html.buko-premium-ad-free .sport-card-sponsor-slot {
+    /* 1. Hide all sponsor blocks by default in premium mode, EXCEPT the global banner */
+    html.buko-premium-ad-free .sp-block:not(.sp-global) {
       display: none !important;
+    }
+    /* 2. Hide all named sponsor banner/badge/logo containers EXCEPT the global banner and the
+          individual sport-card slots on Multi-Sport (those are re-shown by rule 3 below) */
+    html.buko-premium-ad-free [id^="sponsor-banner-"]:not(#sponsor-banner-global):not([id^="sponsor-banner-sportcard-"]),
+    html.buko-premium-ad-free #sponsor-banner-multisport-header,
+    html.buko-premium-ad-free [id^="sponsor-badge-"],
+    html.buko-premium-ad-free [id^="sponsor-logo-"] {
+      display: none !important;
+    }
+    /* 3. Explicitly keep the ad slot INSIDE each Multi-Sport card visible and properly
+          formatted. Must come after rules 1/2 in source order: same specificity + !important
+          on both sides means whichever rule is declared last wins the tie. */
+    html.buko-premium-ad-free .sport-card-sponsor-slot,
+    html.buko-premium-ad-free .sport-card-sponsor-slot [id^="sponsor-banner-sportcard-"],
+    html.buko-premium-ad-free .sport-card-sponsor-slot .sp-block {
+      display: flex !important;
     }
 
     /* =====================================================================
@@ -1079,7 +1097,7 @@
         <div class="bg-[var(--bg-app)] p-3.5 rounded-2xl border border-[var(--border-subtle)] flex items-center justify-between gap-3">
           <div class="min-w-0">
             <span class="text-sm font-bold text-[var(--text-main)] block">✨ Ad-Free Premium</span>
-            <span class="text-sm text-[var(--text-muted)] block">Hides sponsor strips &amp; badges app-wide. Our Official Global Partner banner always stays visible. <span class="italic">(Test mode — no real billing yet.)</span></span>
+            <span class="text-sm text-[var(--text-muted)] block">Hides sponsor strips &amp; badges app-wide. Our Official Global Partner banner and the sponsor inside each Multi-Sport card always stay visible. <span class="italic">(Test mode — no real billing yet.)</span></span>
           </div>
           <button type="button" id="premium-adfree-toggle" onclick="setPremiumAdFree(!isPremiumAdFree())" aria-pressed="false" class="flex-shrink-0 rounded-full bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-main)] font-black text-xs px-4 transition-all" style="min-height:48px;min-width:76px">
             <span data-premium-state>OFF</span>
