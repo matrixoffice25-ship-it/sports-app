@@ -11,3 +11,6 @@ deliverables/
 .env
 .env.*
 supabase/.env
+admin_dashboard.html
+
+# admin_dashboard.html: PRIVATE — kept out of GitHub and Vercel on Madam's order
