@@ -14,3 +14,6 @@ supabase/.env
 admin_dashboard.html
 
 # admin_dashboard.html: PRIVATE — kept out of GitHub and Vercel on Madam's order
+admin_dashboard.html
+
+# staging clone: Pink works here, pushes ONLY on Madam approval (sports-app rule, 2026-10-11)
