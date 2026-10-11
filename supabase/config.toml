@@ -488,3 +488,21 @@ entrypoint = "./functions/delete-video-from-r2/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/delete-video-from-r2/*.html" ]
+
+[functions.summarize-episode]
+enabled = true
+verify_jwt = false
+import_map = "./functions/summarize-episode/deno.json"
+entrypoint = "./functions/summarize-episode/index.ts"
+
+[functions.upload-video-to-r2]
+enabled = true
+verify_jwt = false
+import_map = "./functions/upload-video-to-r2/deno.json"
+entrypoint = "./functions/upload-video-to-r2/index.ts"
+
+[functions.purchase-swingtype-assessment]
+enabled = true
+verify_jwt = false
+import_map = "./functions/purchase-swingtype-assessment/deno.json"
+entrypoint = "./functions/purchase-swingtype-assessment/index.ts"
