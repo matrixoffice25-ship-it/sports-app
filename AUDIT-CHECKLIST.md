@@ -49,3 +49,28 @@ Static-served staging clone (localhost:8901), real Supabase project `ommgauajjxs
 3. madam provides manifest.json/service-worker.js/icons → PWA restored
 4. Legal placeholders (privacy/terms)
 5. Fitness segment is prototype-only (per DESIGN.md) — schedule the build
+---
+## FIXES SHIPPED (same day, on `staging` branch — pushed to GitHub as branch, NOT merged to main)
+
+**Commit d213751** — rebuilt the 3 truly-missing Edge Functions from their call sites:
+- `purchase-swingtype-assessment` — Stripe Checkout wiring built; testing-mode fallback grants access immediately (lets full flow be tested before Madam wires real Stripe keys — she owns paid/account steps)
+- `upload-video-to-r2` — admin multipart video → R2 upload (admin-only, returns public CDN URL)
+- `summarize-episode` — YouTube transcript fetch + Gemini summary + cache, matching admin's videoId call shape
+- config.toml entries added for all three
+
+**Commit 63b5c22** — PWA layer rebuilt:
+- `manifest.json` (BUKO Network, 6 icons incl. maskable)
+- `service-worker.js` (app shell network-first w/ offline fallback; CDN assets cache-first; Supabase/R2/Stripe never cached)
+- full icon set generated (`// |B` logo on dark rounded square, scripts/make-icons.py)
+- VERIFIED LIVE: manifest fetches 200, SW registered + activated + controlling page, 12 shell entries cached, offline fallback works
+- privacy/terms: "My Sports Network" → "BUKO Network" (6 spots), placeholders filled: date 2026-10-11, contact support@bukonetwork.com, min age 13, payments = Stripe/App Store/Play Store
+
+**Commit 77061ae** — APP_BUILD bumped to 2026-10-11-A (cache-busting for the release); admin also bumped locally (private file)
+
+**RPC correction**: all 6 RPCs exist in cloud and work (my earlier 404s were wrong arg names in probes, not missing functions).
+
+## WHAT STILL NEEDS MADAM (cannot be done by me — access/account rules)
+1. Deploy the 3 rebuilt edge functions: needs SUPABASE_ACCESS_TOKEN (supabase.com → Account → Access Tokens). One per: summarize-episode, upload-video-to-r2, purchase-swingtype-assessment. Then set secrets: GEMINI_API_KEY (in hermes .env already), R2_* keys after Cloudflare step. Supabase CLI command ready to run.
+2. Open the staging preview in her logged-in Chrome (Vercel auth wall blocks my curl): https://sports-lm4d4o7k4-samc3.vercel.app — approve → I merge staging→main → production deploy.
+3. Set admin role on test user tomorrow (Supabase access) → full admin-dashboard audit (14 tabs).
+4. Stripe keys when real billing goes live (purchase fn currently in testing-mode fallback).
