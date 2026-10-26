@@ -310,7 +310,7 @@
 
     /* =====================================================================
        AD-FREE PREMIUM (test mode - mock monetization, see project rules).
-       Applied as a class on <html> when the person has the toggle on. Hides every
+       Applied as a class on #app-shell when the person has the toggle on. Hides every
        sponsor placement app-wide, with exactly two exceptions, both non-negotiable:
          1. The Official Global Partner banner (#sponsor-banner-global / .sp-global)
             across the top of every page - always stays visible, even to premium users.
@@ -321,23 +321,23 @@
             is hidden like any other banner.
        ===================================================================== */
     /* 1. Hide all sponsor blocks by default in premium mode, EXCEPT the global banner */
-    html.buko-premium-ad-free .sp-block:not(.sp-global) {
+    #app-shell.buko-premium-ad-free .sp-block:not(.sp-global) {
       display: none !important;
     }
     /* 2. Hide all named sponsor banner/badge/logo containers EXCEPT the global banner and the
           individual sport-card slots on Multi-Sport (those are re-shown by rule 3 below) */
-    html.buko-premium-ad-free [id^="sponsor-banner-"]:not(#sponsor-banner-global):not([id^="sponsor-banner-sportcard-"]),
-    html.buko-premium-ad-free #sponsor-banner-multisport-header,
-    html.buko-premium-ad-free [id^="sponsor-badge-"],
-    html.buko-premium-ad-free [id^="sponsor-logo-"] {
+    #app-shell.buko-premium-ad-free [id^="sponsor-banner-"]:not(#sponsor-banner-global):not([id^="sponsor-banner-sportcard-"]),
+    #app-shell.buko-premium-ad-free #sponsor-banner-multisport-header,
+    #app-shell.buko-premium-ad-free [id^="sponsor-badge-"],
+    #app-shell.buko-premium-ad-free [id^="sponsor-logo-"] {
       display: none !important;
     }
     /* 3. Explicitly keep the ad slot INSIDE each Multi-Sport card visible and properly
           formatted. Must come after rules 1/2 in source order: same specificity + !important
           on both sides means whichever rule is declared last wins the tie. */
-    html.buko-premium-ad-free .sport-card-sponsor-slot,
-    html.buko-premium-ad-free .sport-card-sponsor-slot [id^="sponsor-banner-sportcard-"],
-    html.buko-premium-ad-free .sport-card-sponsor-slot .sp-block {
+    #app-shell.buko-premium-ad-free .sport-card-sponsor-slot,
+    #app-shell.buko-premium-ad-free .sport-card-sponsor-slot [id^="sponsor-banner-sportcard-"],
+    #app-shell.buko-premium-ad-free .sport-card-sponsor-slot .sp-block {
       display: flex !important;
     }
 
@@ -387,7 +387,7 @@
       [id^="sponsor-banner-"]:empty { display: none; }
       .sp-img { object-fit: contain; }
       #main-viewport > #tab-home > #poll-card:has(+ #sponsor-banner-home-strip-top:empty) { grid-column: 1 / -1; }
-      html.buko-premium-ad-free #main-viewport > #tab-home > #poll-card { grid-column: 1 / -1; }
+      #app-shell.buko-premium-ad-free #main-viewport > #tab-home > #poll-card { grid-column: 1 / -1 !important; }
       #main-viewport > #tab-home > #poll-card + div { align-self: center; }
 
       /* Education: details on the left, the whole flyer on the right */
@@ -556,7 +556,7 @@
       </div>
 
       <!-- TOP NAV ROW 1 of 2: content tabs -->
-      <nav class="flex items-stretch gap-1 px-1.5 py-1 border-t border-[var(--border-subtle)] bg-[var(--nav-bar-sub)] transition-colors">
+      <nav class="flex items-stretch gap-1 px-1.5 py-1 border-t border-[var(--border-subtle)] bg-[var(--nav-bar-sub)] transition-colors" data-notranslate="true">
         <button onclick="switchTab('tab-news')" id="nav-tab-news" class="nav-btn flex-1 min-w-0 py-1.5 rounded-xl text-xs font-semibold flex flex-col items-center gap-0.5 transition-all text-[var(--text-muted)] hover:text-[var(--text-main)] touch-target">
           
           <span class="truncate">News</span>
@@ -585,7 +585,7 @@
            different, easy-to-overlook spot from the other 4 tabs. Now
            both rows sit together at the top, nothing scrollable, nothing
            floating over content. -->
-      <nav class="flex items-stretch gap-1 px-1.5 py-1 border-t border-[var(--border-subtle)] bg-[var(--nav-bar-sub)] transition-colors">
+      <nav class="flex items-stretch gap-1 px-1.5 py-1 border-t border-[var(--border-subtle)] bg-[var(--nav-bar-sub)] transition-colors" data-notranslate="true">
         <button onclick="switchTab('tab-selector')" id="nav-tab-selector" class="nav-btn flex-1 min-w-0 py-1.5 rounded-xl text-xs font-semibold flex flex-col items-center gap-0.5 transition-all text-[var(--text-muted)] hover:text-[var(--text-main)] touch-target">
           
           <span class="truncate">Multi-Sport</span>
@@ -1658,7 +1658,7 @@
     // ---- BUILD STAMP + STALE-COPY REPAIR --------------------------------------------------
     // If an old cached copy of this page (browser or service worker) is showing, fetch the live
     // file, compare build stamps, and if they differ clear the caches and reload ONCE.
-    const APP_BUILD = '2026-10-11-A';
+    const APP_BUILD = '2026-10-26-A';
     (async () => {
       try {
         if (!/^https?:/.test(location.protocol)) return;
@@ -1838,14 +1838,26 @@
       return data.session?.user ?? null;
     }
 
+    // Never throws. If the entitlement function is slow, down or returns something
+    // unexpected, the answer is simply "not unlocked" - so one hiccup in that single
+    // server call can't stop the rest of the sport (poll, news, sponsors, videos,
+    // events) from loading. The server still decides real access; this only reads it.
     async function checkEntitlement(sportId, segment) {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (!session) return { entitled: false, status: "unauthenticated" };
-      const res = await fetch(
-        `${SUPABASE_URL}/functions/v1/check-entitlement?sport_id=${sportId}&segment=${segment}`,
-        { headers: { Authorization: `Bearer ${session.access_token}` } },
-      );
-      return res.json();
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) return { entitled: false, status: "unauthenticated" };
+        const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 8000);
+        try {
+          const res = await fetch(
+            `${SUPABASE_URL}/functions/v1/check-entitlement?sport_id=${encodeURIComponent(sportId)}&segment=${encodeURIComponent(segment)}`,
+            { headers: { Authorization: `Bearer ${session.access_token}` }, signal: ctl.signal },
+          );
+          if (!res.ok) return { entitled: false, status: "error" };
+          return await res.json();
+        } finally { clearTimeout(timer); }
+      } catch (e) {
+        return { entitled: false, status: "error" };
+      }
     }
 
     // ============================================================
@@ -1891,15 +1903,15 @@
         const isHome = s.sport_id === homeSportId;
         const isLockedForMe = s.admin_only && !iAmAdmin;
         return `
-          <div class="p-2.5 flex items-center justify-between hover:bg-[var(--bg-card)] cursor-pointer ${isCurrent ? 'bg-[var(--bg-card)]' : ''}" onclick="selectBrowseSport('${s.sport_id}', '${s.display_name}')">
+          <div class="p-2.5 flex items-center justify-between hover:bg-[var(--bg-card)] cursor-pointer ${isCurrent ? 'bg-[var(--bg-card)]' : ''}" onclick="selectBrowseSport(${jsArg(s.sport_id)}, ${jsArg(s.display_name)})">
             <div class="flex items-center gap-1.5">
-              <span class="text-xs font-bold text-[var(--text-main)]">${s.display_name}</span>
+              <span class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(s.display_name)}</span>
               ${isLockedForMe ? '<span class="text-xs text-amber-400">🔒</span>' : ''}
               ${isHome ? '<span class="text-xs theme-accent-text">🏠 Home</span>' : ''}
             </div>
             ${isCurrent ? '<span class="theme-accent-text text-xs">✓</span>' : ''}
           </div>
-          ${(!isHome && session) ? `<button onclick="event.stopPropagation(); makeThisMyHomeSport('${s.sport_id}', '${s.display_name}')" class="w-full text-left px-2.5 pb-2 text-xs text-[var(--text-muted)] underline">Make this my main sport</button>` : ''}
+          ${(!isHome && session) ? `<button onclick="event.stopPropagation(); makeThisMyHomeSport(${jsArg(s.sport_id)}, ${jsArg(s.display_name)})" class="w-full text-left px-2.5 pb-2 text-xs text-[var(--text-muted)] underline">Make this my main sport</button>` : ''}
         `;
       }).join('');
     }
@@ -2134,7 +2146,7 @@
                 : `<button onclick="openRegistrationModal('${ev.event_id}')" class="w-full min-h-touch theme-accent-bg font-black text-sm py-3 px-4 rounded-xl shadow-lg transition-all hover:opacity-90">Register</button>`
               }
               ${ev.payment_url
-                ? `<a href="${ev.payment_url}" target="_blank" rel="noopener noreferrer" class="block w-full text-center min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] font-bold text-xs py-2.5 rounded-xl border border-[var(--border-subtle)]">Pay${ev.payment_provider ? ` via ${escapeHtml(ev.payment_provider.replace('_', ' '))}` : ''}</a>`
+                ? `<a href="${safeUrlAttr(ev.payment_url) || '#'}" target="_blank" rel="noopener noreferrer" class="block w-full text-center min-h-touch bg-[var(--bg-card)] hover:bg-[var(--border-subtle)] text-[var(--text-main)] font-bold text-xs py-2.5 rounded-xl border border-[var(--border-subtle)]">Pay${ev.payment_provider ? ` via ${escapeHtml(ev.payment_provider.replace('_', ' '))}` : ''}</a>`
                 : ''
               }
             </div>
@@ -3111,7 +3123,7 @@
         // Sponsor content is NEVER translated, however it got nested in here - checked two ways on
         // purpose (an explicit tag, and any ancestor whose id contains "sponsor") so a sponsor block
         // can't slip through just because one of the two markers was missed when it was added.
-        if (p.closest('[data-notranslate]') || p.closest('[id*="sponsor"]')) return NodeFilter.FILTER_REJECT;
+        if (p.closest('[data-notranslate]') || p.closest('[id*="sponsor"]') || p.closest('.sp-block')) return NodeFilter.FILTER_REJECT;
         return /\p{L}/u.test(n.nodeValue) && !TR.done.has(n) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
       const list = []; while (w.nextNode()) list.push(w.currentNode); return list;
     }
@@ -4141,8 +4153,10 @@
       for (let i = 0; i < initials.length; i++) hash = (Math.imul(31, hash) + initials.charCodeAt(i)) | 0;
       const colors = ['#10B981', '#6366F1', '#F59E0B', '#EC4899', '#06B6D4'];
       const color = colors[Math.abs(hash) % colors.length];
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" fill="${color}"/><text x="60" y="76" font-family="Arial,sans-serif" font-size="48" font-weight="800" fill="white" text-anchor="middle">${initials}</text></svg>`;
-      return 'data:image/svg+xml;base64,' + btoa(svg);
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" fill="${color}"/><text x="60" y="76" font-family="Arial,sans-serif" font-size="48" font-weight="800" fill="white" text-anchor="middle">${escapeHtml(initials)}</text></svg>`;
+      // encodeURIComponent (not btoa): btoa throws on any non-Latin letter, which would
+      // crash the whole feed for a Pro named e.g. 李伟 or محمد.
+      return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
     }
 
     function setAllAvatars(url) {
@@ -4185,6 +4199,17 @@
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
+    // Safe link/image address: only real web addresses (https/http) are allowed,
+    // already escaped for use inside an HTML attribute. Anything else (e.g. a
+    // "javascript:" trick) becomes an empty string, so it can never run code.
+    function safeUrlAttr(rawUrl) {
+      try { const u = new URL(String(rawUrl || '').trim()); return (u.protocol === 'https:' || u.protocol === 'http:') ? escapeHtml(u.href) : ''; }
+      catch (e) { return ''; }
+    }
+    // A value passed as an argument inside an onclick="...": JSON-quoted (so an
+    // apostrophe in a name like "Women's Golf" can't break or hijack the button),
+    // then escaped for the HTML attribute it sits in.
+    function jsArg(v) { return escapeHtml(JSON.stringify(v === null || v === undefined ? '' : String(v))); }
 
     // A small, safe Markdown-ish renderer - NOT a full CommonMark
     // implementation on purpose. Everything is escaped first, then a
@@ -4464,7 +4489,7 @@
       coverContainer.innerHTML = cover ? `
         <div class="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl overflow-hidden shadow-xl group cursor-pointer" onclick="openArticleDetailById('${cover.article_id}')">
           <div class="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden">
-            ${cover.cover_image_url ? `<img src="${cover.cover_image_url}" alt="" onerror="this.style.display='none'" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500">` : ''}
+            ${cover.cover_image_url ? `<img src="${safeUrlAttr(cover.cover_image_url)}" alt="" onerror="this.style.display='none'" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500">` : ''}
             <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-app)] via-black/40 to-transparent z-10"></div>
             <div class="absolute top-3 left-3 z-20 bg-red-600 text-white text-xs font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow">COVER STORY</div>
           </div>
@@ -4472,7 +4497,7 @@
             <h2 class="text-sm font-bold text-[var(--text-main)]">${escapeHtml(cover.title)}</h2>
             <div class="flex items-center justify-between text-sm text-[var(--text-muted)] border-b border-[var(--border-subtle)] pb-2">
               <span class="flex items-center gap-1.5">
-                ${cover.author_photo_url ? `<img src="${cover.author_photo_url}" alt="" onerror="this.style.display='none'" class="w-4 h-4 rounded-full object-cover">` : ''}
+                ${cover.author_photo_url ? `<img src="${safeUrlAttr(cover.author_photo_url)}" alt="" onerror="this.style.display='none'" class="w-4 h-4 rounded-full object-cover">` : ''}
                 ${cover.author_name ? `<span>By ${escapeHtml(cover.author_name)}</span>` : ''}
               </span>
               <span>${cover.read_minutes ? cover.read_minutes + ' Min Read • ' : ''}${new Date(cover.published_at).toLocaleDateString()}</span>
@@ -4555,12 +4580,12 @@
       if (!article) { triggerToast('Could not load that article.'); return; }
 
       document.getElementById('article-detail-body').innerHTML = `
-        ${article.cover_image_url ? `<img src="${article.cover_image_url}" alt="" onerror="this.style.display='none'" class="w-full aspect-video object-cover">` : ''}
+        ${article.cover_image_url ? `<img src="${safeUrlAttr(article.cover_image_url)}" alt="" onerror="this.style.display='none'" class="w-full aspect-video object-cover">` : ''}
         <div class="p-5 space-y-3">
           <h2 class="text-base font-bold text-[var(--text-main)]">${escapeHtml(article.title)}</h2>
           <div class="flex items-center justify-between text-sm text-[var(--text-muted)] border-b border-[var(--border-subtle)] pb-2">
             <span class="flex items-center gap-1.5">
-              ${article.author_photo_url ? `<img src="${article.author_photo_url}" alt="" onerror="this.style.display='none'" class="w-4 h-4 rounded-full object-cover">` : ''}
+              ${article.author_photo_url ? `<img src="${safeUrlAttr(article.author_photo_url)}" alt="" onerror="this.style.display='none'" class="w-4 h-4 rounded-full object-cover">` : ''}
               ${article.author_name ? `<span>By ${escapeHtml(article.author_name)}</span>` : ''}
             </span>
             <span>${article.read_minutes ? article.read_minutes + ' Min Read • ' : ''}${new Date(article.published_at).toLocaleDateString()}</span>
@@ -4639,13 +4664,24 @@
     // =====================================================================
     // AD-FREE PREMIUM (test mode). Mock monetization only, per project rules -
     // no real billing wired up yet, this just proves the toggle/gate shape.
-    // The Official Global Partner banner is EXCLUDED from suppression in CSS
-    // (see html.buko-premium-ad-free rules) - that exception lives there, not here.
+    // The Official Global Partner banner, and the sponsor inside each Multi-Sport
+    // card, are EXCLUDED from suppression in CSS (see #app-shell.buko-premium-ad-free
+    // rules) - that exception lives there, not here.
     // =====================================================================
-    const PREMIUM_ADFREE_KEY = 'buko_premium_ad_free';
-    function isPremiumAdFree() { try { return localStorage.getItem(PREMIUM_ADFREE_KEY) === '1'; } catch (e) { return false; } }
+    const PREMIUM_ADFREE_KEY = 'pref_ad_free_premium';
+    const PREMIUM_ADFREE_KEY_LEGACY = 'buko_premium_ad_free';   // migrated below, then unused
+    function isPremiumAdFree() {
+      try {
+        const v = localStorage.getItem(PREMIUM_ADFREE_KEY);
+        if (v !== null) return v === '1' || v === 'true';
+        const legacy = localStorage.getItem(PREMIUM_ADFREE_KEY_LEGACY);           // one-time migration
+        if (legacy !== null) { localStorage.setItem(PREMIUM_ADFREE_KEY, legacy === '1' ? '1' : '0'); localStorage.removeItem(PREMIUM_ADFREE_KEY_LEGACY); return legacy === '1'; }
+        return false;
+      } catch (e) { return false; }
+    }
     function applyPremiumAdFreeClass() {
-      document.documentElement.classList.toggle('buko-premium-ad-free', isPremiumAdFree());
+      const shell = document.getElementById('app-shell');
+      if (shell) shell.classList.toggle('buko-premium-ad-free', isPremiumAdFree());
     }
     function renderPremiumAdFreeToggleUI() {
       const btn = document.getElementById('premium-adfree-toggle');
@@ -4661,14 +4697,11 @@
       try { localStorage.setItem(PREMIUM_ADFREE_KEY, on ? '1' : '0'); } catch (e) {}
       applyPremiumAdFreeClass();
       renderPremiumAdFreeToggleUI();
-      triggerToast(on ? 'Ad-Free Premium is ON (test mode) — sponsor strips are hidden, except our top partner banner.' : 'Ad-Free Premium is off.');
-      // Best-effort: mirror the choice onto the profile row if that column already exists.
-      // Never blocks the toggle and never breaks it if the column isn't there yet - real
-      // billing/entitlement is a later milestone (see project instructions, Monetization).
-      try {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (session) await supabaseClient.from('users').update({ is_premium: on }).eq('user_id', session.user.id);
-      } catch (e) { /* column may not exist yet - the local toggle still works fine either way */ }
+      triggerToast(on ? 'Ad-Free Premium is ON (test mode) — sponsor strips are hidden, except our top partner banner and each sport card\'s own ad.' : 'Ad-Free Premium is off.');
+      // Deliberately NOT written to the database from here. Premium must only ever be
+      // granted by the server once real billing confirms a payment - if the browser could
+      // write users.is_premium, anyone could give themselves premium for free. Until real
+      // billing exists, this test toggle lives only in this device's localStorage.
     }
     applyPremiumAdFreeClass(); // as early as possible, before sponsor content starts fetching in
 
@@ -5440,7 +5473,7 @@
       const { data: sports } = await supabaseClient
         .from('sport_verticals').select('sport_id, display_name').eq('is_active', true);
       select.innerHTML = (sports || []).map(s =>
-        `<option value="${s.sport_id}" ${s.sport_id === currentSportId ? 'selected' : ''}>${s.display_name}</option>`
+        `<option value="${escapeHtml(s.sport_id)}" ${s.sport_id === currentSportId ? 'selected' : ''}>${escapeHtml(s.display_name)}</option>`
       ).join('');
 
       loadVerifiedUsersForMentions();
@@ -6078,7 +6111,7 @@
       // missing or fails to load, the element is just hidden - the raw
       // URL string is never dropped into the DOM as visible text.
       const thumbHtml = thumbnailUrl
-        ? `<img src="${thumbnailUrl}" alt="" onerror="this.style.display='none'" class="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-[var(--border-subtle)]">`
+        ? `<img src="${safeUrlAttr(thumbnailUrl)}" alt="" onerror="this.style.display='none'" class="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-[var(--border-subtle)]">`
         : '';
       return `
         <div class="bg-[var(--bg-app)] p-3 rounded-xl border border-[var(--border-subtle)] flex items-center justify-between">
@@ -6086,7 +6119,7 @@
             ${thumbHtml}
             <button onclick="event.stopPropagation(); toggleMemoPlayback('${playerId}')" id="${playerId}-btn" class="w-8 h-8 rounded-full bg-violet-accent text-white flex items-center justify-center text-xs hover:scale-105 transition-all flex-shrink-0">▶</button>
             <div>
-              <div class="text-xs font-semibold text-[var(--text-main)]">${subject}</div>
+              <div class="text-xs font-semibold text-[var(--text-main)]">${escapeHtml(subject)}</div>
               <div class="text-sm text-[var(--text-muted)]">Voice memo</div>
             </div>
           </div>
@@ -6097,7 +6130,7 @@
             <div class="w-1 bg-[var(--accent-main)] rounded-full soundwave-bar"></div>
             <div class="w-1 bg-violet-accent rounded-full soundwave-bar"></div>
           </div>
-          <audio id="${playerId}" src="${audioUrl}" class="hidden" onended="resetMemoButton('${playerId}')"></audio>
+          <audio id="${playerId}" src="${safeUrlAttr(audioUrl)}" class="hidden" onended="resetMemoButton('${playerId}')"></audio>
         </div>
       `;
     }
@@ -6293,7 +6326,7 @@
       const visiblePosts = (posts || []).filter(p => p.audience === 'public' || canViewInnerCirclePosts());
 
       if (error) {
-        feed.innerHTML = `<p class="text-sm text-[var(--text-muted)] text-center py-6">Could not load feed: ${error.message}</p>`;
+        feed.innerHTML = `<p class="text-sm text-[var(--text-muted)] text-center py-6">Could not load feed: ${escapeHtml(error.message)}</p>`;
         return;
       }
       if (!visiblePosts.length) {
@@ -6331,7 +6364,7 @@
       }
 
       const authorName = author?.display_name || 'Verified Pro';
-      const authorPhoto = author?.photo_url || initialsAvatarDataUri(authorName);
+      const authorPhoto = safeUrlAttr(author?.photo_url) || escapeHtml(initialsAvatarDataUri(authorName));
       const secondsLeft = Math.max(0, Math.floor((new Date(post.expires_at) - new Date()) / 1000));
 
       let mediaHtml = '';
@@ -6339,7 +6372,7 @@
         mediaHtml = `<p class="text-xs text-[var(--text-main)] leading-relaxed">"${linkifyMentions(post.body_text)}"</p>`;
       } else if (post.media_type === 'Photo' && post.media_url) {
         const photoCaption = post.body_text ? `<p class="text-xs font-bold text-[var(--text-main)] mb-2">${linkifyMentions(post.body_text)}</p>` : '';
-        mediaHtml = `${photoCaption}<img src="${post.media_url}" class="w-full aspect-video object-cover rounded-xl">`;
+        mediaHtml = `${photoCaption}<img src="${safeUrlAttr(post.media_url)}" class="w-full aspect-video object-cover rounded-xl">`;
       } else if (post.media_type === 'Video' && post.media_url) {
         // post.media_url stores the direct R2 public URL, served through
         // a Cloudflare Worker (not the raw R2 URL) for proper Range
@@ -6350,8 +6383,8 @@
         // file extension - confirmed fixed after the Worker previously
         // defaulted unrecognized files to video/mp4, mislabeling images.
         const videoCaption = post.body_text ? `<p class="text-xs font-bold text-[var(--text-main)] mb-2">${linkifyMentions(post.body_text)}</p>` : '';
-        const posterAttr = post.thumbnail_url ? `poster="${post.thumbnail_url}"` : '';
-        mediaHtml = `${videoCaption}<video data-voice-video controls playsinline webkit-playsinline preload="metadata" ${posterAttr} class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${post.media_url}"></video>`;
+        const posterAttr = safeUrlAttr(post.thumbnail_url) ? `poster="${safeUrlAttr(post.thumbnail_url)}"` : '';
+        mediaHtml = `${videoCaption}<video data-voice-video controls playsinline webkit-playsinline preload="metadata" ${posterAttr} class="w-full rounded-xl bg-black" style="max-height: 480px;" src="${safeUrlAttr(post.media_url)}"></video>`;
       } else if (post.media_type === 'Voice' && post.media_url) {
         mediaHtml = buildVoiceMemoHtml(post.body_text || 'Voice memo', post.media_url, `${idPrefix}-voice-${post.post_id}`, post.thumbnail_url);
       }
@@ -6365,7 +6398,7 @@
       }).join('');
 
       // Sport shown before title, matching the requested Photo/Name/Sport/Title order.
-      const sportLabel = sportName ? `${sportName} · ` : '';
+      const sportLabel = sportName ? `${escapeHtml(sportName)} · ` : '';
 
       // Only the post's own author, or an admin, sees these - enforced
       // for real by the RLS policies too, this is just the matching UI.
@@ -6396,8 +6429,8 @@
                 <img src="${authorPhoto}" class="w-full h-full object-cover">
               </div>
               <div class="space-y-0.5">
-                <h4 class="text-xs font-bold text-[var(--text-main)]">${authorName}</h4>
-                <p class="text-sm text-[var(--text-muted)]">${sportLabel}${author?.title || 'Verified Pro'}</p>
+                <h4 class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(authorName)}</h4>
+                <p class="text-sm text-[var(--text-muted)]">${sportLabel}${escapeHtml(author?.title || 'Verified Pro')}</p>
                 ${audienceBadge}
               </div>
             </div>
